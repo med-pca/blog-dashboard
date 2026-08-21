@@ -13,9 +13,9 @@ import { useAdminAuth } from '../../contexts/AdminAuthContext'
 
 const EMPTY = {
   slug: '', name: '', location: '', kw: '', date: '',
-  description: '', about: '', specsTitle: 'Sistem Özellikleri', specs: [],
-  highlightsTitle: 'Öne Çıkan Özellikler', highlights: [],
-  statBoxes: [], ctaText: 'Benzer Proje İçin Teklif Al',
+  description: '', about: '', specsTitle: 'What Is Inside', specs: [],
+  highlightsTitle: 'Highlights', highlights: [],
+  statBoxes: [], ctaText: 'Get Similar Suggestions',
   published: true, sortOrder: 0,
 }
 
@@ -103,7 +103,7 @@ export default function ProjeForm() {
   const removeNewFile = (i) => setNewFiles((prev) => prev.filter((_, idx) => idx !== i))
 
   const handleDeleteExisting = async (mediaId) => {
-    if (!confirm('Bu medyayı silmek istediğinize emin misiniz?')) return
+    if (!confirm('Delete this media item?')) return
     try {
       await deleteMedia(id, mediaId)
       setExistingMedia((prev) => prev.filter((m) => m.id !== mediaId))
@@ -179,7 +179,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-gray-400">Yükleniyor...</div>
+    return <div className="flex items-center justify-center py-20 text-gray-400">Loading...</div>
   }
 
   return (
@@ -190,8 +190,8 @@ if (parsed.description) { set('description', parsed.description); count++ }
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">{isEdit ? 'Projeyi Düzenle' : 'Yeni Proje'}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Tüm alanları doldurun ve kaydedin</p>
+          <h1 className="text-xl font-bold text-gray-900">{isEdit ? 'Edit Collection' : 'New Collection'}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Fill in all fields and save</p>
         </div>
       </div>
 
@@ -229,8 +229,8 @@ if (parsed.description) { set('description', parsed.description); count++ }
               <Sparkles size={18} />
             </div>
             <div className="text-left flex-1">
-              <p className="text-sm font-bold">AI ile Otomatik Doldur</p>
-              <p className="text-xs text-white/70 mt-0.5">Instagram metnini yapıştır, tüm form dolsun</p>
+              <p className="text-sm font-bold">Auto-fill with AI</p>
+              <p className="text-xs text-white/70 mt-0.5">Paste the Instagram text to fill the whole form</p>
             </div>
             <span className="text-white/50 text-lg">→</span>
           </button>
@@ -241,7 +241,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
               <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
                 <Sparkles size={15} className="text-white" />
               </div>
-              <p className="text-sm font-bold text-white flex-1">AI ile Otomatik Doldur</p>
+              <p className="text-sm font-bold text-white flex-1">Auto-fill with AI</p>
               {!parsing && !fillSuccess && (
                 <button type="button" onClick={() => { setInstaOpen(false); setParseError('') }}
                   className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
@@ -253,7 +253,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
             {/* Body */}
             <div className="bg-white px-5 py-5">
               {fillSuccess > 0 ? (
-                /* Başarı ekranı */
+                /* Success screen */
                 <div className="flex flex-col items-center py-4 gap-3">
                   <div className="success-icon">
                     <CheckCircle2 size={52} className="text-[#448834]" strokeWidth={1.5} />
@@ -262,14 +262,14 @@ if (parsed.description) { set('description', parsed.description); count++ }
                   <p className="success-sub text-sm text-gray-400">{fillSuccess} alan otomatik dolduruldu</p>
                 </div>
               ) : parsing ? (
-                /* Loading ekranı */
+                /* Loading screen */
                 <div className="flex flex-col items-center py-6 gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="dot-1 w-2.5 h-2.5 rounded-full bg-[#448834] inline-block" />
                     <span className="dot-2 w-2.5 h-2.5 rounded-full bg-[#448834] inline-block" />
                     <span className="dot-3 w-2.5 h-2.5 rounded-full bg-[#448834] inline-block" />
                   </div>
-                  <p className="text-sm text-gray-500 font-medium">Metin analiz ediliyor...</p>
+                  <p className="text-sm text-gray-500 font-medium">Analysing the text...</p>
                 </div>
               ) : (
                 /* Textarea */
@@ -279,14 +279,14 @@ if (parsed.description) { set('description', parsed.description); count++ }
                     onChange={(e) => setInstaText(e.target.value)}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834] resize-none text-gray-700 placeholder-gray-300"
                     rows={6}
-                    placeholder="Instagram gönderi metnini buraya yapıştırın..."
+                    placeholder="Paste the Instagram post text here..."
                     autoFocus
                   />
                   {parseError && (
                     <p className="mt-2 text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg border border-red-100">{parseError}</p>
                   )}
                   <div className="flex items-center justify-between mt-3">
-                    <p className="text-xs text-gray-400">Tüm alanlar AI ile otomatik doldurulur</p>
+                    <p className="text-xs text-gray-400">All fields are auto-filled with AI</p>
                     <button
                       type="button"
                       onClick={handleInstaParse}
@@ -308,7 +308,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
         {/* 1. Temel Bilgiler */}
         <Section step={1} title="Temel Bilgiler">
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Proje Adı" required span={2}>
+            <Field label="Collection Name" required span={2}>
               <input
                 value={form.name}
                 onChange={(e) => set('name', e.target.value)}
@@ -318,17 +318,17 @@ if (parsed.description) { set('description', parsed.description); count++ }
               />
             </Field>
             <Field label="Konum" required>
-              <input value={form.location} onChange={(e) => set('location', e.target.value)} className={INPUT} placeholder="Balıkesir" required />
+              <input value={form.location} onChange={(e) => set('location', e.target.value)} className={INPUT} placeholder="Weeknight Dinners" required />
             </Field>
-            <Field label="Kurulu Güç (kW)" required>
+            <Field label="Featured Recipes" required>
               <input type="number" step="0.01" min="0" max="99999999.99" value={form.kw} onChange={(e) => set('kw', e.target.value)} className={INPUT} placeholder="11.25" required />
             </Field>
-            <Field label="Yıl" required>
+            <Field label="Year" required>
               <input value={form.date} onChange={(e) => set('date', e.target.value)} className={INPUT} placeholder="2025" required />
             </Field>
             <Field label="Slug (URL)" required span={2}>
               <div className="flex items-center">
-                <span className="text-xs text-gray-400 bg-gray-50 border border-r-0 border-gray-200 rounded-l-lg px-2.5 py-2 whitespace-nowrap">/proje/</span>
+                <span className="text-xs text-gray-400 bg-gray-50 border border-r-0 border-gray-200 rounded-l-lg px-2.5 py-2 whitespace-nowrap">/projelerimiz/</span>
                 <input
                   value={form.slug}
                   onChange={(e) => { setSlugManual(true); set('slug', e.target.value) }}
@@ -341,12 +341,12 @@ if (parsed.description) { set('description', parsed.description); count++ }
           </div>
         </Section>
 
-        {/* 2. Açıklamalar */}
-        <Section step={2} title="Açıklamalar">
+        {/* 2. Descriptions */}
+        <Section step={2} title="Descriptions">
           <div className="space-y-1">
             <div className="flex items-baseline justify-between">
-              <label className="text-sm font-medium text-gray-700">Kısa Açıklama <span className="text-red-400">*</span></label>
-              <span className="text-xs text-gray-400">Liste sayfasında görünür</span>
+              <label className="text-sm font-medium text-gray-700">Short Description <span className="text-red-400">*</span></label>
+              <span className="text-xs text-gray-400">Shown on the list page</span>
             </div>
             <textarea
               value={form.description}
@@ -354,56 +354,56 @@ if (parsed.description) { set('description', parsed.description); count++ }
               className={`${INPUT} resize-none`}
               rows={3}
               required
-              placeholder="Kısa ve dikkat çekici bir açıklama..."
+              placeholder="A short, catchy description..."
             />
           </div>
           <div className="space-y-1">
             <div className="flex items-baseline justify-between">
-              <label className="text-sm font-medium text-gray-700">Proje Hakkında</label>
-              <span className="text-xs text-gray-400">Detay sayfasında görünür</span>
+              <label className="text-sm font-medium text-gray-700">About This Collection</label>
+              <span className="text-xs text-gray-400">Shown on the detail page</span>
             </div>
             <textarea
               value={form.about}
               onChange={(e) => set('about', e.target.value)}
               className={`${INPUT} resize-none`}
               rows={5}
-              placeholder="Projenin müşteriye ne kazandırdığını anlatan detaylı açıklama..."
+              placeholder="A detailed description of what this collection gives the reader..."
             />
           </div>
         </Section>
 
-        {/* 3. Özellikler */}
-        <Section step={3} title="Özellikler">
+        {/* 3. Features */}
+        <Section step={3} title="Features">
           <div className="space-y-1">
             <div className="flex items-baseline justify-between">
-              <label className="text-sm font-medium text-gray-700">Sistem Özellikleri</label>
-              <span className="text-xs text-gray-400">Her satır bir madde</span>
+              <label className="text-sm font-medium text-gray-700">What Is Inside</label>
+              <span className="text-xs text-gray-400">One item per line</span>
             </div>
             <textarea
               value={specsText}
               onChange={(e) => setSpecsText(e.target.value)}
               className={`${INPUT} resize-none`}
               rows={5}
-              placeholder={"18 adet 625W panel — 11,25 kWp kurulu güç\n15 kWh LiFePO4 lityum batarya\n12 kW Mexxsun inverter"}
+              placeholder={"12 tested weeknight recipes\n30-minute average cook time\nPantry-friendly ingredient list"}
             />
           </div>
           <div className="space-y-1">
             <div className="flex items-baseline justify-between">
-              <label className="text-sm font-medium text-gray-700">Öne Çıkan Özellikler</label>
-              <span className="text-xs text-gray-400">Her satır bir madde</span>
+              <label className="text-sm font-medium text-gray-700">Highlights</label>
+              <span className="text-xs text-gray-400">One item per line</span>
             </div>
             <textarea
               value={highlightsText}
               onChange={(e) => setHighlightsText(e.target.value)}
               className={`${INPUT} resize-none`}
               rows={4}
-              placeholder={"Elektrik kesintilerinde sistem çalışmaya devam eder\nGece de batarya ile kesintisiz enerji"}
+              placeholder={"Every recipe is tested twice in a home kitchen\nLeftovers reheat well the next day"}
             />
           </div>
         </Section>
 
-        {/* 4. İstatistik Kutuları */}
-        <Section step={4} title="İstatistik Kutuları">
+        {/* 4. Stat Boxes */}
+        <Section step={4} title="Stat Boxes">
           <div className="space-y-2">
             {form.statBoxes.map((box, i) => (
               <div key={i} className="flex gap-2 items-center bg-gray-50 rounded-xl px-3 py-2.5">
@@ -418,7 +418,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
                   value={box.label}
                   onChange={(e) => updateStatBox(i, 'label', e.target.value)}
                   className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
-                  placeholder="Kurulu Güç"
+                  placeholder="Featured Recipes"
                 />
                 <button type="button" onClick={() => removeStatBox(i)}
                   className="p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
@@ -428,16 +428,16 @@ if (parsed.description) { set('description', parsed.description); count++ }
             ))}
             <button type="button" onClick={addStatBox}
               className="flex items-center gap-1.5 text-sm text-[#448834] hover:text-[#357228] font-medium py-1">
-              <Plus size={15} /> Kutu Ekle
+              <Plus size={15} /> Add Box
             </button>
           </div>
         </Section>
 
-        {/* 5. Fotoğraf & Video */}
-        <Section step={5} title="Fotoğraf & Video">
+        {/* 5. Photo & Video */}
+        <Section step={5} title="Photo & Video">
           {isEdit && existingMedia.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Mevcut Medya</p>
+              <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Current Media</p>
               <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
                 {existingMedia.filter(m => m.type !== 'thumbnail').map((m) => (
                   <div key={m.id} className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100">
@@ -486,7 +486,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
             className="flex items-center gap-2 border-2 border-dashed border-gray-200 hover:border-[#448834] text-gray-400 hover:text-[#448834] rounded-xl px-4 py-4 text-sm font-medium transition-colors w-full justify-center"
           >
             <Upload size={16} />
-            Dosya Seç (Fotoğraf veya Video)
+            Choose File (Photo or Video)
           </button>
           <input
             ref={fileInputRef}
@@ -512,7 +512,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
                 onChange={(e) => set('published', e.target.checked)}
                 className="w-4 h-4 accent-[#448834]"
               />
-              <span className="text-sm font-medium text-gray-700">Sitede yayınla</span>
+              <span className="text-sm font-medium text-gray-700">Publish on the site</span>
             </label>
           </div>
         </Section>
@@ -529,11 +529,11 @@ if (parsed.description) { set('description', parsed.description); count++ }
             className="bg-[#448834] hover:bg-[#357228] disabled:opacity-60 text-white font-bold px-7 py-2.5 rounded-xl transition-colors text-sm shadow-sm shadow-[#448834]/20"
           >
             {saving
-              ? (uploadingMedia ? 'Medya yükleniyor...' : 'Kaydediliyor...')
-              : (isEdit ? 'Değişiklikleri Kaydet' : 'Projeyi Oluştur')}
+              ? (uploadingMedia ? 'Uploading media...' : 'Saving...')
+              : (isEdit ? 'Save Changes' : 'Create Collection')}
           </button>
           <Link to="/rnl-panel/projeler" className="text-sm text-gray-500 hover:text-gray-700 font-medium px-2">
-            İptal
+            Cancel
           </Link>
         </div>
       </form>

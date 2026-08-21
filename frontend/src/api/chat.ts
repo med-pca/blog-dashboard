@@ -22,13 +22,13 @@ async function post(path: string, body: object): Promise<Response> {
 
 export async function sendChatMessage(message: string, sessionId: string): Promise<{ reply: string }> {
   const res = await post('/api/chat', { message, sessionId })
-  if (!res.ok) throw new Error('Yanıt alınamadı')
+  if (!res.ok) throw new Error('Could not get a reply')
   return res.json()
 }
 
 export async function generateWhatsappSummary(sessionId: string): Promise<{ text: string }> {
   const res = await post('/api/chat/summary', { sessionId })
-  if (!res.ok) throw new Error('Özet oluşturulamadı')
+  if (!res.ok) throw new Error('Could not generate the summary')
   return res.json()
 }
 
@@ -43,5 +43,5 @@ export function trackChatOpen(): void {
 
 export async function submitChatRating(rating: number, sessionId: string): Promise<void> {
   const res = await post('/api/chat/rating', { rating, sessionId })
-  if (!res.ok) throw new Error('Değerlendirme gönderilemedi')
+  if (!res.ok) throw new Error('Could not submit the rating')
 }

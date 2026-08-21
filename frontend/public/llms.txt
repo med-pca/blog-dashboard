@@ -1,28 +1,40 @@
-# RenEl Enerji Mühendislik
+# Flavor Journal
 
-RenEl Enerji Mühendislik, Soma/Manisa merkezli bir güneş enerjisi mühendislik firmasıdır. GES kurulum, bakım onarım, elektrik altyapı bakımı ve proje danışmanlığı hizmetleri sunmaktadır.
+Flavor Journal is an English-language food blog sharing approachable recipes, meal-prep systems, and practical kitchen guides for busy home cooks. Content covers quick breakfasts, weeknight dinners, comfort classics, healthy bowls, budget cooking, and menu planning.
 
-## Sayfalar
+## Pages
 
-- [Ana Sayfa](https://renelenerji.com/)
-- [Hizmetler](https://renelenerji.com/hizmetler)
-- [Projelerimiz](https://renelenerji.com/projelerimiz)
+- [Home](https://renelenerji.com/)
+- [Recipes](https://renelenerji.com/hizmetler)
+- [Collections](https://renelenerji.com/projelerimiz)
 - [Blog](https://renelenerji.com/blog)
-- [Referanslar](https://renelenerji.com/referanslar)
-- [Kurumsal](https://renelenerji.com/kurumsal)
-- [İletişim](https://renelenerji.com/iletisim)
-- [SSS](https://renelenerji.com/sss)
+- [Community](https://renelenerji.com/referanslar)
+- [About](https://renelenerji.com/kurumsal)
+- [Contact](https://renelenerji.com/iletisim)
+- [FAQ](https://renelenerji.com/sss)
+- [Budget Planner](https://renelenerji.com/tasarruf-hesaplayici)
+- [Privacy Notice](https://renelenerji.com/kvkk)
 
-## Hizmetler
+## Recipe Guides
 
-- [Akıllı Tarımsal Sulama GES](https://renelenerji.com/hizmetler/sulama)
-- [Arazi & Çatı Tipi GES](https://renelenerji.com/hizmetler/cati-arazi)
-- [Bağ Evi Depolamalı GES](https://renelenerji.com/hizmetler/bag-evi)
-- [Elektrikli Araç Şarj İstasyonu](https://renelenerji.com/hizmetler/ev-sarj)
-- [GES Bakım & Onarım](https://renelenerji.com/hizmetler/ges-bakim-onarim)
-- [Elektrik Altyapı Bakımı](https://renelenerji.com/hizmetler/elektrik-altyapi-bakimi)
-- [Proje Danışmanlığı](https://renelenerji.com/hizmetler/proje-danismanlik)
+- [Smart Meal Prep Planning](https://renelenerji.com/hizmetler/sulama)
+- [Home Kitchen Recipe Systems](https://renelenerji.com/hizmetler/cati-arazi)
+- [Low-Budget Cooking Strategies](https://renelenerji.com/hizmetler/bag-evi)
+- [Kitchen Gear and Setup Guidance](https://renelenerji.com/hizmetler/ev-sarj)
+- [Recipe Troubleshooting Support](https://renelenerji.com/hizmetler/ges-bakim-onarim)
+- [Fast Weeknight Cooking](https://renelenerji.com/hizmetler/elektrik-altyapi-bakimi)
+- [Menu Planning Consulting](https://renelenerji.com/hizmetler/proje-danismanlik)
+- [Cooking Performance Coaching](https://renelenerji.com/hizmetler/enerji-danismanlik)
 
-## İçerik
+## Why Flavor Journal
 
-- [Site Haritası](https://renelenerji.com/sitemap.xml)
+- [Chef-Tested Methods](https://renelenerji.com/neden-biz/muhendislik-altyapisi)
+- [Complete Meal Guides](https://renelenerji.com/neden-biz/anahtar-teslim-hizmet)
+- [Sustainable Cooking](https://renelenerji.com/neden-biz/surdurulebilir-enerji)
+- [Efficiency-Focused Cooking](https://renelenerji.com/neden-biz/verimlilik-odakli)
+- [Community and Trust](https://renelenerji.com/neden-biz/yerel-ve-guvenilir)
+- [Kitchen Gear Recommendations](https://renelenerji.com/neden-biz/onayli-ekipmanlar)
+
+## Resources
+
+- [Sitemap](https://renelenerji.com/sitemap.xml)

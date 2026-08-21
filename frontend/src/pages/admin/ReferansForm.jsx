@@ -31,7 +31,7 @@ export default function ReferansForm() {
           if (ref.logo) setLogoPreview(`${API}${ref.logo}`)
         }
       })
-      .catch(() => setError('Referans yüklenemedi'))
+      .catch(() => setError('Could not load the entry'))
       .finally(() => setLoading(false))
   }, [id, isEdit])
 
@@ -74,15 +74,15 @@ export default function ReferansForm() {
           className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 mb-6"
         >
           <ArrowLeft size={14} />
-          Geri
+          Back
         </Link>
 
         <h1 className="text-xl font-bold text-gray-900 mb-6">
-          {isEdit ? 'Referansı Düzenle' : 'Yeni Referans'}
+          {isEdit ? 'Edit Entry' : 'New Entry'}
         </h1>
 
         {loading ? (
-          <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+          <div className="text-center py-20 text-gray-400">Loading...</div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
@@ -113,12 +113,12 @@ export default function ReferansForm() {
                       >
                         <X size={13} />
                       </button>
-                      <p className="text-xs text-gray-400 mt-3">Değiştirmek için tıkla</p>
+                      <p className="text-xs text-gray-400 mt-3">Click to change</p>
                     </>
                   ) : (
                     <>
                       <Upload size={22} className="text-gray-300 mb-2" />
-                      <p className="text-sm text-gray-400">Logo yükle</p>
+                      <p className="text-sm text-gray-400">Upload logo</p>
                       <p className="text-xs text-gray-300 mt-1">PNG, SVG, JPG, WebP</p>
                     </>
                   )}
@@ -135,13 +135,13 @@ export default function ReferansForm() {
               {/* Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Firma / Müşteri Adı <span className="text-red-500">*</span>
+                  Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   required
                   value={form.name}
                   onChange={(e) => set('name', e.target.value)}
-                  placeholder="Örn: Ahmet Yılmaz Tarım İşletmesi"
+                  placeholder="e.g. Weeknight Comfort Classics"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
                 />
               </div>
@@ -155,7 +155,7 @@ export default function ReferansForm() {
                       onChange={(e) => set('published', e.target.checked)}
                       className="w-4 h-4 accent-[#448834]"
                     />
-                    <span className="text-sm text-gray-700">Yayınla</span>
+                    <span className="text-sm text-gray-700">Publish</span>
                   </label>
                 </div>
               </div>
@@ -166,14 +166,14 @@ export default function ReferansForm() {
                 to="/rnl-panel/referanslar"
                 className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg bg-white transition-colors"
               >
-                İptal
+                Cancel
               </Link>
               <button
                 type="submit"
                 disabled={saving}
                 className="px-6 py-2 text-sm font-bold bg-[#448834] hover:bg-[#357228] text-white rounded-lg transition-colors disabled:opacity-60"
               >
-                {saving ? 'Kaydediliyor...' : isEdit ? 'Güncelle' : 'Kaydet'}
+                {saving ? 'Saving...' : isEdit ? 'Update' : 'Save'}
               </button>
             </div>
           </form>

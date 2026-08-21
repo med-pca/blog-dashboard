@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Ana Sayfa -->
+  <!-- Home -->
   <url>
     <loc>https://renelenerji.com/</loc>
     <lastmod>2026-06-30</lastmod>
@@ -9,7 +9,7 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Hizmetler listing -->
+  <!-- Recipes listing -->
   <url>
     <loc>https://renelenerji.com/hizmetler</loc>
     <lastmod>2026-06-30</lastmod>
@@ -17,7 +17,7 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- Hizmet detay sayfaları -->
+  <!-- Recipe detail pages -->
   <url>
     <loc>https://renelenerji.com/hizmetler/sulama</loc>
     <lastmod>2026-06-30</lastmod>
@@ -67,7 +67,7 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Projelerimiz -->
+  <!-- Collections -->
   <url>
     <loc>https://renelenerji.com/projelerimiz</loc>
     <lastmod>2026-06-30</lastmod>
@@ -83,7 +83,7 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Referanslar -->
+  <!-- Community -->
   <url>
     <loc>https://renelenerji.com/referanslar</loc>
     <lastmod>2026-06-30</lastmod>
@@ -91,7 +91,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Kurumsal -->
+  <!-- About -->
   <url>
     <loc>https://renelenerji.com/kurumsal</loc>
     <lastmod>2026-06-30</lastmod>
@@ -99,7 +99,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- SSS -->
+  <!-- FAQ -->
   <url>
     <loc>https://renelenerji.com/sss</loc>
     <lastmod>2026-06-30</lastmod>
@@ -107,7 +107,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- İletişim -->
+  <!-- Contact -->
   <url>
     <loc>https://renelenerji.com/iletisim</loc>
     <lastmod>2026-06-30</lastmod>
@@ -115,7 +115,7 @@
     <priority>0.6</priority>
   </url>
 
-  <!-- Neden Biz detay sayfaları -->
+  <!-- Why Us detail pages -->
   <url>
     <loc>https://renelenerji.com/neden-biz/muhendislik-altyapisi</loc>
     <lastmod>2026-06-30</lastmod>

@@ -19,10 +19,13 @@ services:
     build: ./backend
     restart: unless-stopped
     mem_limit: 512m
+    ports:
+      - "127.0.0.1:3003:3001"
     expose:
       - "3001"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5

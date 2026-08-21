@@ -1,58 +1,58 @@
-import { useState } from 'react'
-import { CheckCircle2, Loader2 } from 'lucide-react'
-import { submitQuoteRequest } from '../api/quote'
-import { waLink } from '../lib/whatsapp'
+import { useState } from "react";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { submitQuoteRequest } from "../api/quote";
+import { waLink } from "../lib/whatsapp";
 
 const SERVICE_TYPES = [
-  { value: 'cati-ges', label: 'Çatı Tipi GES' },
-  { value: 'tarimsal-sulama', label: 'Tarımsal Sulama GES' },
-  { value: 'ev-sarj', label: 'EV Şarj İstasyonu' },
-  { value: 'diger', label: 'Diğer' },
-]
+  { value: "cati-ges", label: "Home Cooking Plan" },
+  { value: "tarimsal-sulama", label: "Meal Prep Workflow" },
+  { value: "ev-sarj", label: "Kitchen Gear Guidance" },
+  { value: "diger", label: "Other" },
+];
 
 const INPUT_CLASS =
-  'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]'
-const LABEL_CLASS = 'block text-sm font-medium text-gray-700 mb-1'
+  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]";
+const LABEL_CLASS = "block text-sm font-medium text-gray-700 mb-1";
 
 // "0554 379 60 04" biçiminde gruplu gösterim; en fazla 11 hane (0 + 10 haneli numara)
 function formatPhone(digits) {
-  let result = digits.slice(0, 4)
-  if (digits.length > 4) result += ' ' + digits.slice(4, 7)
-  if (digits.length > 7) result += ' ' + digits.slice(7, 9)
-  if (digits.length > 9) result += ' ' + digits.slice(9, 11)
-  return result
+  let result = digits.slice(0, 4);
+  if (digits.length > 4) result += " " + digits.slice(4, 7);
+  if (digits.length > 7) result += " " + digits.slice(7, 9);
+  if (digits.length > 9) result += " " + digits.slice(9, 11);
+  return result;
 }
 
 function handlePhoneInput(raw) {
-  let digits = raw.replace(/\D/g, '')
-  if (digits && !digits.startsWith('0')) digits = `0${digits}`
-  digits = digits.slice(0, 11)
-  return formatPhone(digits)
+  let digits = raw.replace(/\D/g, "");
+  if (digits && !digits.startsWith("0")) digits = `0${digits}`;
+  digits = digits.slice(0, 11);
+  return formatPhone(digits);
 }
 
 const INITIAL_FORM = {
-  name: '',
-  phone: '',
-  city: '',
-  serviceType: 'cati-ges',
-  monthlyBill: '',
-  message: '',
+  name: "",
+  phone: "",
+  city: "",
+  serviceType: "cati-ges",
+  monthlyBill: "",
+  message: "",
   kvkkConsent: false,
-  website: '', // honeypot
-}
+  website: "", // honeypot
+};
 
 // Hem TeklifModal içinde hem Iletisim sayfasında gömülü olarak kullanılır.
 // onSuccess: modal kabuğunun otomatik kapanabilmesi için opsiyonel geri çağrı.
 export default function TeklifForm({ onSuccess }) {
-  const [form, setForm] = useState(INITIAL_FORM)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [form, setForm] = useState(INITIAL_FORM);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
       await submitQuoteRequest({
         name: form.name,
@@ -63,13 +63,15 @@ export default function TeklifForm({ onSuccess }) {
         message: form.message || undefined,
         kvkkConsent: form.kvkkConsent,
         website: form.website || undefined,
-      })
-      setSubmitted(true)
-      onSuccess?.()
+      });
+      setSubmitted(true);
+      onSuccess?.();
     } catch (err) {
-      setError(err.message || 'Talebiniz gönderilemedi. Lütfen tekrar deneyin.')
+      setError(
+        err.message || "Your request could not be sent. Please try again.",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -79,30 +81,33 @@ export default function TeklifForm({ onSuccess }) {
         <div className="flex items-center justify-center mb-4">
           <CheckCircle2 size={40} className="text-[#448834]" />
         </div>
-        <p className="font-semibold text-gray-900 mb-1.5">Talebiniz alındı</p>
+        <p className="font-semibold text-gray-900 mb-1.5">Request received</p>
         <p className="text-sm text-gray-500 max-w-xs mx-auto">
-          Ekibimiz en kısa sürede sizinle iletişime geçecek. Acil bir durum varsa WhatsApp'tan da yazabilirsiniz.
+          Our team will contact you shortly. If it is urgent, you can also
+          message us on WhatsApp.
         </p>
         <a
-          href={waLink(`Merhaba, ${form.name} olarak az önce teklif formu doldurdum.`)}
+          href={waLink(
+            `Hi, this is ${form.name}. I have just submitted the request form.`,
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block mt-4 text-sm font-semibold text-[#448834] hover:text-[#357228] transition-colors"
         >
-          WhatsApp'tan da yazın →
+          Message us on WhatsApp
         </a>
       </div>
-    )
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Honeypot: gerçek kullanıcılar görmez/doldurmaz */}
+      {/* Honeypot: real users neither see nor fill this */}
       <input
         type="text"
         name="website"
         value={form.website}
-        onChange={e => setForm({ ...form, website: e.target.value })}
+        onChange={(e) => setForm({ ...form, website: e.target.value })}
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
@@ -111,25 +116,27 @@ export default function TeklifForm({ onSuccess }) {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Ad Soyad *</label>
+          <label className={LABEL_CLASS}>Full Name *</label>
           <input
             type="text"
             required
             maxLength={120}
             value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
             className={INPUT_CLASS}
             autoComplete="name"
             data-teklif-autofocus
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Telefon *</label>
+          <label className={LABEL_CLASS}>Phone *</label>
           <input
             type="tel"
             required
             value={form.phone}
-            onChange={e => setForm({ ...form, phone: handlePhoneInput(e.target.value) })}
+            onChange={(e) =>
+              setForm({ ...form, phone: handlePhoneInput(e.target.value) })
+            }
             className={INPUT_CLASS}
             placeholder="0554 379 60 04"
             autoComplete="tel"
@@ -137,50 +144,52 @@ export default function TeklifForm({ onSuccess }) {
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>İl / İlçe</label>
+          <label className={LABEL_CLASS}>City / District</label>
           <input
             type="text"
             maxLength={120}
             value={form.city}
-            onChange={e => setForm({ ...form, city: e.target.value })}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
             className={INPUT_CLASS}
-            placeholder="Soma / Manisa"
+            placeholder="City / District"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Hangi hizmet? *</label>
+          <label className={LABEL_CLASS}>Which topic? *</label>
           <select
             required
             value={form.serviceType}
-            onChange={e => setForm({ ...form, serviceType: e.target.value })}
+            onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
             className={INPUT_CLASS}
           >
-            {SERVICE_TYPES.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {SERVICE_TYPES.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Aylık elektrik faturanız (TL)</label>
+        <label className={LABEL_CLASS}>Monthly food budget ($)</label>
         <input
           type="number"
           inputMode="numeric"
           min={0}
           max={1000000}
           value={form.monthlyBill}
-          onChange={e => setForm({ ...form, monthlyBill: e.target.value })}
+          onChange={(e) => setForm({ ...form, monthlyBill: e.target.value })}
           className={INPUT_CLASS}
-          placeholder="Örn. 2500"
+          placeholder="Example: 2500"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Mesajınız</label>
+        <label className={LABEL_CLASS}>Your message</label>
         <textarea
           value={form.message}
-          onChange={e => setForm({ ...form, message: e.target.value })}
+          onChange={(e) => setForm({ ...form, message: e.target.value })}
           className={`${INPUT_CLASS} resize-none`}
           rows={3}
           maxLength={2000}
@@ -192,15 +201,28 @@ export default function TeklifForm({ onSuccess }) {
           type="checkbox"
           required
           checked={form.kvkkConsent}
-          onChange={e => setForm({ ...form, kvkkConsent: e.target.checked })}
+          onChange={(e) => setForm({ ...form, kvkkConsent: e.target.checked })}
           className="w-4 h-4 mt-0.5 rounded accent-[#448834] shrink-0"
         />
         <span className="text-sm text-gray-600">
-          <a href="/kvkk" target="_blank" rel="noopener noreferrer" className="text-[#448834] hover:underline">KVKK aydınlatma metnini</a> okudum, kişisel verilerimin işlenmesini kabul ediyorum.
+          I have read the{" "}
+          <a
+            href="/kvkk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#448834] hover:underline"
+          >
+            privacy notice
+          </a>{" "}
+          and I accept the processing of my personal data.
         </span>
       </label>
 
-      {error && <p className="text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"
@@ -208,8 +230,8 @@ export default function TeklifForm({ onSuccess }) {
         className="w-full flex items-center justify-center gap-2 bg-[#448834] hover:bg-[#357228] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-lg transition-colors"
       >
         {loading && <Loader2 size={16} className="animate-spin" />}
-        {loading ? 'Gönderiliyor...' : 'Teklif İste'}
+        {loading ? "Sending..." : "Send Request"}
       </button>
     </form>
-  )
+  );
 }

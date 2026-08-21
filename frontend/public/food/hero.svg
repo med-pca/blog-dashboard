@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" fill="none" role="img" aria-label="Fresh home cooking flat lay">
+  <defs>
+    <linearGradient id="fbg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#150D07"/>
+      <stop offset="0.45" stop-color="#2E1C10"/>
+      <stop offset="1" stop-color="#4A2D18"/>
+    </linearGradient>
+    <radialGradient id="fglow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 420) rotate(18) scale(780 580)">
+      <stop stop-color="#F0AC55" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#F0AC55" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fglow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(420 780) rotate(-25) scale(560 400)">
+      <stop stop-color="#7FB04F" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#7FB04F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#fbg)"/>
+  <rect width="1600" height="900" fill="url(#fglow)"/>
+  <rect width="1600" height="900" fill="url(#fglow2)"/>
+
+  <!-- Ambient scattered herbs (left / background) -->
+  <g opacity="0.16" fill="#C9E4A4">
+    <path d="M172 250c34-16 68-16 102 0-34 16-68 16-102 0Z"/>
+    <path d="M96 620c26-12 52-12 78 0-26 12-52 12-78 0Z"/>
+    <path d="M330 118c22-10 44-10 66 0-22 10-44 10-66 0Z"/>
+    <circle cx="252" cy="470" r="9"/>
+    <circle cx="128" cy="366" r="7"/>
+    <circle cx="392" cy="672" r="8"/>
+  </g>
+
+  <!-- Cutting board -->
+  <g transform="rotate(-11 700 700)">
+    <rect x="452" y="588" width="470" height="256" rx="30" fill="#B4762F"/>
+    <rect x="474" y="610" width="426" height="212" rx="22" fill="#D39A54"/>
+    <circle cx="884" cy="716" r="13" fill="#B4762F"/>
+    <!-- chopped veg on board -->
+    <circle cx="566" cy="668" r="30" fill="#D9543F"/>
+    <circle cx="566" cy="668" r="15" fill="#F0876A"/>
+    <circle cx="646" cy="712" r="26" fill="#E38C3C"/>
+    <circle cx="646" cy="712" r="12" fill="#F6BE73"/>
+    <circle cx="560" cy="762" r="24" fill="#6FAA4B"/>
+    <path d="M700 640c40-20 80-20 120 0-40 20-80 20-120 0Z" fill="#79B252"/>
+    <path d="M712 776c34-16 68-16 102 0-34 16-68 16-102 0Z" fill="#8CC163"/>
+  </g>
+
+  <!-- Small side bowl -->
+  <g>
+    <circle cx="1466" cy="204" r="118" fill="#F6E9CE"/>
+    <circle cx="1466" cy="204" r="92" fill="#E9D3A4"/>
+    <circle cx="1466" cy="204" r="66" fill="#F2B45A"/>
+    <circle cx="1448" cy="188" r="16" fill="#FFF3DC"/>
+  </g>
+
+  <!-- Herb sprig near bowl -->
+  <g opacity="0.9" fill="#7FB04F">
+    <path d="M1330 372c40-24 84-22 122 6-42 20-86 18-122-6Z"/>
+    <path d="M1392 300c14 40 6 80-22 108-12-44-4-84 22-108Z"/>
+  </g>
+
+  <!-- Main grain bowl -->
+  <g>
+    <circle cx="1090" cy="452" r="296" fill="#FCF3E1"/>
+    <circle cx="1090" cy="452" r="296" stroke="#E2CB9E" stroke-width="10"/>
+    <circle cx="1090" cy="452" r="238" fill="#F4E6C8"/>
+    <path d="M1090 452 L1328 452 A238 238 0 0 1 1090 690 Z" fill="#7FB04F"/>
+    <path d="M1090 452 L1090 690 A238 238 0 0 1 855.6 493.3 Z" fill="#E9903F"/>
+    <path d="M1090 452 L855.6 493.3 A238 238 0 0 1 1008.6 228.4 Z" fill="#D0503F"/>
+    <path d="M1090 452 L1008.6 228.4 A238 238 0 0 1 1328 452 Z" fill="#F2D79A"/>
+    <circle cx="1090" cy="452" r="72" fill="#FFF8E8"/>
+    <path d="M1090 400c26 16 38 44 30 76-28-6-44-30-30-76Z" fill="#6FAA4B"/>
+    <circle cx="1156" cy="356" r="15" fill="#FFF8E8" opacity="0.85"/>
+    <circle cx="1010" cy="562" r="13" fill="#FFF8E8" opacity="0.8"/>
+  </g>
+
+  <!-- Steam -->
+  <g stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M1000 138c-26-28-26-56 0-84s26-56 0-84"/>
+    <path d="M1090 108c-26-28-26-56 0-84s26-56 0-84"/>
+    <path d="M1180 138c-26-28-26-56 0-84s26-56 0-84"/>
+  </g>
+
+  <!-- Foreground utensils -->
+  <g transform="rotate(14 300 860)" fill="#E4CBA0" opacity="0.55">
+    <rect x="236" y="700" width="16" height="220" rx="8"/>
+    <ellipse cx="244" cy="686" rx="34" ry="48"/>
+    <rect x="318" y="700" width="16" height="220" rx="8"/>
+    <rect x="304" y="614" width="10" height="60" rx="5"/>
+    <rect x="322" y="614" width="10" height="60" rx="5"/>
+    <rect x="340" y="614" width="10" height="60" rx="5"/>
+    <rect x="302" y="670" width="50" height="18" rx="9"/>
+  </g>
+</svg>

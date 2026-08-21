@@ -1,43 +1,62 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from "react";
 
 const stats = [
-  { value: 100, suffix: '+', label: 'Mutlu Müşteri', sub: 'tamamlanan proje' },
-  { value: 25, suffix: ' Yıl', label: 'Panel Garantisi', sub: 'üretici garantisi' },
-  { value: 8, suffix: '', label: 'Hizmet Alanı', sub: 'farklı çözüm' },
-]
+  {
+    value: 100,
+    suffix: "+",
+    label: "Happy Home Cooks",
+    sub: "shared recipe stories",
+  },
+  {
+    value: 25,
+    suffix: "+",
+    label: "Signature Recipes",
+    sub: "tested and refined",
+  },
+  {
+    value: 8,
+    suffix: "",
+    label: "Cuisine Themes",
+    sub: "for everyday cooking",
+  },
+];
 
 function Counter({ value, suffix }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef()
-  const started = useRef(false)
+  const [count, setCount] = useState(0);
+  const ref = useRef();
+  const started = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !started.current) {
-          started.current = true
-          const duration = 1800
-          const start = performance.now()
+          started.current = true;
+          const duration = 1800;
+          const start = performance.now();
           const animate = (now) => {
-            const progress = Math.min((now - start) / duration, 1)
-            const eased = 1 - Math.pow(1 - progress, 3)
-            setCount(Math.round(eased * value))
-            if (progress < 1) requestAnimationFrame(animate)
-          }
-          requestAnimationFrame(animate)
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.round(eased * value));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
         }
       },
-      { threshold: 0.5 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [value])
+      { threshold: 0.5 },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [value]);
 
   return (
-    <span ref={ref} className="text-4xl sm:text-5xl font-bold text-[#448834] font-['Rajdhani']">
-      {count}{suffix}
+    <span
+      ref={ref}
+      className="text-4xl sm:text-5xl font-bold text-[#448834] font-['Rajdhani']"
+    >
+      {count}
+      {suffix}
     </span>
-  )
+  );
 }
 
 export default function Stats() {
@@ -47,16 +66,20 @@ export default function Stats() {
         <div className="relative bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden">
           {/* Background image */}
           <div className="absolute inset-0 pointer-events-none">
-            <img src="/stats-bg.webp" alt="" className="w-full h-full object-cover opacity-35" width="1440" height="611" loading="lazy" />
+            <img
+              src="/food/stats-bg.svg"
+              alt=""
+              className="w-full h-full object-cover opacity-35"
+              width="1440"
+              height="611"
+              loading="lazy"
+            />
           </div>
 
           {/* Stats */}
           <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3">
             {stats.map(({ value, suffix, label, sub }, i) => (
-              <div
-                key={label}
-                className="px-8 py-7 text-center relative"
-              >
+              <div key={label} className="px-8 py-7 text-center relative">
                 {i < stats.length - 1 && (
                   <div className="absolute right-0 top-5 bottom-5 w-px bg-gray-400 hidden sm:block" />
                 )}
@@ -69,5 +92,5 @@ export default function Stats() {
         </div>
       </div>
     </section>
-  )
+  );
 }

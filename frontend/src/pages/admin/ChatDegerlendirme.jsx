@@ -78,7 +78,7 @@ function RatingRow({ rating, onDelete, deleting }) {
           onClick={() => onDelete(rating.id)}
           disabled={deleting}
           className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 shrink-0"
-          aria-label="Değerlendirmeyi sil"
+          aria-label="Delete rating"
         >
           <Trash2 size={16} />
         </button>
@@ -104,11 +104,11 @@ function LeadRow({ lead, onDelete, deleting }) {
           <div className="flex items-center gap-4 flex-wrap">
             {isWhatsapp ? (
               <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium shrink-0">
-                <Send size={13} /> WhatsApp'a geçti
+                <Send size={13} /> moved to WhatsApp
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-sm text-amber-600 font-medium shrink-0">
-                <Clock size={13} /> WhatsApp'a geçmedi
+                <Clock size={13} /> did not move to WhatsApp
               </span>
             )}
             <span className="text-sm text-gray-500 flex items-center gap-1.5">
@@ -131,7 +131,7 @@ function LeadRow({ lead, onDelete, deleting }) {
           onClick={() => onDelete(lead.id)}
           disabled={deleting}
           className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 shrink-0"
-          aria-label="Talebi sil"
+          aria-label="Delete request"
         >
           <Trash2 size={16} />
         </button>
@@ -158,9 +158,9 @@ function FunnelSection() {
   }, [days])
 
   const steps = [
-    { label: 'Chat Açılma', value: funnel?.opened ?? 0, rate: null },
-    { label: 'Mesaj Yazan', value: funnel?.messaged ?? 0, rate: percent(funnel?.messaged, funnel?.opened) },
-    { label: "WhatsApp'a Geçen", value: funnel?.whatsapp ?? 0, rate: percent(funnel?.whatsapp, funnel?.messaged) },
+    { label: 'Chat Opens', value: funnel?.opened ?? 0, rate: null },
+    { label: 'Wrote a message', value: funnel?.messaged ?? 0, rate: percent(funnel?.messaged, funnel?.opened) },
+    { label: "Moved to WhatsApp", value: funnel?.whatsapp ?? 0, rate: percent(funnel?.whatsapp, funnel?.messaged) },
   ]
 
   return (
@@ -168,10 +168,10 @@ function FunnelSection() {
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <TrendingUp size={13} className="text-gray-300" />
-          <h3 className="font-semibold text-gray-700 text-sm">Dönüşüm Hunisi</h3>
+          <h3 className="font-semibold text-gray-700 text-sm">Conversion Funnel</h3>
         </div>
         <AdminTabs
-          items={[{ id: 7, label: '7 Gün' }, { id: 30, label: '30 Gün' }]}
+          items={[{ id: 7, label: '7 Days' }, { id: 30, label: '30 Days' }]}
           value={days}
           onChange={setDays}
           size="xs"
@@ -184,13 +184,13 @@ function FunnelSection() {
             <div className="flex-1 text-center">
               <p className="text-3xl font-bold font-['Rajdhani'] text-gray-900">{step.value}</p>
               <p className="text-xs text-gray-500">{step.label}</p>
-              {step.rate !== null && <p className="text-[11px] text-gray-400 mt-0.5">dönüşüm {step.rate}</p>}
+              {step.rate !== null && <p className="text-[11px] text-gray-400 mt-0.5">conversion {step.rate}</p>}
             </div>
           </div>
         ))}
       </div>
       <p className="text-[11px] text-gray-300 mt-4">
-        Açılma sayacı özelliğin yayına alındığı tarihten itibaren toplanır.
+        The open counter has been collecting since the feature went live.
       </p>
     </div>
   )
@@ -204,8 +204,8 @@ function LeadsTab({ leadData, onDeleteLead, deletingId, onPageChange, status, fr
     return (
       <div className="text-center py-20 text-gray-400">
         <Users size={36} className="mx-auto mb-3 text-gray-300" />
-        <p>Henüz potansiyel talep yok.</p>
-        <p className="text-xs mt-1">Ziyaretçi chatbot'ta 2+ mesaj yazınca burada görünür.</p>
+        <p>No potential leads yet.</p>
+        <p className="text-xs mt-1">Appears here once a visitor writes 2+ messages in the chatbot.</p>
       </div>
     )
   }
@@ -213,16 +213,16 @@ function LeadsTab({ leadData, onDeleteLead, deletingId, onPageChange, status, fr
   return (
     <>
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <AdminStatCard label="Toplam Talep" value={stats.total} icon={Users} />
-        <AdminStatCard label="WhatsApp'a Geçen" value={stats.whatsapp} icon={Send} />
-        <AdminStatCard label="Kaçan (Geçmeyen)" value={stats.active} icon={Clock} />
+        <AdminStatCard label="Total Requests" value={stats.total} icon={Users} />
+        <AdminStatCard label="Moved to WhatsApp" value={stats.whatsapp} icon={Send} />
+        <AdminStatCard label="Dropped off" value={stats.active} icon={Clock} />
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <AdminTabs
           items={[
-            { id: 'all', label: 'Tümü' },
-            { id: 'active', label: 'Geçmeyen' },
-            { id: 'whatsapp', label: "WhatsApp'a Geçen" },
+            { id: 'all', label: 'All' },
+            { id: 'active', label: 'Not converted' },
+            { id: 'whatsapp', label: "Moved to WhatsApp" },
           ]}
           value={status}
           onChange={onStatusChange}
@@ -231,7 +231,7 @@ function LeadsTab({ leadData, onDeleteLead, deletingId, onPageChange, status, fr
       </div>
       {leads.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <p>Filtreyle eşleşen talep yok.</p>
+          <p>No requests match the filter.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -254,7 +254,7 @@ function RatingsTab({ ratingData, onDeleteRating, deletingId, onPageChange }) {
     return (
       <div className="text-center py-20 text-gray-400">
         <Bot size={36} className="mx-auto mb-3 text-gray-300" />
-        <p>Henüz değerlendirme yok.</p>
+        <p>No ratings yet.</p>
       </div>
     )
   }
@@ -298,8 +298,8 @@ export default function ChatDegerlendirme() {
   const navigate = useNavigate()
   const [leadData, setLeadData] = useState(null)
   const [ratingData, setRatingData] = useState(null)
-  // Başlıktaki iki sayaç ve sekme boş-durumu ikisi de doğru veriye muhtaç,
-  // bu yüzden ilk yükleme her iki fetch bitene kadar bekler.
+  // Both header counters and the tab empty-state need correct data, so the
+  // first load waits until both fetches have completed.
   const [leadsLoading, setLeadsLoading] = useState(true)
   const [ratingsLoading, setRatingsLoading] = useState(true)
   const loading = leadsLoading || ratingsLoading
@@ -307,15 +307,15 @@ export default function ChatDegerlendirme() {
   const [deletingId, setDeletingId] = useState(null)
   const [leadPage, setLeadPage] = useState(1)
   const [leadStatus, setLeadStatus] = useState('all') // 'all' | 'active' | 'whatsapp'
-  const [leadFromDay, setLeadFromDay] = useState('') // YYYY-MM-DD, boş = filtre yok
+  const [leadFromDay, setLeadFromDay] = useState('') // YYYY-MM-DD, empty = no filter
   const [leadToDay, setLeadToDay] = useState('')
   const [ratingPage, setRatingPage] = useState(1)
-  // Silme sonrası listeyi yeniden çekmek için: sayı arttırmak effect'i
-  // yeniden tetikler, effect ise her zaman GÜNCEL leadStatus/leadPage'i okur.
-  // (Silme handler'ının kendi fetch'ini atması yerine bu yaklaşım tercih
-  // edildi: handler'daki bir fetch, `await deleteChatLead` sonrası closure'da
-  // BAYAT bir filtre değeriyle dispatch edilebiliyor ve araya giren bir
-  // filtre değişikliğinin güncel verisini ezebiliyordu.)
+  // To refetch the list after a delete: bumping the counter re-triggers the
+  // effect, and the effect always reads the CURRENT leadStatus/leadPage.
+  // (Preferred over firing a fetch inside the delete handler: a fetch there
+  // could dispatch with a STALE filter value from the closure after
+  // `await deleteChatLead`, overwriting fresher data from an interleaved
+  // filter change.)
   const [leadRefreshTick, setLeadRefreshTick] = useState(0)
   const [ratingRefreshTick, setRatingRefreshTick] = useState(0)
   const leadFetch = useLatestFetch()
@@ -341,23 +341,23 @@ export default function ChatDegerlendirme() {
     fetchChatLeads(leadQuery())
       .then(result => {
         if (!leadFetch.isCurrent(seq)) return
-        // Sayfa artık aralık dışıysa (silme sonrası veya filtre daraltınca)
-        // son geçerli sayfaya dön — aksi halde pager kendini gizler ve admin
-        // mahsur kalır.
+        // If the page is now out of range (after a delete or a narrowed
+        // filter) fall back to the last valid page — otherwise the pager
+        // hides itself and the admin gets stranded.
         applyPagedResult(result.leads, result, setLeadPage, setLeadData)
       })
       .catch(err => { if (leadFetch.isCurrent(seq)) handleFetchError(err) })
       .finally(() => {
         if (!leadFetch.isCurrent(seq)) return
         setLeadsLoading(false)
-        setDeletingId(null) // refreshTick bir silmeden geldiyse, buton ancak taze veri gelince tekrar etkinleşir
+        setDeletingId(null) // if refreshTick came from a delete, the button re-enables only on fresh data
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leadPage, leadStatus, leadFromDay, leadToDay, leadRefreshTick])
 
   function changeLeadStatus(next) {
     setLeadStatus(next)
-    setLeadPage(1) // filtre değişince ilk sayfaya dön
+    setLeadPage(1) // back to page one when the filter changes
   }
 
   function changeLeadDates(nextFrom, nextTo) {
@@ -383,7 +383,7 @@ export default function ChatDegerlendirme() {
   }, [ratingPage, ratingRefreshTick])
 
   async function handleDeleteLead(id) {
-    if (!confirm('Bu talebi silmek istediğinize emin misiniz?')) return
+    if (!confirm('Delete this request?')) return
     setDeletingId(id)
     try {
       await deleteChatLead(id)
@@ -395,7 +395,7 @@ export default function ChatDegerlendirme() {
   }
 
   async function handleDeleteRating(id) {
-    if (!confirm('Bu değerlendirmeyi silmek istediğinize emin misiniz?')) return
+    if (!confirm('Delete this rating?')) return
     setDeletingId(id)
     try {
       await deleteChatRating(id)
@@ -409,7 +409,7 @@ export default function ChatDegerlendirme() {
   if (loading) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       </main>
     )
   }
@@ -420,13 +420,13 @@ export default function ChatDegerlendirme() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">Chatbot</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {leadData?.stats?.total ?? 0} talep · {ratingData?.stats?.total ?? 0} değerlendirme
+            {leadData?.stats?.total ?? 0} leads · {ratingData?.stats?.total ?? 0} ratings
           </p>
         </div>
         <AdminTabs
           items={[
             { id: 'leads', label: 'Potansiyel Talepler' },
-            { id: 'ratings', label: 'Değerlendirmeler' },
+            { id: 'ratings', label: 'Ratings' },
           ]}
           value={tab}
           onChange={setTab}

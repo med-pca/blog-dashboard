@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-// Admin listeleri için basit önceki/sonraki sayfalayıcı; tek sayfada gizlenir
+// Simple prev/next pager for admin lists; hidden when there is a single page
 export default function AdminPager({ page, pageCount, onChange, disabled = false }) {
   if (pageCount <= 1) return null
 
@@ -11,7 +11,7 @@ export default function AdminPager({ page, pageCount, onChange, disabled = false
         disabled={disabled || page <= 1}
         className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white border border-gray-100 text-gray-600 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronLeft size={15} /> Önceki
+        <ChevronLeft size={15} /> Previous
       </button>
       <span className="text-sm text-gray-500 tabular-nums">
         {page} / {pageCount}
@@ -21,7 +21,7 @@ export default function AdminPager({ page, pageCount, onChange, disabled = false
         disabled={disabled || page >= pageCount}
         className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white border border-gray-100 text-gray-600 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        Sonraki <ChevronRight size={15} />
+        Next <ChevronRight size={15} />
       </button>
     </div>
   )

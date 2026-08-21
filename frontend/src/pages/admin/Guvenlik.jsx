@@ -8,7 +8,7 @@ import {
 } from '../../api/admin'
 import { useAdminAuth } from '../../contexts/AdminAuthContext'
 
-// ── Küçük yardımcı bileşenler ──────────────────────────────────────────────
+// ── Small helper components ───────────────────────────────────────────────
 
 function SuccessMsg({ msg }) {
   return (
@@ -43,7 +43,7 @@ function PasswordInput({ value, onChange, placeholder, autoComplete, required = 
   )
 }
 
-// ── Hesap Bilgileri Bileşeni ───────────────────────────────────────────────
+// ── Account details component ─────────────────────────────────────────────
 
 function HesapBilgileri({ twoFaEnabled, onDone }) {
   // step: 'select' | 'form' | '2fa'
@@ -81,11 +81,11 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
     setError('')
     if (type === 'password') {
       if (newPassword !== confirmPassword) {
-        setError('Yeni şifreler eşleşmiyor')
+        setError('The new passwords do not match')
         return
       }
       if (newPassword.length < 8) {
-        setError('Şifre en az 8 karakter olmalıdır')
+        setError('The password must be at least 8 characters')
         return
       }
     }
@@ -132,8 +132,8 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
           <div className="flex items-center gap-3">
             <User size={18} className="text-[#448834]" />
             <div className="text-left">
-              <p className="text-sm font-semibold text-gray-800">Kullanıcı Adı</p>
-              <p className="text-xs text-gray-400">Giriş için kullandığınız ad</p>
+              <p className="text-sm font-semibold text-gray-800">Username</p>
+              <p className="text-xs text-gray-400">The name you use to sign in</p>
             </div>
           </div>
           <ChevronRight size={16} className="text-gray-400" />
@@ -146,8 +146,8 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
           <div className="flex items-center gap-3">
             <Lock size={18} className="text-[#448834]" />
             <div className="text-left">
-              <p className="text-sm font-semibold text-gray-800">Şifre</p>
-              <p className="text-xs text-gray-400">Hesap giriş şifreniz</p>
+              <p className="text-sm font-semibold text-gray-800">Password</p>
+              <p className="text-xs text-gray-400">Your account password</p>
             </div>
           </div>
           <ChevronRight size={16} className="text-gray-400" />
@@ -162,16 +162,16 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <button type="button" onClick={reset}
           className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 mb-1">
-          <ArrowLeft size={14} /> Geri
+          <ArrowLeft size={14} /> Back
         </button>
 
         <p className="text-sm font-semibold text-gray-700">
-          {type === 'username' ? 'Kullanıcı Adını Değiştir' : 'Şifreyi Değiştir'}
+          {type === 'username' ? 'Change Username' : 'Change Password'}
         </p>
 
         {type === 'username' && (
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Yeni Kullanıcı Adı</label>
+            <label className="block text-xs text-gray-500 mb-1">New Username</label>
             <input
               type="text"
               value={newUsername}
@@ -189,29 +189,29 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
         {type === 'password' && (
           <>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Yeni Şifre</label>
+              <label className="block text-xs text-gray-500 mb-1">New Password</label>
               <PasswordInput value={newPassword} onChange={e => setNewPassword(e.target.value)}
                 placeholder="En az 8 karakter" autoComplete="new-password" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Yeni Şifre (Tekrar)</label>
+              <label className="block text-xs text-gray-500 mb-1">New Password (Repeat)</label>
               <PasswordInput value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-                placeholder="Şifreyi tekrar girin" autoComplete="new-password" />
+                placeholder="Re-enter the password" autoComplete="new-password" />
             </div>
           </>
         )}
 
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Mevcut Şifre</label>
+          <label className="block text-xs text-gray-500 mb-1">Current Password</label>
           <PasswordInput value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
-            placeholder="Mevcut şifreniz" autoComplete="current-password" />
+            placeholder="Your current password" autoComplete="current-password" />
         </div>
 
         {error && <ErrorMsg msg={error} />}
 
         <button type="submit"
           className="w-full bg-[#448834] hover:bg-[#357228] text-white font-bold py-2.5 rounded-lg transition-colors text-sm">
-          {twoFaEnabled ? 'Devam Et' : 'Değiştir'}
+          {twoFaEnabled ? 'Devam Et' : 'Change'}
         </button>
       </form>
     )
@@ -223,16 +223,16 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
       <form onSubmit={handleOtpSubmit} className="space-y-5">
         <button type="button" onClick={() => { setStep('form'); setOtpCode(''); setError('') }}
           className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600">
-          <ArrowLeft size={14} /> Geri
+          <ArrowLeft size={14} /> Back
         </button>
 
         <div className="text-center py-2">
           <div className="w-14 h-14 rounded-full bg-[#448834]/10 flex items-center justify-center mx-auto mb-3">
             <ShieldCheck size={26} className="text-[#448834]" />
           </div>
-          <p className="text-sm font-semibold text-gray-800">İki Faktörlü Doğrulama</p>
+          <p className="text-sm font-semibold text-gray-800">Two-Factor Authentication</p>
           <p className="text-xs text-gray-400 mt-1">
-            Değişikliği onaylamak için authenticator kodunu girin
+            Enter the authenticator code to confirm the change
           </p>
         </div>
 
@@ -254,7 +254,7 @@ function HesapBilgileri({ twoFaEnabled, onDone }) {
         <button type="submit"
           disabled={loading || otpCode.length !== 6}
           className="w-full bg-[#448834] hover:bg-[#357228] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-lg transition-colors text-sm">
-          {loading ? 'Doğrulanıyor...' : 'Onayla ve Değiştir'}
+          {loading ? 'Verifying...' : 'Confirm and Change'}
         </button>
       </form>
     )
@@ -282,7 +282,7 @@ export default function Guvenlik() {
   }, [navigate])
 
   const handleCredentialDone = () => {
-    setCredSuccess('Bilgiler değiştirildi. Tekrar giriş yapın...')
+    setCredSuccess('Credentials changed. Please sign in again...')
     setTimeout(() => { logout(); navigate('/rnl-panel/login') }, 2000)
   }
 
@@ -290,7 +290,7 @@ export default function Guvenlik() {
     setTfaError('')
     setTfaLoading(true)
     try { setSetup(await generate2FASetup()) }
-    catch { setTfaError('QR kodu üretilemedi.') }
+    catch { setTfaError('Could not generate the QR code.') }
     finally { setTfaLoading(false) }
   }
 
@@ -300,7 +300,7 @@ export default function Guvenlik() {
     setTfaLoading(true)
     try {
       await confirm2FASetup(setup.secret, tfaCode)
-      setTfaSuccess('2FA başarıyla etkinleştirildi!')
+      setTfaSuccess('2FA enabled successfully!')
       setSetup(null)
       setTfaCode('')
       setTwoFaStatus({ enabled: true })
@@ -321,20 +321,20 @@ export default function Guvenlik() {
       setRemoveMode(false)
       setRemoveCode('')
       setRemovePassword('')
-      setTfaSuccess('2FA devre dışı bırakıldı.')
+      setTfaSuccess('2FA has been disabled.')
     } catch (err) {
-      setTfaError(err.message || '2FA kaldırılamadı.')
+      setTfaError(err.message || 'Could not remove 2FA.')
       setRemoveCode('')
     } finally { setTfaLoading(false) }
   }
 
-  if (!twoFaStatus) return <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+  if (!twoFaStatus) return <div className="text-center py-20 text-gray-400">Loading...</div>
 
   return (
     <main className="max-w-lg mx-auto px-6 py-8 space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Güvenlik</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Hesap ve giriş ayarlarınızı yönetin</p>
+        <h1 className="text-xl font-bold text-gray-900">Security</h1>
+        <p className="text-sm text-gray-400 mt-0.5">Manage your account and sign-in settings</p>
       </div>
 
       {credSuccess && <SuccessMsg msg={credSuccess} />}
@@ -342,9 +342,9 @@ export default function Guvenlik() {
       {/* Hesap Bilgileri */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50">
-          <p className="text-sm font-semibold text-gray-800">Hesap Bilgilerini Değiştir</p>
+          <p className="text-sm font-semibold text-gray-800">Change Account Details</p>
           <p className="text-xs text-gray-400 mt-0.5">
-            {twoFaStatus.enabled ? 'Değişiklikler 2FA kodu ile onaylanır' : 'Mevcut şifre doğrulaması gereklidir'}
+            {twoFaStatus.enabled ? 'Changes are confirmed with a 2FA code' : 'Current password confirmation is required'}
           </p>
         </div>
         <div className="px-6 py-5">
@@ -359,12 +359,12 @@ export default function Guvenlik() {
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-gray-800">İki Faktörlü Doğrulama</p>
-            <p className="text-xs text-gray-400 mt-0.5">Authenticator uygulamasıyla hesabınızı koruyun</p>
+            <p className="text-sm font-semibold text-gray-800">Two-Factor Authentication</p>
+            <p className="text-xs text-gray-400 mt-0.5">Protect your account with an authenticator app</p>
           </div>
           {twoFaStatus.enabled
-            ? <span className="text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Aktif</span>
-            : <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">Devre Dışı</span>
+            ? <span className="text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Active</span>
+            : <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">Disabled</span>
           }
         </div>
 
@@ -378,8 +378,8 @@ export default function Guvenlik() {
             }
             <p className="text-sm text-gray-600">
               {twoFaStatus.enabled
-                ? 'Giriş yaparken 6 haneli kod gerekiyor'
-                : 'Hesabınız ek koruma olmadan açık'}
+                ? 'A 6-digit code is required at sign-in'
+                : 'Your account has no extra protection'}
             </p>
           </div>
 
@@ -387,23 +387,23 @@ export default function Guvenlik() {
             twoFaStatus.enabled
               ? <button onClick={() => { setRemoveMode(true); setTfaError('') }} disabled={tfaLoading}
                   className="text-sm text-red-500 hover:text-red-600 font-medium disabled:opacity-40">
-                  Devre Dışı Bırak
+                  Disable
                 </button>
               : <button onClick={startSetup} disabled={tfaLoading}
                   className="w-full bg-[#448834] hover:bg-[#357228] disabled:opacity-60 text-white font-bold py-2.5 rounded-lg transition-colors text-sm">
-                  {tfaLoading ? 'Yükleniyor...' : '2FA\'yı Etkinleştir'}
+                  {tfaLoading ? 'Loading...' : 'Enable 2FA'}
                 </button>
           )}
 
           {removeMode && (
             <form onSubmit={handleRemove2FA} className="space-y-3 border-t border-gray-50 pt-4">
               <p className="text-sm font-semibold text-gray-800">
-                Devre dışı bırakmak için şifrenizi ve authenticator kodunuzu girin
+                Enter your password and authenticator code to disable it
               </p>
               <input
                 type="password" autoComplete="current-password" required autoFocus
                 value={removePassword} onChange={e => setRemovePassword(e.target.value)}
-                placeholder="Mevcut şifreniz"
+                placeholder="Your current password"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400"
               />
               <input
@@ -417,12 +417,12 @@ export default function Guvenlik() {
                 <button type="button"
                   onClick={() => { setRemoveMode(false); setRemoveCode(''); setRemovePassword(''); setTfaError('') }}
                   className="flex-1 border border-gray-200 text-gray-600 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                  İptal
+                  Cancel
                 </button>
                 <button type="submit"
                   disabled={tfaLoading || removeCode.length !== 6 || !removePassword}
                   className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-lg transition-colors text-sm">
-                  {tfaLoading ? 'Kaldırılıyor...' : 'Devre Dışı Bırak'}
+                  {tfaLoading ? 'Removing...' : 'Disable'}
                 </button>
               </div>
             </form>
@@ -431,21 +431,21 @@ export default function Guvenlik() {
           {setup && (
             <div className="space-y-4 border-t border-gray-50 pt-4">
               <div>
-                <p className="text-sm font-semibold text-gray-800 mb-1">1. QR kodu tarayın</p>
-                <p className="text-xs text-gray-400 mb-3">Google Authenticator veya Authy kullanın</p>
+                <p className="text-sm font-semibold text-gray-800 mb-1">1. Scan the QR code</p>
+                <p className="text-xs text-gray-400 mb-3">Use Google Authenticator or Authy</p>
                 <div className="flex justify-center">
                   <img src={setup.qrCodeUrl} alt="QR Code" className="w-44 h-44 rounded-xl border border-gray-100" />
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">Manuel giriş kodu</p>
+                <p className="text-xs text-gray-500 mb-1">Manual entry code</p>
                 <p className="font-mono text-sm bg-gray-50 px-3 py-2 rounded-lg text-gray-700 tracking-widest text-center select-all">
                   {setup.secret}
                 </p>
               </div>
               <form onSubmit={handleConfirm2FA} className="space-y-3">
                 <div>
-                  <p className="text-sm font-semibold text-gray-800 mb-1">2. Kodu doğrulayın</p>
+                  <p className="text-sm font-semibold text-gray-800 mb-1">2. Verify the code</p>
                   <input
                     type="text" inputMode="numeric" pattern="\d{6}" maxLength={6}
                     value={tfaCode} onChange={e => setTfaCode(e.target.value.replace(/\D/g, ''))}
@@ -457,11 +457,11 @@ export default function Guvenlik() {
                 <div className="flex gap-3">
                   <button type="button" onClick={() => { setSetup(null); setTfaError(''); setTfaCode('') }}
                     className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-lg hover:bg-gray-50 text-sm">
-                    İptal
+                    Cancel
                   </button>
                   <button type="submit" disabled={tfaLoading || tfaCode.length !== 6}
                     className="flex-1 bg-[#448834] hover:bg-[#357228] disabled:opacity-60 text-white font-bold py-2.5 rounded-lg text-sm">
-                    {tfaLoading ? 'Doğrulanıyor...' : 'Onayla'}
+                    {tfaLoading ? 'Verifying...' : 'Onayla'}
                   </button>
                 </div>
               </form>

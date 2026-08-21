@@ -40,7 +40,7 @@ function SortableRow({ post, onDelete, deletingId }) {
           {post.coverImage ? (
             <img src={`${API}${post.coverImage}`} alt={post.title} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-gray-300 text-xs">Görsel yok</span>
+            <span className="text-gray-300 text-xs">No image</span>
           )}
         </div>
       </td>
@@ -53,7 +53,7 @@ function SortableRow({ post, onDelete, deletingId }) {
       <td className="px-5 py-4">
         {post.published ? (
           <span className="flex items-center gap-1.5 text-sm text-green-600">
-            <Eye size={14} /> Yayında
+            <Eye size={14} /> Published
           </span>
         ) : (
           <span className="flex items-center gap-1.5 text-sm text-gray-400">
@@ -109,7 +109,7 @@ export default function BlogAdmin() {
 
 
   const handleDelete = async (id, title) => {
-    if (!confirm(`"${title}" yazısını silmek istediğinize emin misiniz?`)) return
+    if (!confirm(`Delete the "${title}" post?`)) return
     setDeletingId(id)
     try {
       await deleteBlogPost(id)
@@ -125,9 +125,9 @@ export default function BlogAdmin() {
     <main className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Blog Yazıları</h1>
+          <h1 className="text-xl font-bold text-gray-900">Blog Posts</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {posts.length} yazı
+            {posts.length} posts
             {saving && <span className="ml-2 text-[#448834]">· kaydediliyor...</span>}
           </p>
         </div>
@@ -136,17 +136,17 @@ export default function BlogAdmin() {
           className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-4 py-2 rounded-lg transition-colors text-sm"
         >
           <Plus size={16} />
-          Yeni Yazı
+          New Post
         </Link>
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       ) : posts.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="mb-4">Henüz blog yazısı yok.</p>
+          <p className="mb-4">No blog posts yet.</p>
           <Link to="/rnl-panel/blog/yeni" className="text-[#448834] font-semibold hover:underline">
-            İlk yazıyı ekle
+            Add the first post
           </Link>
         </div>
       ) : (
@@ -156,10 +156,10 @@ export default function BlogAdmin() {
             <thead>
               <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
                 <th className="px-4 py-4 w-10" />
-                <th className="text-left px-3 py-4 font-medium w-20">Kapak</th>
-                <th className="text-left px-5 py-4 font-medium">Başlık</th>
-                <th className="text-left px-5 py-4 font-medium">Tarih</th>
-                <th className="text-left px-5 py-4 font-medium">Durum</th>
+                <th className="text-left px-3 py-4 font-medium w-20">Cover</th>
+                <th className="text-left px-5 py-4 font-medium">Title</th>
+                <th className="text-left px-5 py-4 font-medium">Date</th>
+                <th className="text-left px-5 py-4 font-medium">Status</th>
                 <th className="px-5 py-4" />
               </tr>
             </thead>

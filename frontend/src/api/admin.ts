@@ -30,7 +30,7 @@ export async function login(
   })
   if (res.status === 429) rateError()
   const data = await res.json()
-  if (!res.ok) throw apiError(res, data.message || 'Giriş başarısız')
+  if (!res.ok) throw apiError(res, data.message || 'Sign-in failed')
   return data
 }
 
@@ -46,13 +46,13 @@ export async function verify2FA(
   })
   if (res.status === 429) rateError()
   const data = await res.json()
-  if (!res.ok) throw apiError(res, data.message || 'Geçersiz kod')
+  if (!res.ok) throw apiError(res, data.message || 'Invalid code')
   return data
 }
 
 export async function logout(): Promise<void> {
   const res = await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
-  if (!res.ok) throw apiError(res, 'Çıkış başarısız')
+  if (!res.ok) throw apiError(res, 'Sign-out failed')
 }
 
 export async function changeCredentials(payload: {
@@ -66,19 +66,19 @@ export async function changeCredentials(payload: {
     body: JSON.stringify(payload),
   })
   const data = await res.json()
-  if (!res.ok) throw apiError(res, data.message || 'Değişiklik başarısız')
+  if (!res.ok) throw apiError(res, data.message || 'Change failed')
   return data
 }
 
 export async function get2FAStatus(): Promise<{ enabled: boolean }> {
   const res = await fetch(`${API}/api/auth/2fa/status`, authOptions())
-  if (!res.ok) throw apiError(res, 'Durum alınamadı')
+  if (!res.ok) throw apiError(res, 'Could not load the status')
   return res.json()
 }
 
 export async function generate2FASetup(): Promise<{ secret: string; qrCodeUrl: string }> {
   const res = await fetch(`${API}/api/auth/2fa/setup`, authOptions())
-  if (!res.ok) throw apiError(res, 'QR kodu üretilemedi')
+  if (!res.ok) throw apiError(res, 'Could not generate the QR code')
   return res.json()
 }
 
@@ -92,7 +92,7 @@ export async function confirm2FASetup(
     body: JSON.stringify({ secret, code, ...(currentCode ? { currentCode } : {}) }),
   })
   const data = await res.json()
-  if (!res.ok) throw apiError(res, data.message || 'Doğrulama başarısız')
+  if (!res.ok) throw apiError(res, data.message || 'Verification failed')
   return data
 }
 
@@ -102,21 +102,21 @@ export async function remove2FA(code: string, currentPassword: string): Promise<
     body: JSON.stringify({ code, currentPassword }),
   })
   const data = await res.json()
-  if (!res.ok) throw apiError(res, data.message || '2FA kaldırılamadı')
+  if (!res.ok) throw apiError(res, data.message || 'Could not remove 2FA')
   return data
 }
 
 // Projects
 export async function fetchAllProjects(): Promise<Project[]> {
   const res = await fetch(`${API}/api/projects/admin/all`, authOptions())
-  if (!res.ok) throw apiError(res, 'Projeler yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load collections')
   return res.json()
 }
 
 export async function syncInstagram(): Promise<{ status: string }> {
   const res = await fetch(`${API}/api/projects/admin/instagram-sync`, authOptions({ method: 'POST' }))
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Senkronizasyon başarısız')
+  if (!res.ok) throw apiError(res, json.message || 'Sync failed')
   return json
 }
 
@@ -126,7 +126,7 @@ export async function parseInstagramPost(text: string): Promise<Partial<Project>
     body: JSON.stringify({ text }),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Parse başarısız')
+  if (!res.ok) throw apiError(res, json.message || 'Parsing failed')
   return json
 }
 
@@ -136,7 +136,7 @@ export async function createProject(data: Partial<Project>): Promise<Project> {
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Proje oluşturulamadı')
+  if (!res.ok) throw apiError(res, json.message || 'Could not create the collection')
   return json
 }
 
@@ -146,7 +146,7 @@ export async function updateProject(id: string, data: Partial<Project>): Promise
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Proje güncellenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not update the collection')
   return json
 }
 
@@ -155,12 +155,12 @@ export async function reorderProjects(orderedIds: string[]): Promise<void> {
     ...authOptions({ method: 'PATCH' }),
     body: JSON.stringify({ orderedIds }),
   })
-  if (!res.ok) throw apiError(res, 'Sıralama kaydedilemedi')
+  if (!res.ok) throw apiError(res, 'Could not save the order')
 }
 
 export async function deleteProject(id: string): Promise<void> {
   const res = await fetch(`${API}/api/projects/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Proje silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the collection')
 }
 
 export async function uploadMedia(projectId: string, files: File[]): Promise<ProjectMedia[]> {
@@ -172,7 +172,7 @@ export async function uploadMedia(projectId: string, files: File[]): Promise<Pro
     body: form,
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Yükleme başarısız')
+  if (!res.ok) throw apiError(res, json.message || 'Upload failed')
   return json
 }
 
@@ -182,13 +182,13 @@ export async function linkMedia(projectId: string, src: string): Promise<Project
     body: JSON.stringify({ src }),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Bağlantı oluşturulamadı')
+  if (!res.ok) throw apiError(res, json.message || 'Could not create the link')
   return json
 }
 
 export async function deleteMedia(projectId: string, mediaId: string): Promise<void> {
   const res = await fetch(`${API}/api/projects/${projectId}/media/${mediaId}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Medya silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the media')
 }
 
 export async function reorderMedia(projectId: string, orderedIds: string[]): Promise<Project> {
@@ -196,14 +196,14 @@ export async function reorderMedia(projectId: string, orderedIds: string[]): Pro
     ...authOptions({ method: 'PATCH' }),
     body: JSON.stringify({ orderedIds }),
   })
-  if (!res.ok) throw apiError(res, 'Sıralama güncellenemedi')
+  if (!res.ok) throw apiError(res, 'Could not update the order')
   return res.json()
 }
 
 // References
 export async function fetchAllReferences(): Promise<Reference[]> {
   const res = await fetch(`${API}/api/references/admin/all`, authOptions())
-  if (!res.ok) throw apiError(res, 'Referanslar yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load community entries')
   return res.json()
 }
 
@@ -213,7 +213,7 @@ export async function createReference(data: Partial<Reference>): Promise<Referen
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Referans oluşturulamadı')
+  if (!res.ok) throw apiError(res, json.message || 'Could not create the entry')
   return json
 }
 
@@ -223,7 +223,7 @@ export async function updateReference(id: string, data: Partial<Reference>): Pro
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Referans güncellenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not update the entry')
   return json
 }
 
@@ -232,12 +232,12 @@ export async function reorderReferences(orderedIds: string[]): Promise<void> {
     ...authOptions({ method: 'PATCH' }),
     body: JSON.stringify({ orderedIds }),
   })
-  if (!res.ok) throw apiError(res, 'Sıralama kaydedilemedi')
+  if (!res.ok) throw apiError(res, 'Could not save the order')
 }
 
 export async function deleteReference(id: string): Promise<void> {
   const res = await fetch(`${API}/api/references/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Referans silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the entry')
 }
 
 export async function uploadReferenceLogo(referenceId: string, file: File): Promise<Reference> {
@@ -249,14 +249,14 @@ export async function uploadReferenceLogo(referenceId: string, file: File): Prom
     body: form,
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Logo yüklenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not upload the logo')
   return json
 }
 
 // Blog
 export async function fetchAllBlogPosts(): Promise<BlogPost[]> {
   const res = await fetch(`${API}/api/blog/admin/all`, authOptions())
-  if (!res.ok) throw apiError(res, 'Blog yazıları yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load blog posts')
   return res.json()
 }
 
@@ -266,7 +266,7 @@ export async function createBlogPost(data: Partial<BlogPost>): Promise<BlogPost>
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Yazı oluşturulamadı')
+  if (!res.ok) throw apiError(res, json.message || 'Could not create the post')
   return json
 }
 
@@ -276,13 +276,13 @@ export async function updateBlogPost(id: string, data: Partial<BlogPost>): Promi
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Yazı güncellenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not update the post')
   return json
 }
 
 export async function deleteBlogPost(id: string): Promise<void> {
   const res = await fetch(`${API}/api/blog/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Yazı silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the post')
 }
 
 export async function reorderBlogPosts(orderedIds: string[]): Promise<void> {
@@ -290,7 +290,7 @@ export async function reorderBlogPosts(orderedIds: string[]): Promise<void> {
     ...authOptions({ method: 'PATCH' }),
     body: JSON.stringify({ orderedIds }),
   })
-  if (!res.ok) throw apiError(res, 'Sıralama kaydedilemedi')
+  if (!res.ok) throw apiError(res, 'Could not save the order')
 }
 
 export async function uploadBlogCover(postId: string, file: File): Promise<BlogPost> {
@@ -302,14 +302,14 @@ export async function uploadBlogCover(postId: string, file: File): Promise<BlogP
     body: form,
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Kapak görseli yüklenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not upload the cover image')
   return json
 }
 
 // SSS (FAQ)
 export async function fetchAllFaqs(): Promise<Faq[]> {
   const res = await fetch(`${API}/api/faq/admin/all`, authOptions())
-  if (!res.ok) throw apiError(res, 'SSS yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load FAQs')
   return res.json()
 }
 
@@ -319,7 +319,7 @@ export async function createFaq(data: Partial<Faq>): Promise<Faq> {
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'SSS oluşturulamadı')
+  if (!res.ok) throw apiError(res, json.message || 'Could not create the FAQ')
   return json
 }
 
@@ -329,7 +329,7 @@ export async function updateFaq(id: string, data: Partial<Faq>): Promise<Faq> {
     body: JSON.stringify(data),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'SSS güncellenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not update the FAQ')
   return json
 }
 
@@ -338,12 +338,12 @@ export async function deleteFaq(id: string): Promise<void> {
   if (!res.ok) throw apiError(res, 'SSS silinemedi')
 }
 
-// Chat değerlendirmeleri
+// Chat ratings
 export async function fetchChatRatings(
   page = 1,
 ): Promise<{ stats: ChatRatingStats; ratings: ChatRating[]; page: number; pageCount: number }> {
   const res = await fetch(`${API}/api/chat/rating/admin/all?page=${page}`, authOptions())
-  if (!res.ok) throw apiError(res, 'Değerlendirmeler yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load ratings')
   return res.json()
 }
 
@@ -356,25 +356,25 @@ export async function fetchChatLeads(
   if (from) params.set('from', from)
   if (to) params.set('to', to)
   const res = await fetch(`${API}/api/chat/lead/admin/all?${params}`, authOptions())
-  if (!res.ok) throw apiError(res, 'Talepler yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load requests')
   return res.json()
 }
 
-// Chatbot dönüşüm hunisi (açılma → mesaj → WhatsApp)
+// Chatbot conversion funnel (open -> message -> WhatsApp)
 export async function fetchChatFunnel(days: 7 | 30): Promise<ChatFunnel> {
   const res = await fetch(`${API}/api/chat/lead/admin/funnel?days=${days}`, authOptions())
-  if (!res.ok) throw apiError(res, 'Huni istatistikleri yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load funnel statistics')
   return res.json()
 }
 
 export async function deleteChatLead(id: string): Promise<void> {
   const res = await fetch(`${API}/api/chat/lead/admin/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Talep silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the request')
 }
 
 export async function deleteChatRating(id: string): Promise<void> {
   const res = await fetch(`${API}/api/chat/rating/admin/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Değerlendirme silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the rating')
 }
 
 export async function reorderFaqs(orderedIds: string[]): Promise<void> {
@@ -382,10 +382,10 @@ export async function reorderFaqs(orderedIds: string[]): Promise<void> {
     ...authOptions({ method: 'PATCH' }),
     body: JSON.stringify({ orderedIds }),
   })
-  if (!res.ok) throw apiError(res, 'Sıralama kaydedilemedi')
+  if (!res.ok) throw apiError(res, 'Could not save the order')
 }
 
-// Teklif talepleri ("Teklif Al" formu)
+// Contact requests (from the "Get A Recipe Plan" form)
 export async function fetchQuoteRequests(
   { page = 1, status, from, to }: { page?: number; status?: QuoteStatus; from?: string; to?: string } = {},
 ): Promise<{ stats: QuoteStats; requests: QuoteRequest[]; page: number; pageCount: number }> {
@@ -394,7 +394,7 @@ export async function fetchQuoteRequests(
   if (from) params.set('from', from)
   if (to) params.set('to', to)
   const res = await fetch(`${API}/api/quote/admin/all?${params}`, authOptions())
-  if (!res.ok) throw apiError(res, 'Talepler yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load requests')
   return res.json()
 }
 
@@ -404,16 +404,16 @@ export async function updateQuoteStatus(id: string, status: QuoteStatus): Promis
     body: JSON.stringify({ status }),
   })
   const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Durum güncellenemedi')
+  if (!res.ok) throw apiError(res, json.message || 'Could not update the status')
   return json
 }
 
 export async function deleteQuoteRequest(id: string): Promise<void> {
   const res = await fetch(`${API}/api/quote/admin/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Talep silinemedi')
+  if (!res.ok) throw apiError(res, 'Could not delete the request')
 }
 
-// Backend hata/uyarı logları (admin panel → Loglar)
+// Backend error/warning logs (admin panel -> Logs)
 export async function fetchLogs(
   { level, page = 1, from, to }: { level?: 'error' | 'warn'; page?: number; from?: string; to?: string } = {},
 ): Promise<{ stats: LogStats; logs: AppLog[]; page: number; pageCount: number }> {
@@ -422,6 +422,6 @@ export async function fetchLogs(
   if (from) params.set('from', from)
   if (to) params.set('to', to)
   const res = await fetch(`${API}/api/logs/admin/all?${params}`, authOptions())
-  if (!res.ok) throw apiError(res, 'Loglar yüklenemedi')
+  if (!res.ok) throw apiError(res, 'Could not load logs')
   return res.json()
 }

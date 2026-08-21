@@ -39,7 +39,7 @@ const FontSize = Extension.create({
 })
 
 const FONT_FAMILIES = [
-  { label: 'Varsayılan', value: '' },
+  { label: 'Default', value: '' },
   { label: 'Arial', value: 'Arial, sans-serif' },
   { label: 'Times New Roman', value: '"Times New Roman", serif' },
   { label: 'Georgia', value: 'Georgia, serif' },
@@ -125,7 +125,7 @@ function ColorPicker({ editor, currentColor }) {
       <button
         type="button"
         onMouseDown={(e) => { e.preventDefault(); setOpen((o) => !o) }}
-        title="Yazı rengi"
+        title="Text colour"
         className="flex flex-col items-center p-1.5 rounded hover:bg-gray-100 transition-colors"
       >
         <span className="text-xs font-bold text-gray-700 leading-none">A</span>
@@ -133,7 +133,7 @@ function ColorPicker({ editor, currentColor }) {
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 w-48">
-          <p className="text-xs text-gray-400 mb-2">Renk seç</p>
+          <p className="text-xs text-gray-400 mb-2">Pick a colour</p>
           <div className="grid grid-cols-5 gap-1.5 mb-3">
             {COLORS.map((c) => (
               <button
@@ -162,7 +162,7 @@ function ColorPicker({ editor, currentColor }) {
               onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().unsetColor().run(); setOpen(false) }}
               className="text-xs text-gray-400 hover:text-gray-700"
             >
-              Sıfırla
+              Reset
             </button>
           </div>
         </div>
@@ -207,7 +207,7 @@ function LinkModal({ open, initialUrl, onApply, onRemove, onClose }) {
             <div className="w-8 h-8 bg-[#448834]/10 rounded-lg flex items-center justify-center">
               <LinkIcon size={16} className="text-[#448834]" />
             </div>
-            <h3 className="font-semibold text-gray-900 text-sm">Bağlantı Ekle</h3>
+            <h3 className="font-semibold text-gray-900 text-sm">Add Link</h3>
           </div>
           <button
             type="button"
@@ -233,7 +233,7 @@ function LinkModal({ open, initialUrl, onApply, onRemove, onClose }) {
               className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-300 bg-transparent"
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1.5">https:// ile başlaması gerekir</p>
+          <p className="text-xs text-gray-400 mt-1.5">Must start with https://</p>
         </div>
 
         {/* Footer */}
@@ -249,7 +249,7 @@ function LinkModal({ open, initialUrl, onApply, onRemove, onClose }) {
             <button
               type="button"
               onClick={onRemove}
-              title="Bağlantıyı kaldır"
+              title="Remove link"
               className="p-2.5 border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-300 rounded-xl transition-colors"
             >
               <Trash2 size={16} />
@@ -260,7 +260,7 @@ function LinkModal({ open, initialUrl, onApply, onRemove, onClose }) {
             onClick={onClose}
             className="px-4 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition-colors"
           >
-            İptal
+            Cancel
           </button>
         </div>
       </div>
@@ -328,12 +328,12 @@ export default function RichTextEditor({ value, onChange }) {
 
   const setLink = useCallback(() => {
     if (!editor) return
-    // Cursor (seçim yok) bir link üzerindeyse direkt kaldır
+    // Cursor (no selection) sitting on a link: remove it directly
     if (editor.isActive('link') && editor.state.selection.empty) {
       editor.chain().focus().extendMarkRange('link').unsetLink().run()
       return
     }
-    // Metin seçili ya da link yoksa modal aç
+    // Text selected or no link: open the modal
     const prev = editor.getAttributes('link').href || ''
     setLinkModal({ open: true, url: prev })
   }, [editor])
@@ -352,7 +352,7 @@ export default function RichTextEditor({ value, onChange }) {
   if (!editor) return null
 
   const currentFontLabel = FONT_FAMILIES.find((f) => f.value === editorState.fontFamily)?.label || 'Font'
-  const currentSizeLabel = editorState.fontSize || 'Boyut'
+  const currentSizeLabel = editorState.fontSize || 'Size'
 
   return (
     <>
@@ -370,7 +370,7 @@ export default function RichTextEditor({ value, onChange }) {
         {/* Font family */}
         <Dropdown
           label="Font"
-          selected={currentFontLabel !== 'Font' && currentFontLabel !== 'Varsayılan' ? currentFontLabel : undefined}
+          selected={currentFontLabel !== 'Font' && currentFontLabel !== 'Default' ? currentFontLabel : undefined}
           options={FONT_FAMILIES.map((f) => ({
             label: f.label,
             value: f.value,
@@ -396,16 +396,16 @@ export default function RichTextEditor({ value, onChange }) {
         <Dropdown
           label="Normal"
           selected={
-            editorState.isH1 ? 'Başlık 1'
-            : editorState.isH2 ? 'Başlık 2'
-            : editorState.isH3 ? 'Başlık 3'
+            editorState.isH1 ? 'Heading 1'
+            : editorState.isH2 ? 'Heading 2'
+            : editorState.isH3 ? 'Heading 3'
             : undefined
           }
           options={[
             { label: 'Normal', value: '0' },
-            { label: 'Başlık 1', value: '1' },
-            { label: 'Başlık 2', value: '2' },
-            { label: 'Başlık 3', value: '3' },
+            { label: 'Heading 1', value: '1' },
+            { label: 'Heading 2', value: '2' },
+            { label: 'Heading 3', value: '3' },
           ]}
           onSelect={(val) => {
             if (val === '0') editor.chain().focus().setParagraph().run()
@@ -416,16 +416,16 @@ export default function RichTextEditor({ value, onChange }) {
         <Divider />
 
         {/* Format */}
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editorState.isBold} title="Kalın (Ctrl+B)">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editorState.isBold} title="Bold (Ctrl+B)">
           <Bold size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editorState.isItalic} title="İtalik (Ctrl+I)">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editorState.isItalic} title="Italic (Ctrl+I)">
           <Italic size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editorState.isUnderline} title="Altı çizili (Ctrl+U)">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editorState.isUnderline} title="Underline (Ctrl+U)">
           <UnderlineIcon size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editorState.isStrike} title="Üstü çizili">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editorState.isStrike} title="Strikethrough">
           <Strikethrough size={15} />
         </ToolbarButton>
 
@@ -443,10 +443,10 @@ export default function RichTextEditor({ value, onChange }) {
         <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editorState.isAlignCenter} title="Ortala">
           <AlignCenter size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editorState.isAlignRight} title="Sağa hizala">
+        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editorState.isAlignRight} title="Align right">
           <AlignRight size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editorState.isAlignJustify} title="İki yana yasla">
+        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editorState.isAlignJustify} title="Justify">
           <AlignJustify size={15} />
         </ToolbarButton>
 
@@ -456,29 +456,29 @@ export default function RichTextEditor({ value, onChange }) {
         <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editorState.isBulletList} title="Madde listesi">
           <List size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editorState.isOrderedList} title="Numaralı liste">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editorState.isOrderedList} title="Numbered list">
           <ListOrdered size={15} />
         </ToolbarButton>
 
         <Divider />
 
         {/* Link */}
-        <ToolbarButton onClick={setLink} active={editorState.isLink} title={editorState.isLink ? 'Bağlantıyı kaldır' : 'Bağlantı ekle'}>
+        <ToolbarButton onClick={setLink} active={editorState.isLink} title={editorState.isLink ? 'Remove link' : 'Add link'}>
           <LinkIcon size={15} />
         </ToolbarButton>
 
         {/* HR */}
-        <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Yatay çizgi">
+        <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
           <Minus size={15} />
         </ToolbarButton>
 
         <Divider />
 
         {/* Undo / Redo */}
-        <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editorState.canUndo} title="Geri al (Ctrl+Z)">
+        <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editorState.canUndo} title="Undo (Ctrl+Z)">
           <Undo size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editorState.canRedo} title="İleri al (Ctrl+Y)">
+        <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editorState.canRedo} title="Redo (Ctrl+Y)">
           <Redo size={15} />
         </ToolbarButton>
       </div>

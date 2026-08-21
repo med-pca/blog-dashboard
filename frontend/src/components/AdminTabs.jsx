@@ -1,5 +1,5 @@
-// Admin sayfalarındaki segment/pill sekme grubu. `size` buton dolgusunu ve
-// yazı boyutunu ayarlar; `wrap` dar ekranda alt satıra kaymasına izin verir.
+// Segmented/pill tab group used on admin pages. `size` controls button padding
+// and font size; `wrap` lets tabs flow onto a second line on narrow screens.
 const SIZE_CLASSES = {
   md: 'px-4 py-1.5 text-sm',
   sm: 'px-3 py-1.5 text-sm',

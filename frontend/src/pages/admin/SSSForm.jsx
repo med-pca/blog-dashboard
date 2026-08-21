@@ -16,8 +16,8 @@ export default function SSSForm({ initial = {}, onSave, onCancel }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!form.question.trim()) { setError('Soru zorunludur.'); return }
-    if (!form.answer.trim()) { setError('Cevap zorunludur.'); return }
+    if (!form.question.trim()) { setError('Question is required.'); return }
+    if (!form.answer.trim()) { setError('Answer is required.'); return }
 
     setSaving(true)
     try {
@@ -37,27 +37,27 @@ export default function SSSForm({ initial = {}, onSave, onCancel }) {
   return (
     <main className="max-w-2xl mx-auto px-6 py-8">
       <h1 className="text-xl font-bold text-gray-900 mb-6">
-        {isEdit ? 'Soruyu Düzenle' : 'Yeni Soru'}
+        {isEdit ? 'Edit Question' : 'New Question'}
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Soru *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Question *</label>
           <input
             type="text"
             value={form.question}
             onChange={(e) => set('question', e.target.value)}
-            placeholder="Sık sorulan soru"
+            placeholder="Frequently asked question"
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Cevap *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Answer *</label>
           <textarea
             value={form.answer}
             onChange={(e) => set('answer', e.target.value)}
-            placeholder="Sorunun cevabı"
+            placeholder="The answer to the question"
             rows={6}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
@@ -78,7 +78,7 @@ export default function SSSForm({ initial = {}, onSave, onCancel }) {
             />
           </button>
           <p className="text-sm font-medium text-gray-700">
-            {form.published ? 'Yayında' : 'Gizli'}
+            {form.published ? 'Published' : 'Hidden'}
           </p>
         </div>
 
@@ -92,14 +92,14 @@ export default function SSSForm({ initial = {}, onSave, onCancel }) {
             disabled={saving}
             className="flex-1 bg-[#448834] hover:bg-[#357228] disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors text-sm"
           >
-            {saving ? 'Kaydediliyor...' : isEdit ? 'Kaydet' : 'Oluştur'}
+            {saving ? 'Saving...' : isEdit ? 'Save' : 'Create'}
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="px-6 py-3 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
           >
-            İptal
+            Cancel
           </button>
         </div>
       </form>

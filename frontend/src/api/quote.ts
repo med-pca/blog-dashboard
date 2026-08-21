@@ -23,12 +23,12 @@ export async function submitQuoteRequest(data: QuoteFormData): Promise<{ id: str
       signal: controller.signal,
     })
     if (res.status === 429) {
-      throw Object.assign(new Error('Çok fazla deneme yapıldı, birkaç dakika sonra tekrar deneyin.'), { status: 429 })
+      throw Object.assign(new Error('Too many attempts. Please try again in a few minutes.'), { status: 429 })
     }
     const json = await res.json().catch(() => ({}))
     if (!res.ok) {
       const message = Array.isArray(json.message) ? json.message[0] : json.message
-      throw new Error(message || 'Talep gönderilemedi')
+      throw new Error(message || 'Your request could not be sent')
     }
     return json
   } finally {

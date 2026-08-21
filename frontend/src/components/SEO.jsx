@@ -1,26 +1,26 @@
-import { Helmet } from 'react-helmet-async'
-import { useLocation } from 'react-router-dom'
-import { serializeJsonLd } from '../lib/jsonLd'
+import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
+import { serializeJsonLd } from "../lib/jsonLd";
 
-const SITE_NAME = 'RenEl Enerji Mühendislik'
-const SITE_URL = 'https://renelenerji.com'
-const DEFAULT_IMAGE = 'https://renelenerji.com/og-image.webp'
+const SITE_NAME = "Flavor Journal";
+const SITE_URL = "https://renelenerji.com";
+const DEFAULT_IMAGE = "https://renelenerji.com/og-image.webp";
 const DEFAULT_DESC =
-  "Soma/Manisa'da güneş enerjisi mühendislik hizmetleri. GES kurulum, bakım onarım, elektrik altyapı bakımı, EV şarj istasyonu ve proje danışmanlığı."
+  "Fresh recipes, practical kitchen tips, and seasonal food inspiration.";
 
 export default function SEO({
   title,
   description = DEFAULT_DESC,
   image = DEFAULT_IMAGE,
-  type = 'website',
+  type = "website",
   noindex = false,
   jsonLd,
 }) {
-  const { pathname } = useLocation()
-  const canonical = `${SITE_URL}${pathname}`
+  const { pathname } = useLocation();
+  const canonical = `${SITE_URL}${pathname}`;
   const fullTitle = title
     ? `${title} | ${SITE_NAME}`
-    : `Soma GES Kurulumu | ${SITE_NAME}`
+    : `Easy Home Recipes | ${SITE_NAME}`;
 
   return (
     <Helmet>
@@ -30,7 +30,7 @@ export default function SEO({
       {noindex && <meta name="robots" content="noindex,nofollow" />}
 
       <meta property="og:site_name" content={SITE_NAME} />
-      <meta property="og:locale" content="tr_TR" />
+      <meta property="og:locale" content="en_US" />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={canonical} />
       <meta property="og:title" content={fullTitle} />
@@ -48,5 +48,5 @@ export default function SEO({
         <script type="application/ld+json">{serializeJsonLd(jsonLd)}</script>
       )}
     </Helmet>
-  )
+  );
 }

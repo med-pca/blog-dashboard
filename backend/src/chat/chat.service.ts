@@ -24,8 +24,8 @@ const BUDGET_KEY_PREFIX = 'groq:daily:'
 const BUDGET_KEY_TTL_SECONDS = 48 * 60 * 60
 
 export const BUDGET_EXCEEDED_MESSAGE =
-  'Şu anda yoğunluk nedeniyle yanıt veremiyorum. Aşağıdaki "WhatsApp\'tan Teklif Al" ' +
-  'butonuna basarak talebinizi doğrudan bize iletebilirsiniz.'
+  'I cannot reply right now because of high demand. Press the "Continue on WhatsApp" ' +
+  'button below to send your request straight to the Flavor Journal kitchen team.'
 
 export class GroqBudgetExceededError extends Error {
   constructor() {
@@ -95,12 +95,12 @@ export class ChatService {
     return sanitizeContent(content)
   }
 
-  // LLM judge (4.2): heuristiklerin göremediği Latin alfabeli sızıntıları ucuz 8B
-  // çağrısıyla yakalar. Judge erişilemez/anlaşılmaz ise fail-open — bütçe sayacıyla
-  // aynı felsefe: dil saflığı uğruna chatbot susturulmaz.
-  // consumeDailyBudget bilinçli olarak ÇAĞRILMAZ: her judge zaten bütçelenmiş bir
-  // üretim çağrısına 1:1 bağlıdır, toplam Groq kullanımı bütçe×MAX_CHAT_ATTEMPTS ile sınırlıdır.
-  private async isTurkishByJudge(text: string): Promise<boolean> {
+  // LLM judge (4.2): catches Latin-script leaks the heuristics cannot see, with a
+  // cheap 8B call. Fail-open when the judge is unreachable/unclear — same philosophy
+  // as the budget counter: the chatbot is never silenced for the sake of language purity.
+  // consumeDailyBudget is deliberately NOT called: every judge is bound 1:1 to an
+  // already budgeted generation, so total Groq usage stays within budget×MAX_CHAT_ATTEMPTS.
+  private async isEnglishByJudge(text: string): Promise<boolean> {
     const { res, data } = await this.groq.call(this.groq.getKeys('chat'), {
       model: GROQ_FALLBACK_MODEL,
       messages: [
@@ -113,24 +113,25 @@ export class ChatService {
 
     const verdict = data?.choices?.[0]?.message?.content
     if (!res?.ok || typeof verdict !== 'string' || !verdict.trim()) {
-      this.logger.warn(`Dil denetçisine ulaşılamadı, yanıt kabul edildi (durum: ${res?.status ?? 'ağ hatası'})`)
+      this.logger.warn(`Language judge unreachable, reply accepted (status: ${res?.status ?? 'network error'})`)
       return true
     }
-    // Karar metnin herhangi bir yerinde aranır ("Karar: HAYIR" gibi süslemeler
-    // startsWith'i kaçırıyordu); HAYIR öncelikli — yanlış HAYIR en kötü bir fazladan
-    // yeniden üretim tetikler, yanlış EVET ise sızıntıyı denetimsiz geçirir
+    // The verdict is searched anywhere in the text (decorations like "Verdict: NO"
+    // were escaping startsWith); word boundaries keep NO from matching "NOTHING".
+    // NO takes priority — a wrong NO costs at most one extra regeneration, while a
+    // wrong YES lets a leak through unchecked.
     const normalized = verdict.trim().toUpperCase()
-    if (normalized.includes('HAYIR')) return false
-    if (!normalized.includes('EVET')) {
-      this.logger.warn(`Dil denetçisi beklenmedik yanıt verdi, kabul edildi: "${verdict.slice(0, 40)}"`)
+    if (/\bNO\b/.test(normalized)) return false
+    if (!/\bYES\b/.test(normalized)) {
+      this.logger.warn(`Language judge gave an unexpected verdict, accepted: "${verdict.slice(0, 40)}"`)
     }
     return true
   }
 
-  // Deterministik guard'lar (ucuz) önce; onlar temiz derse son söz judge'ın
+  // Deterministic guards (cheap) first; if they say clean, the judge has the last word
   private async isLeaky(text: string): Promise<boolean> {
     if (isContaminated(text)) return true
-    return !(await this.isTurkishByJudge(text))
+    return !(await this.isEnglishByJudge(text))
   }
 
   // Kullanıcıya göstermeden en fazla bu kadar üretim denenir; hepsi sızarsa sabit
@@ -151,11 +152,11 @@ export class ChatService {
         const isLastAttempt = attempt === ChatService.MAX_CHAT_ATTEMPTS
         this.logger.warn(
           isLastAttempt
-            ? `${attempt}. denemede de sızıntı, sabit mesaja düşürüldü: "${reply.slice(0, 120)}"`
-            : `Yabancı dil sızıntısı (deneme ${attempt}/${ChatService.MAX_CHAT_ATTEMPTS}), yanıt yeniden üretiliyor: "${reply.slice(0, 120)}"`,
+            ? `Leak on attempt ${attempt} as well, fell back to the fixed message: "${reply.slice(0, 120)}"`
+            : `Foreign language leak (attempt ${attempt}/${ChatService.MAX_CHAT_ATTEMPTS}), regenerating reply: "${reply.slice(0, 120)}"`,
         )
       }
-      return 'Üzgünüm, yanıt oluşturulurken bir sorun yaşandı. Sorunuzu tekrar yazar mısınız?'
+      return 'Sorry, something went wrong while composing a reply. Could you write your question again?'
     } catch (err) {
       // Bütçe dolduğunda hata yerine normal cevap gibi sabit mesaj dön;
       // frontend'de WhatsApp butonu görünür kalır
@@ -177,9 +178,9 @@ export class ChatService {
     }
     // Özet bilinçli olarak foreign-word ön-filtresine girmez (şablon markalı terim
     // içerir); alfabe kontrolü + judge yeterli
-    if (hasNonLatinLeak(text) || !(await this.isTurkishByJudge(text))) {
-      // Frontend hata durumunda düz wa.me linkine düşüyor; bozuk özeti mesaj yapma
-      this.logger.warn(`Türkçe olmayan özet reddedildi: "${text.slice(0, 120)}"`)
+    if (hasNonLatinLeak(text) || !(await this.isEnglishByJudge(text))) {
+      // Frontend falls back to a plain wa.me link on error; never ship a broken summary
+      this.logger.warn(`Non-English summary rejected: "${text.slice(0, 120)}"`)
       throw new ServiceUnavailableException('Özet oluşturulamadı')
     }
     return text

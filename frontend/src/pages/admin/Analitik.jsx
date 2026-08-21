@@ -18,9 +18,9 @@ function startOfDay(daysAgo = 0) {
 }
 
 const RANGES = [
-  { label: 'Bugün', startAt: () => startOfDay(0), endAt: () => Date.now(), unit: 'hour' },
-  { label: '7 Gün', startAt: () => startOfDay(6), endAt: () => Date.now(), unit: 'day' },
-  { label: '30 Gün', startAt: () => startOfDay(29), endAt: () => Date.now(), unit: 'day' },
+  { label: 'Today', startAt: () => startOfDay(0), endAt: () => Date.now(), unit: 'hour' },
+  { label: '7 Days', startAt: () => startOfDay(6), endAt: () => Date.now(), unit: 'day' },
+  { label: '30 Days', startAt: () => startOfDay(29), endAt: () => Date.now(), unit: 'day' },
 ]
 
 function CustomTooltip({ active, payload, label }) {
@@ -47,12 +47,12 @@ function MetricList({ title, icon: Icon, items, emptyText }) {
         <h3 className="font-semibold text-gray-700 text-sm">{title}</h3>
       </div>
       {items.length === 0 ? (
-        <p className="text-center py-6 text-gray-300 text-sm">{emptyText || 'Veri yok'}</p>
+        <p className="text-center py-6 text-gray-300 text-sm">{emptyText || 'No data'}</p>
       ) : (
         <div className="space-y-2.5">
           {items.slice(0, 6).map((item) => (
             <div key={item.x} className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 truncate flex-1 min-w-0">{item.x || 'Doğrudan'}</span>
+              <span className="text-xs text-gray-500 truncate flex-1 min-w-0">{item.x || 'Direct'}</span>
               <div className="w-20 h-1 bg-gray-100 rounded-full overflow-hidden shrink-0">
                 <div
                   className="h-full bg-[#448834] rounded-full"
@@ -114,11 +114,11 @@ export default function Analitik() {
       setCountries(Array.isArray(ctr) ? ctr : [])
     } catch (e) {
       if (e.message.includes('401')) {
-        setError('Oturum süresi dolmuş. Yeniden giriş yapın.')
+        setError('Your session has expired. Please sign in again.')
       } else if (e.message.includes('500')) {
-        setError('Umami bağlantısı kurulamadı. Docker çalışıyor mu? (localhost:3002)')
+        setError('Could not connect to Umami. Is Docker running? (localhost:3002)')
       } else {
-        setError(`Veri alınamadı: ${e.message}`)
+        setError(`Could not load data: ${e.message}`)
       }
     } finally {
       setLoading(false)
@@ -129,8 +129,8 @@ export default function Analitik() {
 
   const chartData = pageviews?.pageviews?.map((pv, i) => ({
     t: pv.x,
-    'Sayfa Görüntülenme': pv.y,
-    'Ziyaretçi': pageviews?.sessions?.[i]?.y ?? 0,
+    'Page Views': pv.y,
+    'Visitors': pageviews?.sessions?.[i]?.y ?? 0,
   })) ?? []
 
   const maxPages = pages[0]?.y || 1
@@ -142,7 +142,7 @@ export default function Analitik() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Analitik</h2>
-          <p className="text-sm text-gray-400 mt-1">Site ziyaretçi istatistikleri</p>
+          <p className="text-sm text-gray-400 mt-1">Site visitor statistics</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <AdminTabs
@@ -165,7 +165,7 @@ export default function Analitik() {
             className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 px-3 py-2 hover:bg-gray-100 rounded-xl transition-colors"
           >
             <ExternalLink size={13} />
-            Umami'de Aç
+            Open in Umami
           </a>
         </div>
       </div>
@@ -173,17 +173,17 @@ export default function Analitik() {
       {error ? (
         <div className="bg-red-50 border border-red-100 text-red-600 rounded-2xl px-5 py-4 text-sm">{error}</div>
       ) : loading ? (
-        <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       ) : (
         <div className="space-y-6">
 
-          {/* Stat kartları */}
+          {/* Stat cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Sayfa Görüntülenme', value: stats?.pageviews?.value ?? stats?.pageviews ?? 0, icon: Eye },
-              { label: 'Tekil Ziyaretçi', value: stats?.visitors?.value ?? stats?.visitors ?? 0, icon: Users },
-              { label: 'Oturum', value: stats?.visits?.value ?? stats?.visits ?? 0, icon: MousePointer },
-              { label: 'Ort. Süre', value: (() => { const t = stats?.totaltime?.value ?? stats?.totaltime ?? 0; const v = stats?.visits?.value ?? stats?.visits ?? 1; return t ? `${Math.round(t / 60 / v)}dk` : '0dk' })(), icon: Clock },
+              { label: 'Page Views', value: stats?.pageviews?.value ?? stats?.pageviews ?? 0, icon: Eye },
+              { label: 'Unique Visitors', value: stats?.visitors?.value ?? stats?.visitors ?? 0, icon: Users },
+              { label: 'Sessions', value: stats?.visits?.value ?? stats?.visits ?? 0, icon: MousePointer },
+              { label: 'Avg. Time', value: (() => { const t = stats?.totaltime?.value ?? stats?.totaltime ?? 0; const v = stats?.visits?.value ?? stats?.visits ?? 1; return t ? `${Math.round(t / 60 / v)}m` : '0m' })(), icon: Clock },
             ].map((s) => (
               <AdminStatCard key={s.label} label={s.label} value={s.value} icon={s.icon} />
             ))}
@@ -191,9 +191,9 @@ export default function Analitik() {
 
           {/* Ziyaret trendi */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 className="font-semibold text-gray-700 text-sm mb-5">Ziyaret Trendi</h3>
+            <h3 className="font-semibold text-gray-700 text-sm mb-5">Visit Trend</h3>
             {chartData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-300 text-sm">Veri yok</div>
+              <div className="h-48 flex items-center justify-center text-gray-300 text-sm">No data</div>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={chartData}>
@@ -210,8 +210,8 @@ export default function Analitik() {
                   <XAxis dataKey="t" tick={{ fontSize: 11, fill: '#d1d5db' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#d1d5db' }} axisLine={false} tickLine={false} width={28} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="Sayfa Görüntülenme" stroke="#448834" strokeWidth={1.5} fill="url(#pvGrad)" dot={false} />
-                  <Area type="monotone" dataKey="Ziyaretçi" stroke="#cbd5e1" strokeWidth={1.5} fill="url(#sesGrad)" dot={false} />
+                  <Area type="monotone" dataKey="Page Views" stroke="#448834" strokeWidth={1.5} fill="url(#pvGrad)" dot={false} />
+                  <Area type="monotone" dataKey="Visitors" stroke="#cbd5e1" strokeWidth={1.5} fill="url(#sesGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -219,11 +219,11 @@ export default function Analitik() {
 
           {/* Sayfalar + Kaynaklar */}
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* En çok görüntülenen sayfalar */}
+            {/* Most viewed pages */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
-              <h3 className="font-semibold text-gray-700 text-sm mb-4">En Çok Görüntülenen Sayfalar</h3>
+              <h3 className="font-semibold text-gray-700 text-sm mb-4">Most Viewed Pages</h3>
               {pages.length === 0 ? (
-                <p className="text-center py-6 text-gray-300 text-sm">Veri yok</p>
+                <p className="text-center py-6 text-gray-300 text-sm">No data</p>
               ) : (
                 <div className="space-y-2.5">
                   {pages.slice(0, 8).map((p, i) => (
@@ -243,15 +243,15 @@ export default function Analitik() {
               )}
             </div>
 
-            <MetricList title="Trafik Kaynakları" icon={Link2} items={referrers} emptyText="Kaynak verisi yok" />
+            <MetricList title="Traffic Sources" icon={Link2} items={referrers} emptyText="No source data" />
           </div>
 
-          {/* Cihaz / Tarayıcı / OS / Ülke */}
+          {/* Device / Browser / OS / Country */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <MetricList title="Cihazlar" icon={Smartphone} items={devices} />
-            <MetricList title="Tarayıcılar" icon={Monitor} items={browsers} />
-            <MetricList title="İşletim Sistemi" icon={Monitor} items={os} />
-            <MetricList title="Ülkeler" icon={Globe} items={countries} />
+            <MetricList title="Browsers" icon={Monitor} items={browsers} />
+            <MetricList title="Operating System" icon={Monitor} items={os} />
+            <MetricList title="Countries" icon={Globe} items={countries} />
           </div>
 
         </div>

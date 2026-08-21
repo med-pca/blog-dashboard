@@ -1,5 +1,5 @@
-// Admin listelerindeki özet sayı kartı. `dense`, tek sırada çok kart olan
-// sayfalar (ör. Teklif Talepleri) için daha küçük bir varyant sağlar.
+// Summary count card used across admin lists. `dense` gives a smaller variant
+// for pages that fit many cards in one row (e.g. Requests).
 export default function AdminStatCard({ label, value, icon, dense = false }) {
   const Icon = icon
   return (

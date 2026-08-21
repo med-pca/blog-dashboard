@@ -46,11 +46,11 @@ function SortableRow({ r, onDelete, deletingId }) {
       <td className="px-5 py-5">
         {r.published ? (
           <span className="flex items-center gap-1.5 text-sm text-green-600">
-            <Eye size={14} /> Yayında
+            <Eye size={14} /> Published
           </span>
         ) : (
           <span className="flex items-center gap-1.5 text-sm text-gray-400">
-            <EyeOff size={14} /> Gizli
+            <EyeOff size={14} /> Hidden
           </span>
         )}
       </td>
@@ -102,13 +102,13 @@ export default function ReferanslarAdmin() {
 
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`"${name}" referansını silmek istediğinize emin misiniz?`)) return
+    if (!confirm(`Delete the "${name}" community entry?`)) return
     setDeletingId(id)
     try {
       await deleteReference(id)
       setRefs((prev) => prev.filter((r) => r.id !== id))
     } catch (err) {
-      alert('Silinemedi: ' + err.message)
+      alert('Could not delete: ' + err.message)
     } finally {
       setDeletingId(null)
     }
@@ -118,10 +118,10 @@ export default function ReferanslarAdmin() {
     <main className="max-w-2xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Referanslar</h1>
+          <h1 className="text-xl font-bold text-gray-900">Community</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {refs.length} referans
-            {saving && <span className="ml-2 text-[#448834]">· kaydediliyor...</span>}
+            {refs.length} entries
+            {saving && <span className="ml-2 text-[#448834]">· saving...</span>}
           </p>
         </div>
         <Link
@@ -129,17 +129,17 @@ export default function ReferanslarAdmin() {
           className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-4 py-2 rounded-lg transition-colors text-sm"
         >
           <Plus size={16} />
-          Yeni Referans
+          New Entry
         </Link>
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       ) : refs.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="mb-4">Henüz referans yok.</p>
+          <p className="mb-4">No community entries yet.</p>
           <Link to="/rnl-panel/referanslar/yeni" className="text-[#448834] font-semibold hover:underline">
-            İlk referansı ekle
+            Add the first entry
           </Link>
         </div>
       ) : (
@@ -149,9 +149,9 @@ export default function ReferanslarAdmin() {
             <thead>
               <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
                 <th className="px-4 py-4 w-10" />
-                <th className="text-left px-3 py-4 font-medium w-20">Görsel</th>
-                <th className="text-left px-5 py-4 font-medium">Firma Adı</th>
-                <th className="text-left px-5 py-4 font-medium">Durum</th>
+                <th className="text-left px-3 py-4 font-medium w-20">Image</th>
+                <th className="text-left px-5 py-4 font-medium">Name</th>
+                <th className="text-left px-5 py-4 font-medium">Status</th>
                 <th className="px-5 py-4" />
               </tr>
             </thead>

@@ -1,140 +1,204 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Droplets, Home, Battery, Car, Wrench, Zap, ClipboardList, FileBarChart, ArrowRight } from 'lucide-react'
-import { waLink } from '../lib/whatsapp'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Croissant,
+  CookingPot,
+  Soup,
+  Salad,
+  ChefHat,
+  Timer,
+  CalendarDays,
+  PiggyBank,
+  ArrowRight,
+} from "lucide-react";
+import { waLink } from "../lib/whatsapp";
 
 const categories = [
   {
-    id: 'ges',
-    label: 'GES Kurulum Hizmetleri',
-    labelShort: 'GES Kurulum',
+    id: "ges",
+    label: "Recipe Categories",
+    labelShort: "Recipes",
     description:
-      'Tarımsal sulamadan konut ve ticari çatılara, off-grid bağ evlerinden elektrikli araç şarj altyapısına kadar güneş enerjisi kurulumunda uçtan uca hizmet sunuyoruz. Sahada yapılan keşiften sistemi devreye almaya kadar tüm süreci yönetiyoruz.',
+      "From quick breakfasts to cozy dinners, discover practical recipes that fit real schedules and home kitchens.",
     services: [
       {
-        icon: Droplets,
-        title: 'Akıllı Tarımsal Sulama GES',
-        slug: 'sulama',
-        description: 'Tarım arazilerinizin sulama ihtiyacını güneş enerjisiyle karşılayın. Elektrik faturanızı sıfıra indirin, verimliliğinizi artırın.',
-        features: ['Pompa sistemleri entegrasyonu', 'Otomatik sulama kontrolü', 'Uzaktan izleme'],
-        photo: '/tarimsal-sulama-sistemleri-gunes-enerjisi.webp',
-        ring: 'ring-2 ring-[#448834]/30',
-        waMessage: 'Merhaba, tarımsal sulama GES sistemi hakkında teklif almak istiyorum. Arazim için güneş enerjili sulama sistemi kurulumu hakkında bilgi verir misiniz?',
+        icon: Croissant,
+        title: "Quick Breakfast Recipes",
+        slug: "sulama",
+        description:
+          "Fast, tasty ideas for busy mornings with simple ingredients and minimal prep.",
+        features: [
+          "15-minute ideas",
+          "Pantry-friendly ingredients",
+          "Beginner-friendly steps",
+        ],
+        photo: "/food/illustration-1.svg",
+        ring: "ring-2 ring-[#448834]/30",
+        waMessage:
+          "Hi, I would like recipe suggestions for quick breakfast meals.",
       },
       {
-        icon: Home,
-        title: 'Arazi & Çatı Tipi GES',
-        slug: 'cati-arazi',
-        description: 'Evinizin çatısına veya arazinize kurulacak güneş enerji sistemi ile elektrik üretin, şebekeye satın ya da kendi tüketiminizde kullanın.',
-        features: ['Konut & ticari çatılar', 'Arazi tipi büyük kurulumlar', 'Şebeke entegrasyonu'],
-        photo: '/arazi-cati-tipi-ges.webp',
+        icon: CookingPot,
+        title: "Weeknight Dinner Favorites",
+        slug: "cati-arazi",
+        description:
+          "Reliable main dishes for weekdays when you need comfort and speed together.",
+        features: [
+          "One-pan dinners",
+          "Family-friendly flavors",
+          "Balanced everyday meals",
+        ],
+        photo: "/food/illustration-2.svg",
         highlight: true,
-        waMessage: 'Merhaba, arazi/çatı tipi GES kurulumu için teklif almak istiyorum. Kurulum yeri ve kapasite hakkında bilgi almak istiyorum.',
+        waMessage: "Hi, I would like easy weeknight dinner recommendations.",
       },
       {
-        icon: Battery,
-        title: 'Bağ Evi Depolamalı GES',
-        slug: 'bag-evi',
-        description: 'Şebekenin olmadığı veya kesintili olduğu bağ evleri için batarya destekli off-grid ya da hibrit güneş sistemi çözümleri.',
-        features: ['Lityum batarya depolama', 'Hibrit & off-grid seçenekler', '7/24 enerji güvencesi'],
-        photo: '/bag-evi-ges.webp',
-        ring: 'ring-2 ring-[#448834]/30',
-        waMessage: 'Merhaba, bağ evi / off-grid GES sistemi için teklif almak istiyorum. Bataryalı güneş enerjisi sistemi hakkında bilgi alabilir miyim?',
+        icon: Soup,
+        title: "Comfort Food Classics",
+        slug: "bag-evi",
+        description:
+          "Hearty dishes and nostalgic flavors for weekends, gatherings, and cozy evenings.",
+        features: [
+          "Slow-cooked favorites",
+          "Seasonal twists",
+          "Crowd-pleasing portions",
+        ],
+        photo: "/food/illustration-3.svg",
+        ring: "ring-2 ring-[#448834]/30",
+        waMessage: "Hi, I would like comfort food recipe recommendations.",
       },
       {
-        icon: Car,
-        title: 'Elektrikli Araç Şarj İstasyonu',
-        slug: 'ev-sarj',
-        description: 'Güneş enerjisi destekli EV şarj istasyonu kurulumu ile araçlarınızı güneşten üretilen temiz enerji ile şarj edin.',
-        features: ['AC & DC hızlı şarj', 'Güneş + şebeke entegrasyonu', 'Akıllı yük yönetimi'],
-        photo: '/elektrikli-arac-sarj-istasyonu.webp',
-        ring: 'ring-2 ring-[#448834]/30',
-        waMessage: 'Merhaba, elektrikli araç şarj istasyonu kurulumu için teklif almak istiyorum. Güneş enerjili EV şarj sistemi hakkında bilgi alabilir miyim?',
+        icon: Salad,
+        title: "Healthy Bowl Ideas",
+        slug: "ev-sarj",
+        description:
+          "Fresh bowls packed with grains, vegetables, and proteins for energizing daily meals.",
+        features: [
+          "Protein-rich combinations",
+          "Meal prep friendly",
+          "Colorful seasonal produce",
+        ],
+        photo: "/food/illustration-4.svg",
+        ring: "ring-2 ring-[#448834]/30",
+        waMessage: "Hi, I would like healthy bowl recipe ideas for meal prep.",
       },
     ],
   },
   {
-    id: 'bakim',
-    label: 'Bakım & Onarım',
-    labelShort: 'Bakım & Onarım',
+    id: "bakim",
+    label: "Kitchen Skills",
+    labelShort: "Skills",
     description:
-      'Kurulu GES sistemlerinizin verim kaybı yaşamaması için düzenli saha takibi, arıza tespiti ve onarım hizmetleri sunuyoruz. Panel temizliğinden trafo ve pano bakımına, AG/OG dağıtım şebekesi onarımına kadar eksiksiz bir bakım hizmeti sağlıyoruz.',
+      "Master the basics with practical cooking techniques that improve flavor, speed, and confidence in the kitchen.",
     services: [
       {
-        icon: Wrench,
-        title: 'GES Bakım & Onarım',
-        slug: 'ges-bakim-onarim',
-        description: 'Güneş enerji santrallerinizin maksimum verimde çalışması için periyodik bakım, arıza tespiti, onarım ve temizlik hizmetleri.',
-        features: ['Saha takibi & performans analizi', 'Arıza tespiti ve onarımı', 'GES & saha temizliği'],
-        photo: '/ges-bakim-onarim.webp',
-        ring: 'ring-2 ring-[#448834]/30',
-        waMessage: 'Merhaba, GES bakım ve onarım hizmeti hakkında bilgi almak istiyorum. Sistemim için periyodik bakım teklifi alabilir miyim?',
+        icon: ChefHat,
+        title: "Meal Prep Foundations",
+        slug: "ges-bakim-onarim",
+        description:
+          "Learn smart prep workflows to save time and keep meals ready all week.",
+        features: [
+          "Batch cooking workflow",
+          "Storage best practices",
+          "Weekly prep templates",
+        ],
+        photo: "/food/illustration-1.svg",
+        ring: "ring-2 ring-[#448834]/30",
+        waMessage: "Hi, I want help with meal prep basics and weekly planning.",
       },
       {
-        icon: Zap,
-        title: 'Elektrik Altyapı Bakımı',
-        slug: 'elektrik-altyapi-bakimi',
-        description: 'Trafo, pano ve dağıtım şebekesi bakım onarımı ile elektrik altyapınızın güvenli ve kesintisiz çalışmasını sağlıyoruz.',
-        features: ['Trafo & pano bakım onarım', 'AG/OG dağıtım şebekesi', 'Periyodik kontrol & test'],
-        photo: '/elektrik-altyapi-bakimi.webp',
-        ring: 'ring-2 ring-[#448834]/30',
-        waMessage: 'Merhaba, trafo, pano ve elektrik altyapısı bakım onarım hizmeti hakkında bilgi almak istiyorum.',
+        icon: Timer,
+        title: "Kitchen Efficiency Tips",
+        slug: "elektrik-altyapi-bakimi",
+        description:
+          "Simple habits and tool choices that speed up cooking and reduce kitchen stress.",
+        features: [
+          "Knife and prep shortcuts",
+          "Time-saving kitchen setup",
+          "Waste-reduction habits",
+        ],
+        photo: "/food/illustration-2.svg",
+        ring: "ring-2 ring-[#448834]/30",
+        waMessage:
+          "Hi, I want kitchen efficiency tips for faster daily cooking.",
       },
     ],
   },
   {
-    id: 'danismanlik',
-    label: 'Danışmanlık',
-    labelShort: 'Danışmanlık',
+    id: "danismanlik",
+    label: "Food Guides",
+    labelShort: "Guides",
     description:
-      'GES yatırımına karar vermeden önce doğru kararı vermeniz için fizibilite analizi, proje tasarımı ve yatırım geri dönüş hesabı yapıyoruz. Teşvik mekanizmaları ve lisanssız üretim mevzuatı konularında da rehberlik ediyoruz.',
+      "Follow practical food guides for budgeting, balanced planning, and choosing ingredients with confidence.",
     services: [
       {
-        icon: ClipboardList,
-        title: 'Proje Danışmanlığı',
-        slug: 'proje-danismanlik',
-        description: 'GES yatırımınızı doğru planlamak için fizibilite, mühendislik tasarımı ve mevzuat danışmanlığı hizmetleri sunuyoruz.',
-        features: ['Fizibilite & yatırım analizi', 'Proje tasarımı & mühendislik', 'Teşvik & lisans danışmanlığı'],
-        photo: '/proje-danismanlik.webp',
+        icon: CalendarDays,
+        title: "Meal Planning Guide",
+        slug: "proje-danismanlik",
+        description:
+          "Build practical weekly meal plans with less decision fatigue and better nutrition balance.",
+        features: [
+          "Weekly menu templates",
+          "Balanced plate method",
+          "Shopping rhythm tips",
+        ],
+        photo: "/food/illustration-3.svg",
         highlight: true,
-        waMessage: 'Merhaba, GES proje danışmanlığı hakkında bilgi almak istiyorum. Fizibilite ve yatırım analizi için görüşme talep ediyorum.',
+        waMessage:
+          "Hi, I would like support building an easy weekly meal plan.",
       },
       {
-        icon: FileBarChart,
-        title: 'Enerji Danışmanlığı',
-        slug: 'enerji-danismanlik',
-        description: 'Elektrik faturalarınızı ve reaktif enerji tüketiminizi takip ediyor, ceza risklerine karşı sizi koruyoruz.',
-        features: ['Reaktif ceza & enerji izleme', 'Fatura analiz & raporlama', 'Abonelik & sözleşme takibi'],
-        photo: '/enerji-danismanlik.webp',
-        photoAlt: 'Enerji danışmanı elektrik faturasını ve dizüstü bilgisayarda enerji tüketim grafiğini inceliyor',
-        ring: 'ring-2 ring-[#448834]/30',
-        waMessage: 'Merhaba, enerji danışmanlığı hizmetleriniz hakkında bilgi almak istiyorum. Elektrik faturası ve reaktif enerji kontrolü konusunda görüşmek istiyorum.',
+        icon: PiggyBank,
+        title: "Budget Cooking Guide",
+        slug: "enerji-danismanlik",
+        description:
+          "Learn how to shop smarter, reduce food waste, and cook satisfying meals on budget.",
+        features: [
+          "Cost-per-meal planning",
+          "Smart substitutions",
+          "Leftover transformation ideas",
+        ],
+        photo: "/food/illustration-4.svg",
+        photoAlt: "Cook reviewing grocery notes and meal cost plan",
+        ring: "ring-2 ring-[#448834]/30",
+        waMessage: "Hi, I want budget-friendly recipe and shopping advice.",
       },
     ],
   },
-]
+];
 
 export default function Services() {
-  const [activeTab, setActiveTab] = useState('ges')
+  const [activeTab, setActiveTab] = useState("ges");
 
   return (
-    <section id="hizmetler" className="relative py-24 bg-white overflow-hidden">
+    <section
+      id="hizmetler"
+      className="relative py-24 bg-gradient-to-b from-white to-amber-50/40 overflow-hidden"
+    >
       {/* Decorative background */}
       <div className="absolute left-0 bottom-0 w-187.5 h-187.5 pointer-events-none select-none opacity-70">
-        <img src="/banner.webp" alt="" width="639" height="565" className="w-full h-full object-contain object-bottom-left" loading="lazy" />
+        <img
+          src="/food/illustration-2.svg"
+          alt=""
+          width="639"
+          height="565"
+          className="w-full h-full object-contain object-bottom-left"
+          loading="lazy"
+        />
       </div>
 
       <div className="max-w-350 mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-12">
-          <span className="inline-block text-[#357228] font-semibold text-base mb-4">
-            HİZMETLERİMİZ
+          <span className="inline-block text-orange-700 font-semibold text-base mb-4">
+            RECIPE HUB
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Güneş Enerjisinde Tam Kapsamlı Çözümler
+          <h2 className="text-3xl sm:text-4xl font-bold text-zinc-900 mb-4">
+            Cooking Ideas For Every Day
           </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-            Kurulumdan bakıma, danışmanlıktan altyapıya kadar güneş enerjisinin gücünü her alana taşıyoruz.
+          <p className="text-zinc-600 max-w-2xl mx-auto text-lg">
+            Explore recipes, practical skills, and food guides curated for real
+            home kitchens.
           </p>
         </div>
 
@@ -146,8 +210,8 @@ export default function Services() {
               onClick={() => setActiveTab(cat.id)}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                 activeTab === cat.id
-                  ? 'bg-[#448834] text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? "bg-[#448834] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               <span className="sm:hidden">{cat.labelShort}</span>
@@ -160,30 +224,33 @@ export default function Services() {
         {categories.map((cat) => (
           <div
             key={cat.id}
-            className={activeTab === cat.id ? 'block' : 'hidden'}
+            className={activeTab === cat.id ? "block" : "hidden"}
             aria-hidden={activeTab !== cat.id}
           >
             {/* Cards */}
-            <div className={`grid gap-6 ${
-              cat.services.length === 1
-                ? 'max-w-md mx-auto'
-                : cat.services.length === 2
-                ? 'sm:grid-cols-2 max-w-2xl mx-auto'
-                : 'sm:grid-cols-2 lg:grid-cols-4'
-            }`}>
+            <div
+              className={`grid gap-6 ${
+                cat.services.length === 1
+                  ? "max-w-md mx-auto"
+                  : cat.services.length === 2
+                    ? "sm:grid-cols-2 max-w-2xl mx-auto"
+                    : "sm:grid-cols-2 lg:grid-cols-4"
+              }`}
+            >
               {cat.services.map((s) => {
-                const Icon = s.icon
+                const Icon = s.icon;
                 return (
                   <div
                     key={s.title}
-                    className={`relative rounded-2xl border border-gray-100 overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group ${s.highlight ? 'ring-2 ring-[#448834]/30' : s.ring || ''}`}
+                    className={`relative rounded-2xl border border-gray-100 overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group ${s.highlight ? "ring-2 ring-[#448834]/30" : s.ring || ""}`}
                   >
                     {/* Photo */}
-                    <Link to={`/hizmetler/${s.slug}`} className="block h-36 overflow-hidden">
+                    <Link
+                      to={`/hizmetler/${s.slug}`}
+                      className="block h-36 overflow-hidden"
+                    >
                       <img
                         src={s.photo}
-                        srcSet={`${s.photo.replace('.webp', '-400w.webp')} 400w, ${s.photo.replace('.webp', '-800w.webp')} 800w`}
-                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                         alt={s.photoAlt ?? s.title}
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -197,12 +264,19 @@ export default function Services() {
                           <div className="h-0.5 flex-1 rounded-full bg-[#448834]/30" />
                         </div>
 
-                        <h3 className="font-bold text-gray-900 text-base leading-tight">{s.title}</h3>
-                        <p className="text-gray-500 text-sm leading-relaxed flex-1">{s.description}</p>
+                        <h3 className="font-bold text-gray-900 text-base leading-tight">
+                          {s.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm leading-relaxed flex-1">
+                          {s.description}
+                        </p>
 
                         <ul className="space-y-1.5">
-                          {s.features.map(f => (
-                            <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                          {s.features.map((f) => (
+                            <li
+                              key={f}
+                              className="flex items-center gap-2 text-sm text-gray-600"
+                            >
                               <span className="w-1.5 h-1.5 rounded-full bg-[#448834] shrink-0" />
                               {f}
                             </li>
@@ -213,25 +287,25 @@ export default function Services() {
                       <div className="flex items-center justify-between gap-2 pt-1">
                         <Link
                           to={`/hizmetler/${s.slug}`}
-                          aria-label={`${s.title} hakkında detaylı bilgi`}
+                          aria-label={`View details for ${s.title}`}
                           className="text-sm font-semibold text-gray-500 hover:text-[#448834] transition-colors"
                         >
-                          Detaylı Bilgi
+                          View Details
                         </Link>
                         <a
                           href={waLink(s.waMessage)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`${s.title} için teklif al`}
+                          aria-label={`Get help for ${s.title}`}
                           className="inline-flex items-center gap-1.5 text-[#357228] font-semibold text-sm group-hover:gap-3 transition-all"
                         >
-                          Teklif Al
+                          Ask For Tips
                           <ArrowRight size={15} />
                         </a>
                       </div>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
 
@@ -243,5 +317,5 @@ export default function Services() {
         ))}
       </div>
     </section>
-  )
+  );
 }

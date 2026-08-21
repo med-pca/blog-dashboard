@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" fill="none" role="img" aria-label="Flavor Journal">
+  <!-- Chef hat puff -->
+  <g fill="#448834">
+    <circle cx="120" cy="70" r="42"/>
+    <circle cx="66" cy="100" r="36"/>
+    <circle cx="174" cy="100" r="36"/>
+    <rect x="60" y="94" width="120" height="80" rx="12"/>
+  </g>
+  <!-- Fork mark -->
+  <g fill="#f5ce31">
+    <rect x="105" y="66" width="6" height="30" rx="3"/>
+    <rect x="117" y="66" width="6" height="30" rx="3"/>
+    <rect x="129" y="66" width="6" height="30" rx="3"/>
+    <rect x="104" y="94" width="32" height="12" rx="6"/>
+    <rect x="114" y="104" width="12" height="42" rx="6"/>
+  </g>
+  <!-- Hat band -->
+  <rect x="62" y="182" width="116" height="34" rx="12" fill="#f5ce31"/>
+</svg>

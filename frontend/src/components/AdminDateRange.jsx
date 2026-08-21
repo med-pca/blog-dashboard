@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 
-// Admin listeleri için başlangıç–bitiş gün seçici (Loglar, Chatbot talepleri).
-// Değerler <input type="date"> formatında (YYYY-MM-DD); ISO çevirisi çağıranda.
+// Start–end day picker for admin lists (Logs, Chat requests).
+// Values use the <input type="date"> format (YYYY-MM-DD); ISO conversion is the caller's job.
 export default function AdminDateRange({ from, to, onChange }) {
   const inputCls =
     'px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:border-gray-300'
@@ -14,7 +14,7 @@ export default function AdminDateRange({ from, to, onChange }) {
         max={to || undefined}
         onChange={e => onChange(e.target.value, to)}
         className={inputCls}
-        aria-label="Başlangıç tarihi"
+        aria-label="Start date"
       />
       <span className="text-sm text-gray-300">–</span>
       <input
@@ -23,13 +23,13 @@ export default function AdminDateRange({ from, to, onChange }) {
         min={from || undefined}
         onChange={e => onChange(from, e.target.value)}
         className={inputCls}
-        aria-label="Bitiş tarihi"
+        aria-label="End date"
       />
       {(from || to) && (
         <button
           onClick={() => onChange('', '')}
           className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          title="Tarih filtresini temizle"
+          title="Clear date filter"
         >
           <X size={14} />
         </button>

@@ -9,9 +9,9 @@ type GroqPayload = { messages: { role: string; content: string }[] } & Record<st
 interface TestService {
   service: ChatService
   call: jest.Mock
-  // Judge çağrıları payload'daki JUDGE_SYSTEM_PROMPT üzerinden ayırt edilir
+  // Judge calls are identified through JUDGE_SYSTEM_PROMPT in the payload
   judgeCallCount: () => number
-  // Sıradaki judge kararlarını kuyruğa ekler; null = ağ hatası. Kuyruk boşsa EVET.
+  // Queues the next judge verdicts; null = network error. Empty queue means YES.
   setJudgeVerdicts: (...verdicts: (string | null)[]) => void
 }
 
@@ -25,7 +25,7 @@ function makeService(...replies: string[]): TestService {
 
   const call = jest.fn((_keys: string[], payload: GroqPayload) => {
     if (isJudgePayload(payload)) {
-      const verdict = judgeQueue.length ? judgeQueue.shift() : 'EVET'
+      const verdict = judgeQueue.length ? judgeQueue.shift() : 'YES'
       if (verdict == null) return Promise.resolve({ res: null, data: null })
       return Promise.resolve({
         res: { ok: true, status: 200 },
@@ -43,7 +43,7 @@ function makeService(...replies: string[]): TestService {
     service: new ChatService(
       config as unknown as ConfigService,
       groq as unknown as GroqService,
-      // Varsayılan: bütçe sayacı hep izin verir; bütçe testleri withRedis ile ezer
+      // Default: the budget counter always allows; budget tests override it via withRedis
       { incr: jest.fn().mockResolvedValue(1), expire: jest.fn() } as unknown as import('ioredis').Redis,
     ),
     call,
@@ -53,27 +53,27 @@ function makeService(...replies: string[]): TestService {
   }
 }
 
-const MESSAGES = [{ role: 'user' as const, content: 'merhaba' }]
+const MESSAGES = [{ role: 'user' as const, content: 'hello' }]
 
-describe('ChatService — non-Turkish output guard', () => {
-  it('returns Groq reply unchanged when Turkish', async () => {
-    const { service, call, judgeCallCount } = makeService('Çatı GES için aylık faturanız nedir?')
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
-    // temiz yol: 1 üretim + 1 judge
+describe('ChatService — non-English output guard', () => {
+  it('returns Groq reply unchanged when English', async () => {
+    const { service, call, judgeCallCount } = makeService('How many servings do you cook for?')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
+    // clean path: 1 generation + 1 judge
     expect(call).toHaveBeenCalledTimes(2)
     expect(judgeCallCount()).toBe(1)
   })
 
   it('regenerates once when reply leaks foreign words, then returns the clean retry', async () => {
     const { service, call, judgeCallCount } = makeService(
-      'Çatı GES için monthly elektrik faturanız nedir?',
-      'Çatı GES için aylık elektrik faturanız nedir?',
+      'What is your aylik food budget?',
+      'What is your monthly food budget?',
     )
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık elektrik faturanız nedir?')
-    // kirli ilk yanıtta judge atlanır: üretim + üretim + judge
+    await expect(service.chat(MESSAGES)).resolves.toBe('What is your monthly food budget?')
+    // the judge is skipped on the dirty first reply: generation + generation + judge
     expect(call).toHaveBeenCalledTimes(3)
     expect(judgeCallCount()).toBe(1)
-    // ilk üretim nudge'sız, retry düzeltici talimatla yapılır
+    // first generation has no nudge, the retry carries the corrective instruction
     const systemOf = (i: number) => (call.mock.calls[i][1] as GroqPayload).messages[0].content
     expect(systemOf(0)).not.toContain(RETRY_NUDGE)
     expect(systemOf(1)).toContain(RETRY_NUDGE)
@@ -81,117 +81,123 @@ describe('ChatService — non-Turkish output guard', () => {
 
   it('regenerates a second time when the retry also leaks, then returns the clean third attempt', async () => {
     const { service, call, judgeCallCount } = makeService(
-      'Çatı GES için monthly elektrik faturanız nedir?',
-      'Kurulum yeriniz about bir konut çatısı mı?',
-      'Kurulum yeriniz konut çatısı mı?',
+      'What is your aylik food budget?',
+      'Are you cooking for a kalabalık table this week?',
+      'Are you cooking for a big table this week?',
     )
-    await expect(service.chat(MESSAGES)).resolves.toBe('Kurulum yeriniz konut çatısı mı?')
-    // ilk iki yanıt deterministik kirli (judge atlanır), üçüncüde judge çağrılır
+    await expect(service.chat(MESSAGES)).resolves.toBe('Are you cooking for a big table this week?')
+    // the first two replies are deterministically dirty (judge skipped), the third is judged
     expect(call).toHaveBeenCalledTimes(4)
     expect(judgeCallCount()).toBe(1)
   })
 
-  it('falls back to fixed Turkish message when all attempts leak', async () => {
+  it('falls back to the fixed English message when all attempts leak', async () => {
     const { service, call, judgeCallCount } = makeService(
-      'Bilgi almak içinmonthly elektrik faturanız nedir?',
-      'Kurulum yeriniz about bir konut çatısı mı?',
-      'Fiyat için cost bilgisi paylaşır mısınız?',
+      'Tell me your budgetaylik and I will plan the week.',
+      'Are you cooking for a kalabalık table this week?',
+      'Kaç kişilik yemek pişiriyorsunuz?',
     )
     const reply = await service.chat(MESSAGES)
-    expect(reply).toBe('Üzgünüm, yanıt oluşturulurken bir sorun yaşandı. Sorunuzu tekrar yazar mısınız?')
-    // üç yanıt da deterministik kirli: judge hiç çağrılmaz
+    expect(reply).toBe('Sorry, something went wrong while composing a reply. Could you write your question again?')
+    // all three replies are deterministically dirty: the judge is never called
     expect(call).toHaveBeenCalledTimes(3)
     expect(judgeCallCount()).toBe(0)
   })
 
-  it('replaces non-Latin chat reply with fixed Turkish message after all retries', async () => {
+  it('replaces a non-Latin chat reply with the fixed message after all retries', async () => {
     const { service } = makeService(
       'Солнечная энергия очень выгодна для вашего дома',
       'Солнечная энергия очень выгодна для вашего дома',
       'Солнечная энергия очень выгодна для вашего дома',
     )
     const reply = await service.chat(MESSAGES)
-    expect(reply).toBe('Üzgünüm, yanıt oluşturulurken bir sorun yaşandı. Sorunuzu tekrar yazar mısınız?')
+    expect(reply).toBe('Sorry, something went wrong while composing a reply. Could you write your question again?')
   })
 
   it('throws 503 for non-Latin summary so frontend falls back to plain WhatsApp link', async () => {
     const { service, judgeCallCount } = makeService('Здравствуйте, я использовал систему консультаций')
     await expect(service.generateSummary(MESSAGES)).rejects.toThrow(ServiceUnavailableException)
-    // alfabe kontrolü kısa devre yapar, judge'a gidilmez
+    // the script check short-circuits, the judge is never reached
     expect(judgeCallCount()).toBe(0)
   })
 })
 
-describe('ChatService — LLM dil denetçisi (judge)', () => {
+describe('ChatService — LLM language judge', () => {
   it('regenerates when the judge rejects a heuristically clean reply', async () => {
     const { service, call, setJudgeVerdicts } = makeService(
-      'Selamlar, size nasıl yardımcı olabilirim acaba efendim?',
-      'Çatı GES için aylık faturanız nedir?',
+      'Greetings, how may I be of assistance to you today?',
+      'How many servings do you cook for?',
     )
-    setJudgeVerdicts('HAYIR', 'EVET')
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
-    // üretim + judge(HAYIR) + üretim + judge(EVET)
+    setJudgeVerdicts('NO', 'YES')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
+    // generation + judge(NO) + generation + judge(YES)
     expect(call).toHaveBeenCalledTimes(4)
   })
 
   it('falls back to the fixed message when the judge rejects all attempts', async () => {
-    const { service, call, setJudgeVerdicts } = makeService('İlk yanıt', 'İkinci yanıt', 'Üçüncü yanıt')
-    setJudgeVerdicts('HAYIR', 'HAYIR', 'HAYIR')
+    const { service, call, setJudgeVerdicts } = makeService('First reply', 'Second reply', 'Third reply')
+    setJudgeVerdicts('NO', 'NO', 'NO')
     const reply = await service.chat(MESSAGES)
-    expect(reply).toBe('Üzgünüm, yanıt oluşturulurken bir sorun yaşandı. Sorunuzu tekrar yazar mısınız?')
-    // üç üretim + üç judge
+    expect(reply).toBe('Sorry, something went wrong while composing a reply. Could you write your question again?')
+    // three generations + three judges
     expect(call).toHaveBeenCalledTimes(6)
   })
 
   it('fails open when the judge is unreachable', async () => {
-    const { service, setJudgeVerdicts } = makeService('Çatı GES için aylık faturanız nedir?')
-    setJudgeVerdicts(null) // ağ hatası
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
+    const { service, setJudgeVerdicts } = makeService('How many servings do you cook for?')
+    setJudgeVerdicts(null) // network error
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
 
   it('fails open on an unexpected judge verdict', async () => {
-    const { service, setJudgeVerdicts } = makeService('Çatı GES için aylık faturanız nedir?')
-    setJudgeVerdicts('BELKİ')
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
+    const { service, setJudgeVerdicts } = makeService('How many servings do you cook for?')
+    setJudgeVerdicts('MAYBE')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
 
-  it('wraps the evaluated text in the METİN/KARAR template for the judge', async () => {
-    const { service, call } = makeService('Çatı GES için aylık faturanız nedir?')
+  it('wraps the evaluated text in the TEXT/VERDICT template for the judge', async () => {
+    const { service, call } = makeService('How many servings do you cook for?')
     await service.chat(MESSAGES)
     const judgeCall = call.mock.calls.find(
       args => (args[1] as GroqPayload).messages[0]?.content === JUDGE_SYSTEM_PROMPT,
     )
     expect((judgeCall?.[1] as GroqPayload).messages[1].content).toBe(
-      judgeUserMessage('Çatı GES için aylık faturanız nedir?'),
+      judgeUserMessage('How many servings do you cook for?'),
     )
   })
 
-  it('rejects when HAYIR is embedded in a decorated verdict ("Karar: HAYIR")', async () => {
-    const { service, setJudgeVerdicts } = makeService('İlk yanıt', 'Çatı GES için aylık faturanız nedir?')
-    setJudgeVerdicts('Karar: HAYIR', 'EVET')
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
+  it('rejects when NO is embedded in a decorated verdict ("Verdict: NO")', async () => {
+    const { service, setJudgeVerdicts } = makeService('First reply', 'How many servings do you cook for?')
+    setJudgeVerdicts('Verdict: NO', 'YES')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
 
-  it('fails open when the judge echoes the text instead of answering (canlı 2026-07-17)', async () => {
-    const { service, setJudgeVerdicts } = makeService('Çatı GES için aylık faturanız nedir?')
-    setJudgeVerdicts('Çatı tipi')
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
+  it('does not read NO out of a longer word ("NOTHING TO FLAG")', async () => {
+    const { service, setJudgeVerdicts } = makeService('How many servings do you cook for?')
+    setJudgeVerdicts('NOTHING TO FLAG')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
+  })
+
+  it('fails open when the judge echoes the text instead of answering (production 2026-07-17)', async () => {
+    const { service, setJudgeVerdicts } = makeService('How many servings do you cook for?')
+    setJudgeVerdicts('Servings for')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
 
   it('rejects a summary when the judge says HAYIR', async () => {
-    const { service, setJudgeVerdicts } = makeService('Merhaba, teklif almak istiyorum.')
-    setJudgeVerdicts('HAYIR')
+    const { service, setJudgeVerdicts } = makeService('Hi, I would like detailed recipe suggestions.')
+    setJudgeVerdicts('NO')
     await expect(service.generateSummary(MESSAGES)).rejects.toThrow(ServiceUnavailableException)
   })
 
   it('returns the summary when the judge approves', async () => {
-    const { service, judgeCallCount } = makeService('Merhaba, teklif almak istiyorum.')
-    await expect(service.generateSummary(MESSAGES)).resolves.toBe('Merhaba, teklif almak istiyorum.')
+    const { service, judgeCallCount } = makeService('Hi, I would like detailed recipe suggestions.')
+    await expect(service.generateSummary(MESSAGES)).resolves.toBe('Hi, I would like detailed recipe suggestions.')
     expect(judgeCallCount()).toBe(1)
   })
 })
 
-describe('ChatService — Groq günlük bütçe devre kesici', () => {
+describe('ChatService — Groq daily budget circuit breaker', () => {
   function withRedis(
     service: ChatService,
     incrResult: number | Error,
@@ -206,34 +212,34 @@ describe('ChatService — Groq günlük bütçe devre kesici', () => {
   }
 
   it('returns the fixed message without calling Groq when the daily budget is exceeded', async () => {
-    const { service, call } = makeService('kullanılmayacak yanıt')
-    withRedis(service, 1001) // varsayılan limit 1000
+    const { service, call } = makeService('unused reply')
+    withRedis(service, 1001) // default limit is 1000
 
     await expect(service.chat(MESSAGES)).resolves.toBe(BUDGET_EXCEEDED_MESSAGE)
     expect(call).not.toHaveBeenCalled()
   })
 
   it('allows the request and sets a TTL on the first increment of the day', async () => {
-    const { service, judgeCallCount } = makeService('Çatı GES için aylık faturanız nedir?')
+    const { service, judgeCallCount } = makeService('How many servings do you cook for?')
     const redis = withRedis(service, 1)
 
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
     expect(redis.incr).toHaveBeenCalledWith(expect.stringMatching(/^groq:daily:\d{4}-\d{2}-\d{2}$/))
     expect(redis.expire).toHaveBeenCalledTimes(1)
-    // judge bütçe sayacını TÜKETMEZ: 1 üretim + 1 judge'a rağmen incr 1 kez çağrılır
+    // the judge does NOT consume the budget counter: 1 generation + 1 judge, incr called once
     expect(judgeCallCount()).toBe(1)
     expect(redis.incr).toHaveBeenCalledTimes(1)
   })
 
   it('fails open when Redis is unreachable', async () => {
-    const { service } = makeService('Çatı GES için aylık faturanız nedir?')
+    const { service } = makeService('How many servings do you cook for?')
     withRedis(service, new Error('connection refused'))
 
-    await expect(service.chat(MESSAGES)).resolves.toBe('Çatı GES için aylık faturanız nedir?')
+    await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
 
   it('throws 503 for summary when the budget is exceeded (frontend falls back to wa.me)', async () => {
-    const { service, call } = makeService('kullanılmayacak özet')
+    const { service, call } = makeService('unused summary')
     withRedis(service, 1001)
 
     await expect(service.generateSummary(MESSAGES)).rejects.toThrow(ServiceUnavailableException)

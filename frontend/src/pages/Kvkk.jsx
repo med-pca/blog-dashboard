@@ -1,61 +1,65 @@
-import PageHeader from '../components/PageHeader'
-import SEO from '../components/SEO'
+import PageHeader from "../components/PageHeader";
+import SEO from "../components/SEO";
 
 const SECTIONS = [
   {
-    title: '1. Veri Sorumlusu',
-    body: `6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca kişisel verileriniz, veri sorumlusu sıfatıyla RenEl Enerji Mühendislik ("Şirket") tarafından aşağıda açıklanan kapsamda işlenmektedir.
+    title: "1. Data Controller",
+    body: `Your personal data is processed by Flavor Journal as the data controller, within the scope explained below.
 
-İletişim: mertcan.yilmaz@renelenerji.com`,
+Contact: mertcan.yilmaz@renelenerji.com`,
   },
   {
-    title: '2. İşlenen Kişisel Veriler',
-    body: `Web sitemizi kullandığınızda aşağıdaki veriler işlenebilir:
+    title: "2. Personal Data We Process",
+    body: `When you use our website, we may process the following data:
 
-• "Ücretsiz Teklif Al" formu: Ad soyad, telefon numarası, il/ilçe, talep ettiğiniz hizmet türü, isteğe bağlı olarak aylık elektrik fatura tutarınız ve eklediğiniz mesaj.
-• Dijital danışman (chatbot) görüşme kayıtları: Sohbet sırasında yazdığınız mesajlar, talebinizin durumu ve görüşme sonunda verdiğiniz değerlendirme puanı. Mesajlarınızda paylaşmayı tercih ettiğiniz bilgiler (ör. konum, elektrik tüketimi) bu kapsamdadır.
-• Teknik veriler: IP adresi ve sunucu erişim kayıtları (güvenlik amacıyla).
-• Anonim ziyaret istatistikleri: Sayfa görüntüleme sayıları gibi kimliğinizle ilişkilendirilmeyen kullanım verileri.
+- Contact form data: Name, phone number, city/district, requested topic, optional monthly budget information, and your message.
+- Chat records: Messages you send during chat, request status, and optional rating scores.
+- Technical data: IP address and server access logs for security purposes.
+- Anonymous analytics: Non-identifiable usage data such as page views.
 
-Sitemizde üyelik bulunmamaktadır. WhatsApp üzerinden kurduğunuz iletişim WhatsApp'ın kendi gizlilik politikasına tabidir.`,
+We do not provide account registration on this site. Communication through WhatsApp is subject to WhatsApp's own privacy policy.`,
   },
   {
-    title: '3. İşleme Amaçları ve Hukuki Sebep',
-    body: `Görüşme kayıtları ve değerlendirme puanları, danışmanlık hizmetinin sunulması, teklif taleplerinizin takip edilebilmesi ve hizmet kalitesinin ölçülüp iyileştirilmesi amacıyla; teknik veriler ise sitenin güvenliğinin sağlanması amacıyla, KVKK md. 5/2-f kapsamındaki meşru menfaat hukuki sebebine dayanılarak işlenir. Verileriniz pazarlama amacıyla kullanılmaz ve üçüncü kişilerle paylaşılmaz.`,
+    title: "3. Purposes and Legal Basis",
+    body: `Data is processed to provide support, follow up requests, improve service quality, and maintain platform security. We process this data based on legitimate interest where applicable. Your data is not used for unrelated marketing and is not shared with third parties except where legally required.`,
   },
   {
-    title: '4. Saklama Süresi',
-    body: `Teklif formuyla ilettiğiniz kişisel veriler (ad soyad, telefon, il/ilçe, mesaj), talebinizin oluşturulduğu tarihten itibaren 12 ay sonra otomatik olarak silinir; geriye yalnızca kimliğinizle ilişkilendirilemeyen istatistiksel veriler (talep durumu, tarih gibi) kalır. Chatbot görüşme dökümleri (mesaj içerikleri), kaydedildikleri tarihten itibaren 6 ay sonra aynı şekilde otomatik olarak silinir. Sunucu erişim kayıtları ilgili mevzuattaki sürelere uygun olarak silinir.`,
+    title: "4. Retention Period",
+    body: `Contact form personal data is automatically deleted after 12 months. Chat message content is automatically deleted after 6 months. Server logs are retained according to legal and operational requirements.`,
   },
   {
-    title: '5. Haklarınız',
-    body: `KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, işlenme amacını öğrenme, eksik veya yanlış işlenmişse düzeltilmesini isteme, silinmesini veya yok edilmesini talep etme ve işlemenin sonuçlarına itiraz etme haklarına sahipsiniz.
+    title: "5. Your Rights",
+    body: `You may request access, correction, deletion, restriction, or objection regarding your personal data, as permitted by applicable law.
 
-Taleplerinizi mertcan.yilmaz@renelenerji.com adresine iletebilirsiniz; başvurunuz en geç 30 gün içinde sonuçlandırılır.`,
+You can submit requests to mertcan.yilmaz@renelenerji.com. Requests are answered within legal response periods.`,
   },
-]
+];
 
 export default function Kvkk() {
   return (
     <>
       <SEO
-        title="KVKK Aydınlatma Metni"
-        description="RenEl Enerji Mühendislik kişisel verilerin korunması ve gizlilik aydınlatma metni."
+        title="Privacy Notice"
+        description="Flavor Journal privacy notice and personal data information."
       />
-      <PageHeader title="KVKK Aydınlatma Metni" />
+      <PageHeader title="Privacy Notice" />
 
       <section className="py-16 bg-gray-50">
         <div className="max-w-3xl mx-auto px-6">
           <div className="bg-white border border-gray-100 rounded-2xl p-8 sm:p-10 space-y-8">
             {SECTIONS.map(({ title, body }) => (
               <section key={title}>
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">{title}</h2>
-                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{body}</p>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  {title}
+                </h2>
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                  {body}
+                </p>
               </section>
             ))}
           </div>
         </div>
       </section>
     </>
-  )
+  );
 }

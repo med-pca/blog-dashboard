@@ -56,7 +56,7 @@ function SortableRow({ p, coverPhoto, onDelete, deletingId, onTogglePublish, tog
       </td>
       <td className="px-5 py-5 text-sm text-gray-500 hidden sm:table-cell">{p.location}</td>
       <td className="px-5 py-5 text-sm font-semibold text-[#448834] hidden sm:table-cell">
-        {p.kw} kW
+        {p.kw} recipes
       </td>
       <td className="px-5 py-5">
         <button
@@ -66,11 +66,11 @@ function SortableRow({ p, coverPhoto, onDelete, deletingId, onTogglePublish, tog
         >
           {p.published ? (
             <span className="flex items-center gap-1.5 text-green-600">
-              <Eye size={14} /> Yayında
+              <Eye size={14} /> Published
             </span>
           ) : (
             <span className="flex items-center gap-1.5 text-gray-400">
-              <EyeOff size={14} /> Gizli
+              <EyeOff size={14} /> Hidden
             </span>
           )}
         </button>
@@ -133,7 +133,7 @@ export default function ProjelerAdmin() {
       setSyncResult({ started: true })
       setTimeout(() => load(), 30000)
     } catch (err) {
-      alert('Instagram senkronizasyonu başarısız: ' + err.message)
+      alert('Instagram sync failed: ' + err.message)
     } finally {
       setSyncing(false)
     }
@@ -145,20 +145,20 @@ export default function ProjelerAdmin() {
       await updateProject(p.id, { published: !p.published })
       setProjects((prev) => prev.map((x) => x.id === p.id ? { ...x, published: !p.published } : x))
     } catch (err) {
-      alert('Durum değiştirilemedi: ' + err.message)
+      alert('Could not change the status: ' + err.message)
     } finally {
       setTogglingId(null)
     }
   }
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`"${name}" projesini silmek istediğinize emin misiniz?`)) return
+    if (!confirm(`Delete the "${name}" collection?`)) return
     setDeletingId(id)
     try {
       await deleteProject(id)
       setProjects((prev) => prev.filter((p) => p.id !== id))
     } catch (err) {
-      alert('Silinemedi: ' + err.message)
+      alert('Could not delete: ' + err.message)
     } finally {
       setDeletingId(null)
     }
@@ -173,12 +173,12 @@ export default function ProjelerAdmin() {
     <main className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Projeler</h1>
+            <h1 className="text-xl font-bold text-gray-900">Collections</h1>
             <p className="text-sm text-gray-400 mt-0.5">
-              {projects.length} proje
-              {saving && <span className="ml-2 text-[#448834]">· kaydediliyor...</span>}
+              {projects.length} collections
+              {saving && <span className="ml-2 text-[#448834]">· saving...</span>}
               {syncResult?.started && (
-                <span className="ml-2 text-[#448834]">· Instagram sync başlatıldı, 30 saniye sonra yenileniyor...</span>
+                <span className="ml-2 text-[#448834]">· Instagram sync started, refreshing in 30 seconds...</span>
               )}
             </p>
           </div>
@@ -189,25 +189,25 @@ export default function ProjelerAdmin() {
               className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-[#448834] hover:text-[#448834] text-gray-600 font-semibold px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
             >
               <RefreshCw size={15} className={syncing ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline">{syncing ? 'Çekiliyor...' : 'Instagram\'dan Çek'}</span>
+              <span className="hidden sm:inline">{syncing ? 'Importing...' : 'Import from Instagram'}</span>
             </button>
             <Link
               to="/rnl-panel/projeler/yeni"
               className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-4 py-2 rounded-lg transition-colors text-sm"
             >
               <Plus size={16} />
-              Yeni Proje
+              New Collection
             </Link>
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+          <div className="text-center py-20 text-gray-400">Loading...</div>
         ) : projects.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
-            <p className="mb-4">Henüz proje yok.</p>
+            <p className="mb-4">No collections yet.</p>
             <Link to="/rnl-panel/projeler/yeni" className="text-[#448834] font-semibold hover:underline">
-              İlk projeyi ekle
+              Add the first collection
             </Link>
           </div>
         ) : (
@@ -217,10 +217,10 @@ export default function ProjelerAdmin() {
               <thead>
                 <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
                   <th className="px-4 py-4 w-8" />
-                  <th className="text-left px-3 py-4 font-medium">Proje</th>
-                  <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Konum</th>
-                  <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Güç</th>
-                  <th className="text-left px-5 py-4 font-medium">Durum</th>
+                  <th className="text-left px-3 py-4 font-medium">Collection</th>
+                  <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Category</th>
+                  <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Recipes</th>
+                  <th className="text-left px-5 py-4 font-medium">Status</th>
                   <th className="px-5 py-4" />
                 </tr>
               </thead>

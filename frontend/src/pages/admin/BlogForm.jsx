@@ -84,9 +84,9 @@ export default function BlogForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!form.title.trim()) { setError('Başlık zorunludur.'); return }
+    if (!form.title.trim()) { setError('Title is required.'); return }
     if (!form.slug.trim()) { setError('Slug zorunludur.'); return }
-    if (!form.content.trim()) { setError('İçerik zorunludur.'); return }
+    if (!form.content.trim()) { setError('Content is required.'); return }
 
     setSaving(true)
     try {
@@ -122,22 +122,22 @@ export default function BlogForm() {
         className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-700 mb-6 transition-colors"
       >
         <ArrowLeft size={16} />
-        Blog Yazıları
+        Blog Posts
       </button>
 
       <h1 className="text-xl font-bold text-gray-900 mb-6">
-        {isEdit ? 'Yazıyı Düzenle' : 'Yeni Blog Yazısı'}
+        {isEdit ? 'Edit Post' : 'New Blog Post'}
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Başlık */}
+        {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Başlık *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Title *</label>
           <input
             type="text"
             value={form.title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Yazı başlığı"
+            placeholder="Post title"
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
         </div>
@@ -155,25 +155,25 @@ export default function BlogForm() {
           <p className="text-xs text-gray-400 mt-1">renelenerji.com/blog/{form.slug || '...'}</p>
         </div>
 
-        {/* Özet */}
+        {/* Summary */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Kısa Özet</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Short Summary</label>
           <textarea
             value={form.excerpt}
             onChange={(e) => set('excerpt', e.target.value)}
-            placeholder="Blog listesinde görünecek kısa açıklama (opsiyonel)"
+            placeholder="Short description shown in the blog list (optional)"
             rows={2}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
         </div>
 
-        {/* Meta Açıklama */}
+        {/* Meta Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Meta Açıklama <span className="text-gray-400 font-normal">(Google arama sonucu)</span></label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Meta Description <span className="text-gray-400 font-normal">(Google arama sonucu)</span></label>
           <textarea
             value={form.metaDescription}
             onChange={(e) => set('metaDescription', e.target.value)}
-            placeholder="Boş bırakılırsa kısa özet kullanılır. Maks. 160 karakter önerilir."
+            placeholder="If left empty the short summary is used. Max 160 characters recommended."
             rows={2}
             maxLength={160}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
@@ -181,12 +181,12 @@ export default function BlogForm() {
           <p className="text-xs text-gray-400 mt-1">{form.metaDescription.length}/160</p>
         </div>
 
-        {/* Kapak Görseli */}
+        {/* Cover Image */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Kapak Görseli</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Cover Image</label>
           {coverPreview ? (
             <div className="relative w-full h-52 rounded-xl overflow-hidden group">
-              <img src={coverPreview} alt="Kapak" className="w-full h-full object-cover" />
+              <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={removeCover}
@@ -202,7 +202,7 @@ export default function BlogForm() {
               className="w-full h-36 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-[#448834] hover:text-[#448834] transition-colors"
             >
               <Upload size={22} />
-              <span className="text-sm">Kapak görseli yükle</span>
+              <span className="text-sm">Upload cover image</span>
             </button>
           )}
           <input
@@ -214,13 +214,13 @@ export default function BlogForm() {
           />
         </div>
 
-        {/* İçerik */}
+        {/* Content */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">İçerik *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Content *</label>
           <RichTextEditor value={form.content} onChange={(val) => set('content', val)} />
         </div>
 
-        {/* Yayın Durumu */}
+        {/* Publish status */}
         <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3.5">
           <button
             type="button"
@@ -237,10 +237,10 @@ export default function BlogForm() {
           </button>
           <div>
             <p className="text-sm font-medium text-gray-700">
-              {form.published ? 'Yayında' : 'Taslak'}
+              {form.published ? 'Published' : 'Taslak'}
             </p>
             <p className="text-xs text-gray-400">
-              {form.published ? 'Yazı herkese görünür' : 'Yalnızca admin görebilir'}
+              {form.published ? 'The post is visible to everyone' : 'Only admins can see it'}
             </p>
           </div>
         </div>
@@ -255,14 +255,14 @@ export default function BlogForm() {
             disabled={saving}
             className="flex-1 bg-[#448834] hover:bg-[#357228] disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors text-sm"
           >
-            {saving ? 'Kaydediliyor...' : isEdit ? 'Değişiklikleri Kaydet' : 'Yazıyı Oluştur'}
+            {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Post'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/rnl-panel/blog')}
             className="px-6 py-3 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
           >
-            İptal
+            Cancel
           </button>
         </div>
       </form>

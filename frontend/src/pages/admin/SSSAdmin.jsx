@@ -45,11 +45,11 @@ function SortableRow({ faq, onDelete, onEdit, deletingId }) {
         <div className="flex items-center gap-1 shrink-0">
           {faq.published ? (
             <span className="hidden sm:flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full mr-2">
-              <Eye size={12} /> Yayında
+              <Eye size={12} /> Published
             </span>
           ) : (
             <span className="hidden sm:flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full mr-2">
-              <EyeOff size={12} /> Gizli
+              <EyeOff size={12} /> Hidden
             </span>
           )}
           <button
@@ -84,7 +84,7 @@ export default function SSSAdmin() {
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [editing, setEditing] = useState(null) // null = kapalı, {} = yeni, {id,...} = düzenleme
+  const [editing, setEditing] = useState(null) // null = closed, {} = new, {id,...} = editing
 
   const { sensors, handleDragEnd } = useDndReorder(faqs, setFaqs, reorderFaqs, setSaving)
 
@@ -105,7 +105,7 @@ export default function SSSAdmin() {
 
 
   const handleDelete = async (id, question) => {
-    if (!confirm(`"${question}" sorusunu silmek istediğinize emin misiniz?`)) return
+    if (!confirm(`Delete the "${question}" question?`)) return
     setDeletingId(id)
     try {
       await deleteFaq(id)
@@ -142,17 +142,17 @@ export default function SSSAdmin() {
           className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-4 py-2 rounded-lg transition-colors text-sm"
         >
           <Plus size={16} />
-          Yeni Soru
+          New Question
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       ) : faqs.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="mb-4">Henüz soru yok.</p>
+          <p className="mb-4">No questions yet.</p>
           <button onClick={() => setEditing({})} className="text-[#448834] font-semibold hover:underline">
-            İlk soruyu ekle
+            Add the first question
           </button>
         </div>
       ) : (

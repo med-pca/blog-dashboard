@@ -16,6 +16,9 @@ export function configureApp(app: NestExpressApplication): void {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }))
 
   app.setGlobalPrefix('api', {
-    exclude: [{ path: 'sitemap.xml', method: RequestMethod.GET }],
+    exclude: [
+      { path: 'sitemap.xml', method: RequestMethod.GET },
+      { path: 'ads.txt', method: RequestMethod.GET },
+    ],
   })
 }

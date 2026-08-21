@@ -7,29 +7,40 @@
 // görünüp ardından animasyonun sıfırdan tekrar başladığı bir "flaş"
 // oluşuyordu — sürekli mount edip sadece opacity'yi değiştirmek bu
 // boşluğu ortadan kaldırıyor.
-export default function PageLoader({ label = 'Yükleniyor...', fullScreen = false, overlay = false, show = true }) {
-  const ringSize = fullScreen ? 'w-24 h-24' : 'w-14 h-14'
-  const logoSize = fullScreen ? 'w-12 h-12' : 'w-7 h-7'
+export default function PageLoader({
+  label = "Loading...",
+  fullScreen = false,
+  overlay = false,
+  show = true,
+}) {
+  const ringSize = fullScreen ? "w-24 h-24" : "w-14 h-14";
+  const logoSize = fullScreen ? "w-12 h-12" : "w-7 h-7";
 
   const spinner = (
-    <div className={`flex flex-col items-center justify-center gap-5 ${fullScreen ? 'min-h-screen' : 'py-24'}`}>
+    <div
+      className={`flex flex-col items-center justify-center gap-5 ${fullScreen ? "min-h-screen" : "py-24"}`}
+    >
       <div className={`brand-loader-ring ${ringSize} rounded-full p-[3px]`}>
         <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-          <img src="/renel-logo.svg" alt="" className={logoSize} />
+          <img src="/food/logo-mark.svg" alt="" className={logoSize} />
         </div>
       </div>
-      {label && <p className={`text-gray-400 ${fullScreen ? 'text-base' : 'text-sm'}`}>{label}</p>}
+      {label && (
+        <p className={`text-gray-400 ${fullScreen ? "text-base" : "text-sm"}`}>
+          {label}
+        </p>
+      )}
     </div>
-  )
+  );
 
-  if (!overlay) return spinner
+  if (!overlay) return spinner;
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-white flex items-center justify-center pointer-events-none transition-opacity duration-200 ease-out ${show ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-[100] bg-white flex items-center justify-center pointer-events-none transition-opacity duration-200 ease-out ${show ? "opacity-100" : "opacity-0"}`}
       aria-hidden={!show}
     >
       {spinner}
     </div>
-  )
+  );
 }

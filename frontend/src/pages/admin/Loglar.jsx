@@ -10,7 +10,7 @@ import AdminStatCard from '../../components/AdminStatCard'
 import AdminTabs from '../../components/AdminTabs'
 
 function logToText(log) {
-  const level = log.level === 'error' ? 'HATA' : 'UYARI'
+  const level = log.level === 'error' ? 'ERROR' : 'WARNING'
   const context = log.context ? ` [${log.context}]` : ''
   return `${formatDateTime(log.createdAt)} [${level}]${context} ${log.message}`
 }
@@ -24,23 +24,23 @@ function CopyButton({ getText, title, className = '', children }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      // izin/eski tarayıcı — sessizce geç, buton işlevsiz kalır
+      // permission denied / old browser — fail silently, the button just does nothing
     }
   }
 
   return (
     <button onClick={copy} title={title} className={className}>
       {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-      {children && <span>{copied ? 'Kopyalandı' : children}</span>}
+      {children && <span>{copied ? 'Copied' : children}</span>}
     </button>
   )
 }
 
 function LevelBadge({ level }) {
   return level === 'error' ? (
-    <span className="text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full shrink-0">HATA</span>
+    <span className="text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full shrink-0">ERROR</span>
   ) : (
-    <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full shrink-0">UYARI</span>
+    <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full shrink-0">WARNING</span>
   )
 }
 
@@ -67,14 +67,14 @@ function LogRow({ log }) {
           <span className="text-xs text-gray-400">{formatDateTime(log.createdAt)}</span>
           <CopyButton
             getText={() => logToText(log)}
-            title="Bu kaydı kopyala"
+            title="Copy this record"
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
           />
           {isLong && (
             <button
               onClick={() => setExpanded(e => !e)}
               className="p-1 rounded-lg text-gray-400 hover:text-gray-600"
-              title={expanded ? 'Daralt' : 'Genişlet'}
+              title={expanded ? 'Daralt' : 'Expand'}
             >
               <ChevronDown
                 size={16}
@@ -95,7 +95,7 @@ export default function Loglar() {
   const [loading, setLoading] = useState(true)
   const [level, setLevel] = useState('all') // 'all' | 'error' | 'warn'
   const [page, setPage] = useState(1)
-  const [fromDay, setFromDay] = useState('') // YYYY-MM-DD, boş = filtre yok
+  const [fromDay, setFromDay] = useState('') // YYYY-MM-DD, empty = no filter
   const [toDay, setToDay] = useState('')
 
   useEffect(() => {
@@ -116,7 +116,7 @@ export default function Loglar() {
 
   function changeLevel(next) {
     setLevel(next)
-    setPage(1) // filtre değişince ilk sayfaya dön
+    setPage(1) // back to page one when the filter changes
   }
 
   function changeDates(nextFrom, nextTo) {
@@ -131,7 +131,7 @@ export default function Loglar() {
   if (loading && !data) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       </main>
     )
   }
@@ -142,7 +142,7 @@ export default function Loglar() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">Loglar</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            Backend hata ve uyarıları · sayfa başına 50 kayıt · 30 gün saklanır
+            Backend errors and warnings · 50 records per page · kept for 30 days
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -150,7 +150,7 @@ export default function Loglar() {
           {logs.length > 0 && (
             <CopyButton
               getText={() => logs.map(logToText).join('\n')}
-              title="Bu sayfadaki kayıtları kopyala"
+              title="Copy the records on this page"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
             >
               Kopyala
@@ -158,9 +158,9 @@ export default function Loglar() {
           )}
           <AdminTabs
             items={[
-              { id: 'all', label: 'Tümü' },
-              { id: 'error', label: 'Hata' },
-              { id: 'warn', label: 'Uyarı' },
+              { id: 'all', label: 'All' },
+              { id: 'error', label: 'Errors' },
+              { id: 'warn', label: 'Warnings' },
             ]}
             value={level}
             onChange={changeLevel}
@@ -169,20 +169,20 @@ export default function Loglar() {
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <AdminStatCard label="Toplam Kayıt" value={stats.total} icon={ScrollText} />
-        <AdminStatCard label="Son 24s Hata" value={stats.errors24h} icon={AlertCircle} />
-        <AdminStatCard label="Son 24s Uyarı" value={stats.warns24h} icon={AlertTriangle} />
+        <AdminStatCard label="Total Records" value={stats.total} icon={ScrollText} />
+        <AdminStatCard label="Errors (24h)" value={stats.errors24h} icon={AlertCircle} />
+        <AdminStatCard label="Warnings (24h)" value={stats.warns24h} icon={AlertTriangle} />
       </div>
 
       {logs.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <ScrollText size={36} className="mx-auto mb-3 text-gray-300" />
           {level !== 'all' || fromDay || toDay ? (
-            <p>Filtreyle eşleşen kayıt yok.</p>
+            <p>No records match the filter.</p>
           ) : (
             <>
-              <p>Kayıt yok — her şey yolunda görünüyor.</p>
-              <p className="text-xs mt-1">Backend'de hata veya uyarı oluşunca burada görünür.</p>
+              <p>No records — everything looks fine.</p>
+              <p className="text-xs mt-1">Backend errors and warnings show up here.</p>
             </>
           )}
         </div>

@@ -28,8 +28,8 @@ export const INJECTION_PATTERNS = [
   // istekleri 400'e düşürüyordu (konuşma kalıcı kilitleniyordu).
 ]
 
-// Model "yalnızca Türkçe" kuralını deldiğinde (Kiril/CJK/Arap alfabesi vb.) yanıtı
-// kullanıcıya göstermemek için harf bazında Latin dışı oran ölçülür
+// When the model breaks the "English only" rule with another script (Cyrillic,
+// CJK, Arabic, ...) the reply is withheld from the reader; measured per letter.
 export function nonLatinLetterRatio(text: string): number {
   const letters: string[] = text.match(/\p{L}/gu) ?? []
   if (letters.length === 0) return 0
@@ -39,52 +39,57 @@ export function nonLatinLetterRatio(text: string): number {
 
 const NON_LATIN_THRESHOLD = 0.3
 
-// Türkçe metinde geçmesi normal olan Latin kökenli terimler (marka/birim/jargon)
+// Latin-script terms that may legitimately appear in English food content and
+// must never be treated as a foreign-language leak (brands, units, loanwords).
 const ALLOWED_FOREIGN_WORDS = new Set([
-  'whatsapp', 'web', 'www', 'wp', 'kw', 'kwp', 'kwh', 'watt', 'wi', 'fi', 'off', 'grid', 'on',
+  'whatsapp', 'web', 'www', 'sous', 'vide', 'al', 'dente', 'mise', 'en', 'place',
+  'miso', 'ramen', 'pho', 'tapas', 'mezze', 'antipasti',
 ])
 
-// Sadece q/w/x içermeyen yaygın İngilizce kelimeler; Türkçe eş yazılışlılar
-// (on, can, her, not, but, is...) bilinçli olarak listede YOK.
-// 4.2: liste DONDURULDU — yeni sızıntı türlerini ChatService'teki LLM judge yakalar,
-// buraya ekleme yapma (liste yalnızca judge çağrısını atlatan ucuz ön-filtredir).
-const COMMON_ENGLISH_WORDS = new Set([
-  'the', 'and', 'you', 'your', 'please', 'monthly', 'daily', 'yearly', 'about', 'thanks',
-  'thank', 'hello', 'could', 'should', 'have', 'are', 'this', 'that', 'these', 'those',
-  'price', 'cost', 'system', 'energy', 'install', 'installation', 'roof', 'contact', 'help',
-  'sorry', 'here', 'there', 'from', 'also', 'very', 'more', 'most', 'need', 'like', 'good',
-  'best', 'our', 'their', 'for',
+// Letters that exist in the Turkish alphabet but never in English (or in the
+// French culinary loanwords English food writing borrows). Any word containing
+// one of them is a Turkish leak. Turkish replies of 2-3 sentences virtually
+// always contain at least one of these, which makes this the primary signal.
+const TURKISH_ONLY_LETTERS = /[ğşıİĞŞ]/
+
+// Common Turkish words that survive ASCII transliteration; English homographs
+// ("de", "da", "ve" — the latter collides with the "I've" tokenisation) are
+// deliberately NOT listed.
+// 4.2: the list is FROZEN — new leak shapes are caught by the LLM judge in
+// ChatService, do not extend it here (it is only a cheap pre-filter that saves
+// a judge call).
+const COMMON_TURKISH_WORDS = new Set([
+  'merhaba', 'tesekkurler', 'tesekkur', 'lutfen', 'nedir', 'nasil', 'icin',
+  'ile', 'veya', 'ama', 'daha', 'bilgi', 'fiyat', 'teklif', 'hizmet',
+  'kurulum', 'gunes', 'elektrik', 'konut', 'aylik', 'fatura', 'musteri',
+  'yardimci', 'olabilirim', 'istiyorum', 'uzgunum', 'evet', 'hayir', 'soru',
+  'sorun', 'yanit', 'yemek', 'mutfak', 'bir', 'bu',
 ])
 
-// Model kelimeyi Türkçe kelimeye bitişik de üretebiliyor ("içinmonthly");
-// 4+ harfli İngilizce kelimeler önek/sonek olarak da aranır (3 harf ve altı
-// yalnızca tam eşleşmeyle bakılır — "on", "her", "has" gibi Türkçe eş
-// yazılışlıların yanlış pozitif riski taşıması nedeniyle).
-// 4 harfli kök eşiği bilinçli: "need" tam eşleşse de çekimli hali "needed"
-// eşleşmiyordu ve canlıda kullanıcıya sızdı (2026-08-17) — köküyle aynı sızıntı
-// riskini taşıyan çekim/türetim ekleri de bu şekilde yakalanır.
-const LONG_ENGLISH_WORDS = [...COMMON_ENGLISH_WORDS].filter(w => w.length >= 4)
+// The model can also glue a Turkish word onto an English one ("forkicin");
+// words of 4+ letters are therefore matched as prefix/suffix too (3 letters and
+// under only by exact match, to avoid false positives on English fragments).
+const LONG_TURKISH_WORDS = [...COMMON_TURKISH_WORDS].filter(w => w.length >= 4)
 
-// nonLatinLetterRatio farklı alfabeleri yakalar ama Latin alfabeli sızıntıları
-// ("monthly", "tentang" vb.) göremez; bu kontrol o boşluğu kapatır.
-// q/w/x harfleri Türkçe alfabede yoktur — beyaz listede olmayan her q/w/x'li kelime sızıntıdır.
+// nonLatinLetterRatio catches other scripts but not Latin-script leaks
+// ("aylik", "tentang", ...); this check closes that gap.
 export function hasForeignWordLeak(text: string): boolean {
-  // Açık tip şart: match() ?? [] birleşimi ES2017 lib'inde never[]'a daralıyor
+  // Explicit type required: match() ?? [] narrows to never[] under the ES2017 lib
   const words: string[] = text.toLowerCase().match(/[a-zçğıöşüâîû]+/g) ?? []
   return words.some(w => {
     if (ALLOWED_FOREIGN_WORDS.has(w)) return false
-    if (/[qwx]/.test(w) || COMMON_ENGLISH_WORDS.has(w)) return true
-    return LONG_ENGLISH_WORDS.some(ew => w.startsWith(ew) || w.endsWith(ew))
+    if (TURKISH_ONLY_LETTERS.test(w) || COMMON_TURKISH_WORDS.has(w)) return true
+    return LONG_TURKISH_WORDS.some(tw => w.startsWith(tw) || w.endsWith(tw))
   })
 }
 
-// Chat yanıtı için tam kirlilik kontrolü: farklı alfabe VEYA Latin alfabeli sızıntı
+// Full contamination check for a chat reply: another script OR a Latin-script leak
 export function isContaminated(text: string): boolean {
   return nonLatinLetterRatio(text) > NON_LATIN_THRESHOLD || hasForeignWordLeak(text)
 }
 
-// Özet için yalnızca alfabe kontrolü; özet kasıtlı olarak foreign-word
-// kontrolüne girmez (WhatsApp mesaj şablonu markalı terimler içerir)
+// Summaries are checked for script only; they deliberately skip the foreign-word
+// filter because the WhatsApp template carries brand terms.
 export function hasNonLatinLeak(text: string): boolean {
   return nonLatinLetterRatio(text) > NON_LATIN_THRESHOLD
 }

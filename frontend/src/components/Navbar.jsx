@@ -1,120 +1,130 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Menu, X, ChevronDown } from 'lucide-react'
-import Logo from './Logo'
+import { useState, useEffect, useRef } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { Menu, X, ChevronDown } from "lucide-react";
+import Logo from "./Logo";
 
 const hizmetlerDropdown = [
   {
-    category: 'GES Kurulum',
+    category: "By Meal Type",
     items: [
-      { label: 'Tarımsal Sulama GES', to: '/hizmetler/sulama' },
-      { label: 'Arazi & Çatı Tipi GES', to: '/hizmetler/cati-arazi' },
-      { label: 'Bağ Evi Depolamalı GES', to: '/hizmetler/bag-evi' },
-      { label: 'EV Şarj İstasyonu', to: '/hizmetler/ev-sarj' },
+      { label: "Quick Breakfasts", to: "/hizmetler/sulama" },
+      { label: "Weeknight Dinners", to: "/hizmetler/cati-arazi" },
+      { label: "Comfort Food Classics", to: "/hizmetler/bag-evi" },
+      { label: "Healthy Bowls", to: "/hizmetler/ev-sarj" },
     ],
   },
   {
-    category: 'Bakım & Onarım',
+    category: "By Preference",
     items: [
-      { label: 'GES Bakım & Onarım', to: '/hizmetler/ges-bakim-onarim' },
-      { label: 'Elektrik Altyapı Bakımı', to: '/hizmetler/elektrik-altyapi-bakimi' },
+      { label: "Vegetarian Favorites", to: "/hizmetler/ges-bakim-onarim" },
+      { label: "High Protein Ideas", to: "/hizmetler/elektrik-altyapi-bakimi" },
     ],
   },
   {
-    category: 'Danışmanlık',
+    category: "Guides",
     items: [
-      { label: 'Proje Danışmanlığı', to: '/hizmetler/proje-danismanlik' },
-      { label: 'Enerji Danışmanlığı', to: '/hizmetler/enerji-danismanlik' },
+      { label: "Meal Prep Basics", to: "/hizmetler/proje-danismanlik" },
+      { label: "Kitchen Tips & Tricks", to: "/hizmetler/enerji-danismanlik" },
     ],
   },
   {
-    category: 'Araçlar',
-    items: [
-      { label: 'Tasarruf Hesaplayıcı', to: '/tasarruf-hesaplayici' },
-    ],
+    category: "Tools",
+    items: [{ label: "Budget Planner", to: "/tasarruf-hesaplayici" }],
   },
-]
+];
 
 const navLinks = [
-  { label: 'Anasayfa', to: '/' },
-  { label: 'Kurumsal', to: '/kurumsal' },
-  { label: 'Hizmetler', to: '/hizmetler', dropdown: hizmetlerDropdown },
-  { label: 'Projelerimiz', to: '/projelerimiz' },
-  { label: 'Referanslar', to: '/referanslar' },
-  { label: 'Blog', to: '/blog' },
-  { label: 'S.S.S.', to: '/sss' },
-  { label: 'İletişim', to: '/iletisim' },
-]
+  { label: "Home", to: "/" },
+  { label: "About", to: "/kurumsal" },
+  { label: "Recipes", to: "/hizmetler", dropdown: hizmetlerDropdown },
+  { label: "Collections", to: "/projelerimiz" },
+  { label: "Community", to: "/referanslar" },
+  { label: "Blog", to: "/blog" },
+  { label: "FAQ", to: "/sss" },
+  { label: "Contact", to: "/iletisim" },
+];
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
-  const [mobileHizmetlerOpen, setMobileHizmetlerOpen] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const { pathname } = useLocation()
-  const isHome = pathname === '/'
-  const transparent = isHome && !scrolled && !open
-  const dropdownRef = useRef(null)
-  const closeTimer = useRef(null)
+  const [open, setOpen] = useState(false);
+  const [mobileHizmetlerOpen, setMobileHizmetlerOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+  const transparent = isHome && !scrolled && !open;
+  const dropdownRef = useRef(null);
+  const closeTimer = useRef(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
-    setOpen(false)
-    setMobileHizmetlerOpen(false)
-  }, [pathname])
+    setOpen(false);
+    setMobileHizmetlerOpen(false);
+  }, [pathname]);
 
   function openDropdown() {
-    clearTimeout(closeTimer.current)
-    setDropdownOpen(true)
+    clearTimeout(closeTimer.current);
+    setDropdownOpen(true);
   }
 
   function scheduleClose() {
-    closeTimer.current = setTimeout(() => setDropdownOpen(false), 120)
+    closeTimer.current = setTimeout(() => setDropdownOpen(false), 120);
   }
 
   return (
     <>
-      <nav className={`sticky top-0 z-50 transition-all duration-500 ${transparent ? 'bg-transparent' : 'bg-white shadow-lg'}`}>
+      <nav
+        className={`sticky top-0 z-50 transition-all duration-500 ${transparent ? "bg-transparent" : "bg-white shadow-lg"}`}
+      >
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-24 lg:grid lg:grid-cols-[1fr_auto_1fr]">
           {/* Logo */}
-          <Link to="/" className="flex items-center select-none" aria-label="RenEl Enerji Ana Sayfa">
+          <Link
+            to="/"
+            className="flex items-center select-none"
+            aria-label="Flavor Journal Home"
+          >
             <Logo textWhite={transparent} className="h-16 w-auto" />
           </Link>
 
           {/* Desktop links */}
           <div className="hidden lg:flex items-center gap-5">
-            {navLinks.map(l => {
+            {navLinks.map((l) => {
               if (!l.dropdown) {
                 return (
                   <NavLink
                     key={l.to}
                     to={l.to}
-                    end={l.to === '/'}
+                    end={l.to === "/"}
                     className={({ isActive }) =>
                       `font-medium text-base transition-colors relative group ${
                         transparent
-                          ? isActive ? 'text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]' : 'text-white hover:text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]'
-                          : isActive ? 'text-[#448834]' : 'text-gray-700 hover:text-[#448834]'
+                          ? isActive
+                            ? "text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                            : "text-white hover:text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                          : isActive
+                            ? "text-[#448834]"
+                            : "text-gray-700 hover:text-[#448834]"
                       }`
                     }
                   >
                     {({ isActive }) => (
                       <>
                         {l.label}
-                        <span className={`absolute -bottom-1 left-0 h-0.5 bg-[#448834] transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                        <span
+                          className={`absolute -bottom-1 left-0 h-0.5 bg-[#448834] transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
+                        />
                       </>
                     )}
                   </NavLink>
-                )
+                );
               }
 
               // Dropdown item
-              const isHizmetlerActive = pathname.startsWith('/hizmetler')
+              const isHizmetlerActive = pathname.startsWith("/hizmetler");
               return (
                 <div
                   key={l.to}
@@ -127,16 +137,22 @@ export default function Navbar() {
                     to={l.to}
                     className={`font-medium text-base transition-colors relative group inline-flex items-center gap-1 ${
                       transparent
-                        ? isHizmetlerActive ? 'text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]' : 'text-white hover:text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]'
-                        : isHizmetlerActive ? 'text-[#448834]' : 'text-gray-700 hover:text-[#448834]'
+                        ? isHizmetlerActive
+                          ? "text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                          : "text-white hover:text-[#448834] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                        : isHizmetlerActive
+                          ? "text-[#448834]"
+                          : "text-gray-700 hover:text-[#448834]"
                     }`}
                   >
                     {l.label}
                     <ChevronDown
                       size={14}
-                      className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+                      className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
                     />
-                    <span className={`absolute -bottom-1 left-0 h-0.5 bg-[#448834] transition-all duration-300 ${isHizmetlerActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                    <span
+                      className={`absolute -bottom-1 left-0 h-0.5 bg-[#448834] transition-all duration-300 ${isHizmetlerActive ? "w-full" : "w-0 group-hover:w-full"}`}
+                    />
                   </NavLink>
 
                   {/* Dropdown panel */}
@@ -163,8 +179,8 @@ export default function Navbar() {
                                     onClick={() => setDropdownOpen(false)}
                                     className={`block px-2 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
                                       pathname === item.to
-                                        ? 'bg-[#448834]/10 text-[#448834] font-semibold'
-                                        : 'text-gray-700 hover:bg-gray-50 hover:text-[#448834]'
+                                        ? "bg-[#448834]/10 text-[#448834] font-semibold"
+                                        : "text-gray-700 hover:bg-gray-50 hover:text-[#448834]"
                                     }`}
                                   >
                                     {item.label}
@@ -178,16 +194,19 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
-              )
+              );
             })}
           </div>
 
           {/* Mobile menu button */}
           <div className="flex items-center gap-4">
             <button
-              className={`lg:hidden p-2 transition-colors ${transparent ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]' : 'text-gray-700'}`}
-              onClick={() => { setOpen(o => !o); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-              aria-label="Menü"
+              className={`lg:hidden p-2 transition-colors ${transparent ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" : "text-gray-700"}`}
+              onClick={() => {
+                setOpen((o) => !o);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              aria-label="Menu"
             >
               {open ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -197,34 +216,34 @@ export default function Navbar() {
         {/* Mobile menu */}
         {open && (
           <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 flex flex-col gap-1 shadow-lg">
-            {navLinks.map(l => {
+            {navLinks.map((l) => {
               if (!l.dropdown) {
                 return (
                   <NavLink
                     key={l.to}
                     to={l.to}
-                    end={l.to === '/'}
+                    end={l.to === "/"}
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
-                      `font-medium py-2 border-b border-gray-100 transition-colors ${isActive ? 'text-[#448834]' : 'text-gray-700 hover:text-[#448834]'}`
+                      `font-medium py-2 border-b border-gray-100 transition-colors ${isActive ? "text-[#448834]" : "text-gray-700 hover:text-[#448834]"}`
                     }
                   >
                     {l.label}
                   </NavLink>
-                )
+                );
               }
 
-              const isHizmetlerActive = pathname.startsWith('/hizmetler')
+              const isHizmetlerActive = pathname.startsWith("/hizmetler");
               return (
                 <div key={l.to} className="border-b border-gray-100">
                   <button
-                    onClick={() => setMobileHizmetlerOpen(o => !o)}
-                    className={`w-full flex items-center justify-between font-medium py-2 transition-colors ${isHizmetlerActive ? 'text-[#448834]' : 'text-gray-700'}`}
+                    onClick={() => setMobileHizmetlerOpen((o) => !o)}
+                    className={`w-full flex items-center justify-between font-medium py-2 transition-colors ${isHizmetlerActive ? "text-[#448834]" : "text-gray-700"}`}
                   >
                     {l.label}
                     <ChevronDown
                       size={16}
-                      className={`transition-transform duration-200 ${mobileHizmetlerOpen ? 'rotate-180' : ''}`}
+                      className={`transition-transform duration-200 ${mobileHizmetlerOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
@@ -235,7 +254,7 @@ export default function Navbar() {
                         onClick={() => setOpen(false)}
                         className="text-sm text-gray-500 hover:text-[#448834] transition-colors"
                       >
-                        Tüm Hizmetler →
+                        All Recipes →
                       </Link>
                       {l.dropdown.map((group) => (
                         <div key={group.category}>
@@ -249,7 +268,9 @@ export default function Navbar() {
                                   to={item.to}
                                   onClick={() => setOpen(false)}
                                   className={`block text-sm py-0.5 transition-colors ${
-                                    pathname === item.to ? 'text-[#448834] font-semibold' : 'text-gray-600 hover:text-[#448834]'
+                                    pathname === item.to
+                                      ? "text-[#448834] font-semibold"
+                                      : "text-gray-600 hover:text-[#448834]"
                                   }`}
                                 >
                                   {item.label}
@@ -262,11 +283,11 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
-              )
+              );
             })}
           </div>
         )}
       </nav>
     </>
-  )
+  );
 }

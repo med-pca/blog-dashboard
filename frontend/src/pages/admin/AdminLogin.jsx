@@ -31,7 +31,7 @@ export default function AdminLogin() {
 
   const handleRateLimit = () => {
     setRateLimited(true)
-    setError('Çok fazla başarısız deneme. 1 dakika bekleyip tekrar deneyin.')
+    setError('Too many failed attempts. Wait one minute and try again.')
     setTimeout(() => { setRateLimited(false); setError('') }, 60000)
   }
 
@@ -53,7 +53,7 @@ export default function AdminLogin() {
       }
     } catch (err) {
       if (err.status === 429) handleRateLimit()
-      else setError('Kullanıcı adı veya şifre hatalı.')
+      else setError('Incorrect username or password.')
     } finally {
       setLoading(false)
     }
@@ -73,7 +73,7 @@ export default function AdminLogin() {
     } catch (err) {
       if (err.status === 429) handleRateLimit()
       else {
-        setError('Geçersiz kod. Tekrar deneyin.')
+        setError('Invalid code. Try again.')
         setOtpCode('')
         otpInputRef.current?.focus()
       }
@@ -97,7 +97,7 @@ export default function AdminLogin() {
         {step === 'credentials' ? (
           <form onSubmit={handleCredentials} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kullanıcı Adı</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
               <input
                 type="text"
                 value={form.username}
@@ -110,7 +110,7 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -138,7 +138,7 @@ export default function AdminLogin() {
                 onChange={(e) => setRemember(e.target.checked)}
                 className="w-4 h-4 rounded accent-[#448834]"
               />
-              <span className="text-sm text-gray-600">Beni hatırla</span>
+              <span className="text-sm text-gray-600">Remember me</span>
             </label>
 
             {error && <p className="text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
@@ -148,7 +148,7 @@ export default function AdminLogin() {
               disabled={loading || rateLimited}
               className="w-full bg-[#448834] hover:bg-[#357228] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-lg transition-colors"
             >
-              {loading ? 'Giriş yapılıyor...' : rateLimited ? 'Lütfen bekleyin...' : 'Giriş Yap'}
+              {loading ? 'Signing in...' : rateLimited ? 'Please wait...' : 'Sign In'}
             </button>
           </form>
         ) : (
@@ -157,8 +157,8 @@ export default function AdminLogin() {
               <div className="bg-[#448834]/10 rounded-full p-3 mb-3">
                 <ShieldCheck size={24} className="text-[#448834]" />
               </div>
-              <p className="text-sm font-medium text-gray-800">İki Faktörlü Doğrulama</p>
-              <p className="text-xs text-gray-400 mt-1">Authenticator uygulamanızdaki 6 haneli kodu girin</p>
+              <p className="text-sm font-medium text-gray-800">Two-Factor Authentication</p>
+              <p className="text-xs text-gray-400 mt-1">Enter the 6-digit code from your authenticator app</p>
             </div>
 
             <div>
@@ -183,7 +183,7 @@ export default function AdminLogin() {
               disabled={loading || rateLimited || otpCode.length !== 6}
               className="w-full bg-[#448834] hover:bg-[#357228] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-lg transition-colors"
             >
-              {loading ? 'Doğrulanıyor...' : rateLimited ? 'Lütfen bekleyin...' : 'Doğrula'}
+              {loading ? 'Verifying...' : rateLimited ? 'Please wait...' : 'Verify'}
             </button>
 
             <button
@@ -191,7 +191,7 @@ export default function AdminLogin() {
               onClick={() => { setStep('credentials'); setError(''); setOtpCode('') }}
               className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
-              ← Geri dön
+              ← Go back
             </button>
           </form>
         )}

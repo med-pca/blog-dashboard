@@ -16,8 +16,9 @@ export function AdminAuthProvider({ children }) {
 
   const saveToken = () => setIsAuth(true)
 
-  // API çağrısı burada: token'ın jti'si sunucuda blacklist'lenmeden çıkış olmasın.
-  // Oturum zaten düşmüşse (401 yolları) çağrı sessizce başarısız olur, sorun değil.
+  // The API call lives here so logout never happens before the token's jti is
+  // blacklisted server-side. If the session already expired (401 paths) the call
+  // fails silently, which is fine.
   const logout = () => {
     const done = apiLogout().catch(() => {})
     setIsAuth(false)

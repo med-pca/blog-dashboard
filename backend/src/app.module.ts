@@ -25,6 +25,7 @@ import { InstagramTokenModule } from './instagram-token/instagram-token.module'
 import { GroqModule } from './groq/groq.module'
 import { WeatherModule } from './weather/weather.module'
 import { LogsModule } from './logs/logs.module'
+import { AdsModule } from './ads/ads.module'
 import { HealthController } from './health.controller'
 
 @Module({
@@ -138,6 +139,7 @@ import { HealthController } from './health.controller'
     GroqModule,
     WeatherModule,
     LogsModule,
+    AdsModule,
   ],
   controllers: [HealthController],
   providers: [
