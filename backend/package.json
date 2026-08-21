@@ -16,7 +16,8 @@
     "migration:generate": "typeorm-ts-node-commonjs migration:generate src/migrations/$npm_config_name -d src/data-source.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/data-source.ts",
-    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/data-source.ts"
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/data-source.ts",
+    "seed:blog": "ts-node -r tsconfig-paths/register src/seed-blog.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.27",

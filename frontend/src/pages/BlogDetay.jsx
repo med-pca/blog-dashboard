@@ -26,6 +26,8 @@ function pickFallback(seed = "") {
 function resolveCoverSrc(coverImage, slug) {
   if (!coverImage) return pickFallback(slug);
   if (/^https?:\/\//i.test(coverImage)) return coverImage;
+  // Bundled artwork under /food/ is served by the frontend; uploads live on the API host.
+  if (coverImage.startsWith("/food/")) return coverImage;
   return `${API}${coverImage}`;
 }
 

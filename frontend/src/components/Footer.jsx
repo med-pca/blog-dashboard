@@ -2,6 +2,14 @@ import { Link } from "react-router-dom";
 import { Mail, MapPin } from "lucide-react";
 import { WA_NUMBER } from "../lib/whatsapp";
 
+// Google AdSense requires these to be reachable from every page.
+const LEGAL_LINKS = [
+  { to: "/kvkk", label: "Privacy Policy" },
+  { to: "/cookies", label: "Cookie Policy" },
+  { to: "/terms", label: "Terms of Service" },
+  { to: "/disclaimer", label: "Disclaimer" },
+];
+
 export default function Footer() {
   return (
     <footer className="relative bg-black text-gray-400 overflow-hidden">
@@ -198,18 +206,23 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
-          <p>
-            © {new Date().getFullYear()} Flavor Journal. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            <Link
-              to="/kvkk"
-              className="text-xs hover:text-[#f5ce31] transition-colors"
-            >
-              Privacy Notice
-            </Link>
-            <p className="text-xs">
+        <div className="mt-12 pt-6 border-t border-white/10 text-xs space-y-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            {LEGAL_LINKS.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="hover:text-[#f5ce31] transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <p>
+              © {new Date().getFullYear()} Flavor Journal. All rights reserved.
+            </p>
+            <p>
               Design & Development{" "}
               <a
                 href="https://selimkavaklicesme.com"

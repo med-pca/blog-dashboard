@@ -13,7 +13,10 @@ Flavor Journal is an English-language food blog sharing approachable recipes, me
 - [Contact](https://renelenerji.com/iletisim)
 - [FAQ](https://renelenerji.com/sss)
 - [Budget Planner](https://renelenerji.com/tasarruf-hesaplayici)
-- [Privacy Notice](https://renelenerji.com/kvkk)
+- [Privacy Policy](https://renelenerji.com/kvkk)
+- [Cookie Policy](https://renelenerji.com/cookies)
+- [Terms of Service](https://renelenerji.com/terms)
+- [Disclaimer](https://renelenerji.com/disclaimer)
 
 ## Recipe Guides
 

@@ -212,7 +212,7 @@ export default function TeklifForm({ onSuccess }) {
             rel="noopener noreferrer"
             className="text-[#448834] hover:underline"
           >
-            privacy notice
+            Privacy Policy
           </a>{" "}
           and I accept the processing of my personal data.
         </span>

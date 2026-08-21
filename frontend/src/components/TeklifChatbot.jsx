@@ -425,7 +425,7 @@ export default function TeklifChatbot({
               rel="noopener noreferrer"
               className="underline hover:text-gray-400"
             >
-              Privacy
+              Privacy Policy
             </a>
           </p>
         </div>

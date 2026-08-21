@@ -20,6 +20,8 @@ const FOOD_FALLBACKS = [
 function resolveCoverSrc(coverImage, fallbackIndex) {
   if (!coverImage) return FOOD_FALLBACKS[fallbackIndex % FOOD_FALLBACKS.length];
   if (/^https?:\/\//i.test(coverImage)) return coverImage;
+  // Bundled artwork under /food/ is served by the frontend; uploads live on the API host.
+  if (coverImage.startsWith("/food/")) return coverImage;
   return `${API}${coverImage}`;
 }
 
