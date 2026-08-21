@@ -19,8 +19,6 @@ services:
     build: ./backend
     restart: unless-stopped
     mem_limit: 512m
-    ports:
-      - "127.0.0.1:3003:3001"
     expose:
       - "3001"
     healthcheck:
@@ -102,10 +100,10 @@ services:
         VITE_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID}
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN}
     restart: unless-stopped
+    expose:
+      - "8080"
     environment:
       PRERENDER_ORIGIN: ${PRERENDER_ORIGIN:-https://renelenerji.com}
-    ports:
-      - "127.0.0.1:8080:8080"
     depends_on:
       - backend
       - prerender
@@ -130,8 +128,6 @@ services:
     # the separate postgresql-* tag, image auto-detects DB type from DATABASE_URL.
     image: ghcr.io/umami-software/umami:3.1.0@sha256:e3f80c0625aad7179b49da27d475357cabb1068b8cacd9a792cfd6966888b123
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:3002:3000"
     environment:
       DATABASE_URL: postgresql://umami:${UMAMI_DB_PASS}@umami-db:5432/umami
       APP_SECRET: ${UMAMI_APP_SECRET}
