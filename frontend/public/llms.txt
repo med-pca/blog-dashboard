@@ -12,7 +12,6 @@ Pulse Recipe is an English-language food blog sharing approachable recipes, meal
 - [About](https://pulserecipe.com/kurumsal)
 - [Contact](https://pulserecipe.com/iletisim)
 - [FAQ](https://pulserecipe.com/sss)
-- [Budget Planner](https://pulserecipe.com/tasarruf-hesaplayici)
 - [Privacy Policy](https://pulserecipe.com/kvkk)
 - [Cookie Policy](https://pulserecipe.com/cookies)
 - [Terms of Service](https://pulserecipe.com/terms)

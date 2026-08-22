@@ -22,7 +22,6 @@ const STATIC_URLS = [
   { loc: '/referanslar', priority: '0.7', changefreq: 'weekly' },
   { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
   { loc: '/sss', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/tasarruf-hesaplayici', priority: '0.7', changefreq: 'monthly' },
   { loc: '/iletisim', priority: '0.8', changefreq: 'monthly' },
   { loc: '/kvkk', priority: '0.3', changefreq: 'yearly' },
   { loc: '/cookies', priority: '0.3', changefreq: 'yearly' },

@@ -106,14 +106,6 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/tasarruf-hesaplayici"
-                  className="text-sm hover:text-[#f5ce31] transition-colors"
-                >
-                  Budget Planner
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/sss"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >

@@ -27,10 +27,6 @@ const hizmetlerDropdown = [
       { label: "Kitchen Tips & Tricks", to: "/hizmetler/enerji-danismanlik" },
     ],
   },
-  {
-    category: "Tools",
-    items: [{ label: "Budget Planner", to: "/tasarruf-hesaplayici" }],
-  },
 ];
 
 const navLinks = [

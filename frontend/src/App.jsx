@@ -31,7 +31,6 @@ const Kvkk = lazy(() => import("./pages/Kvkk"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
 const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 const Disclaimer = lazy(() => import("./pages/legal/Disclaimer"));
-const TasarrufHesaplayici = lazy(() => import("./pages/TasarrufHesaplayici"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminGateway = lazy(() => import("./pages/admin/AdminGateway"));
 
@@ -116,13 +115,6 @@ function PublicLayout() {
     }, 220);
   }
 
-  // Sayfa içi CTA'lar (örn. tasarruf hesaplayıcı) chatbot'u bu event ile açar
-  useEffect(() => {
-    const open = (e) => openChat(e.detail?.prefill || "");
-    window.addEventListener("open-chat", open);
-    return () => window.removeEventListener("open-chat", open);
-  }, []);
-
   // Sayfa içi CTA'lar (örn. hizmet detay sayfaları) teklif modalını bu event ile açar
   useEffect(() => {
     window.addEventListener("open-teklif", openTeklif);
@@ -152,10 +144,6 @@ function PublicLayout() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/disclaimer" element={<Disclaimer />} />
-            <Route
-              path="/tasarruf-hesaplayici"
-              element={<TasarrufHesaplayici />}
-            />
             <Route path="/iletisim" element={<Iletisim />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

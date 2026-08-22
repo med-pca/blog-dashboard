@@ -51,10 +51,22 @@ const stats = [
 ];
 
 const collagePhotos = [
-  "/food/illustration-1.svg",
-  "/food/illustration-2.svg",
-  "/food/illustration-3.svg",
-  "/food/illustration-4.svg",
+  {
+    src: "/about/recipe-testing.webp",
+    alt: "Home cook tasting and testing a recipe beside a kitchen notebook",
+  },
+  {
+    src: "/about/organized-prep.webp",
+    alt: "Organized ingredients and a balanced meal prepared for home cooking",
+  },
+  {
+    src: "/about/seasonal-ingredients.webp",
+    alt: "Fresh seasonal produce and pantry staples in a home kitchen",
+  },
+  {
+    src: "/about/community-table.webp",
+    alt: "Friends and family sharing colorful homemade dishes around a table",
+  },
 ];
 
 export default function Kurumsal() {
@@ -106,16 +118,16 @@ export default function Kurumsal() {
               <div className="flex-1 flex flex-col gap-3">
                 <div className="flex-3 overflow-hidden rounded-xl">
                   <img
-                    src={collagePhotos[0]}
-                    alt=""
+                    src={collagePhotos[0].src}
+                    alt={collagePhotos[0].alt}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
                 </div>
                 <div className="flex-2 overflow-hidden rounded-xl">
                   <img
-                    src={collagePhotos[1]}
-                    alt=""
+                    src={collagePhotos[1].src}
+                    alt={collagePhotos[1].alt}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
@@ -124,16 +136,16 @@ export default function Kurumsal() {
               <div className="flex-1 flex flex-col gap-3">
                 <div className="flex-2 overflow-hidden rounded-xl">
                   <img
-                    src={collagePhotos[2]}
-                    alt=""
+                    src={collagePhotos[2].src}
+                    alt={collagePhotos[2].alt}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
                 </div>
                 <div className="flex-3 overflow-hidden rounded-xl">
                   <img
-                    src={collagePhotos[3]}
-                    alt=""
+                    src={collagePhotos[3].src}
+                    alt={collagePhotos[3].alt}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />

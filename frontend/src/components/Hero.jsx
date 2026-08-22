@@ -1,14 +1,7 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, CookingPot, TrendingUp } from "lucide-react";
-import { useState } from "react";
-import { TARIFFS, calculateGes, parseBillInput } from "../lib/gesCalc";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
-  const [bill, setBill] = useState("");
-  const [tariff, setTariff] = useState("mesken");
-
-  const result = calculateGes(Number(bill), tariff);
-
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden -mt-24">
       {/* Background image */}
@@ -28,7 +21,7 @@ export default function Hero() {
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 pt-25 sm:pt-33 lg:pt-41 pb-24 w-full flex items-center justify-between gap-8 xl:gap-12">
+      <div className="relative max-w-7xl mx-auto px-6 pt-25 sm:pt-33 lg:pt-41 pb-24 w-full flex items-center">
         {/* Left — text */}
         <div className="w-full max-w-xl min-w-0">
           <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-7xl font-bold text-white leading-[1.05] mb-5 sm:mb-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
@@ -55,97 +48,9 @@ export default function Hero() {
               <ArrowRight size={17} />
             </Link>
 
-            <Link
-              to="/tasarruf-hesaplayici"
-              className="lg:hidden inline-flex items-center gap-2 bg-[#f5ce31] hover:bg-[#e0ba24] text-gray-900 font-bold px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl transition-colors shadow-lg shadow-black/30"
-            >
-              Budget Planner
-              <ArrowRight size={17} />
-            </Link>
           </div>
         </div>
 
-        {/* Right — mini savings calculator */}
-        <div className="hidden lg:block shrink-0 w-90 xl:w-115 border-2 border-[#f5ce31]/60 rounded-[2rem] p-2">
-          <div className="bg-white rounded-3xl p-7 shadow-xl shadow-black/30">
-            <p className="text-gray-900 font-bold text-lg mb-1">
-              Kitchen Budget Planner
-            </p>
-            <p className="text-gray-500 text-sm mb-5">
-              Enter your monthly food budget to get a quick plan.
-            </p>
-
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-              Cooking Style
-            </p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {TARIFFS.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTariff(t.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    tariff === t.id
-                      ? "bg-[#448834] text-white"
-                      : "bg-gray-50 border border-gray-200 text-gray-600 hover:border-[#448834]"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="relative mb-5">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={bill ? Number(bill).toLocaleString("en-US") : ""}
-                onChange={(e) => setBill(parseBillInput(e.target.value))}
-                placeholder="Your monthly budget"
-                className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-[#448834] text-gray-800 placeholder-gray-400 focus:outline-none transition-colors"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                $
-              </span>
-            </div>
-
-            {result ? (
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                  <CookingPot size={22} className="text-[#448834] mb-2" />
-                  <p className="text-gray-900 font-bold text-2xl font-['Rajdhani'] leading-tight">
-                    {result.systemKwp}
-                  </p>
-                  <p className="text-gray-500 text-xs">Weekly Cook Sessions</p>
-                </div>
-                <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                  <TrendingUp size={22} className="text-[#448834] mb-2" />
-                  <p className="text-gray-900 font-bold text-2xl font-['Rajdhani'] leading-tight">
-                    {result.annualSavings.toLocaleString("en-US")} USD
-                  </p>
-                  <p className="text-gray-500 text-xs">
-                    Estimated Yearly Savings
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-400 text-sm text-center py-6 mb-5">
-                Your plan preview appears here after entering a budget.
-              </p>
-            )}
-
-            <Link
-              to={
-                bill
-                  ? `/tasarruf-hesaplayici?fatura=${encodeURIComponent(bill)}&tarife=${tariff}`
-                  : "/tasarruf-hesaplayici"
-              }
-              className="w-full flex items-center justify-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-semibold text-base py-3.5 rounded-xl transition-colors"
-            >
-              View Detailed Plan
-              <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
       </div>
 
       {/* Bottom wave */}
