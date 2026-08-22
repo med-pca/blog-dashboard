@@ -19,6 +19,7 @@ import { CreateProjectDto } from './dto/create-project.dto'
 import { UpdateProjectDto } from './dto/update-project.dto'
 import { ParseInstagramDto } from './dto/parse-instagram.dto'
 import { ReorderDto } from './dto/reorder.dto'
+import { Throttle } from '@nestjs/throttler'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 
 @Controller('projects')
@@ -65,11 +66,14 @@ export class ProjectsController {
     return this.importService.getSyncStatus()
   }
 
+  // Tighter than the global 60/min: every call spends money at the model
+  // vendor, and one admin never needs more than a handful of auto-fills a minute.
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
   @Post('admin/parse-instagram')
   @HttpCode(200)
   parseInstagram(@Body() dto: ParseInstagramDto) {
-    return this.parseService.parseInstagram(dto.text)
+    return this.parseService.parseInstagram(dto.text, dto.instruction)
   }
 
   @UseGuards(JwtAuthGuard)

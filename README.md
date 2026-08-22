@@ -19,7 +19,7 @@ Corporate website and admin panel for **RenEl Enerji**, a solar energy solutions
 | -------------- | --------------------------------------------------------------- |
 | Frontend       | React 19, Vite 8, Tailwind CSS 4                                |
 | Backend        | NestJS, TypeORM, PostgreSQL, Redis                              |
-| AI / Chatbot   | Groq                                                            |
+| AI             | OpenAI (`gpt-5-nano`, Responses API)                            |
 | Analytics      | Umami                                                           |
 | Logs           | In-panel log viewer (backend errors/warnings, 30-day retention) |
 | Error Tracking | Sentry (optional)                                               |
@@ -53,7 +53,8 @@ renel-enerji/
 │       ├── sitemap/         # Dynamic sitemap generation
 │       ├── weather/         # Weather integration
 │       ├── upload/          # File upload
-│       ├── groq/            # Groq AI client (chatbot + Instagram parsing)
+│       ├── ai/              # Shared AI provider layer (OpenAI client + AiProvider seam)
+│       ├── groq/            # LEGACY Groq client — only used when AI_PROVIDER=groq
 │       ├── instagram-token/ # Instagram Graph API token refresh
 │       ├── logs/            # DB-backed error/warning logs (admin panel viewer)
 │       ├── webhooks/        # Instagram webhook receiver
@@ -115,7 +116,10 @@ UMAMI_PASS=            # Umami password
 UMAMI_APP_SECRET=      # Umami app secret
 ```
 
-Optional integrations (Groq chatbot, Instagram import, OpenWeather, Sentry, AI blog generation) are documented with setup notes in `backend/.env.example` — leave them blank to disable.
+AI features (chatbot, project auto-fill, blog generation) all go through the shared
+OpenAI layer in `backend/src/ai/` and need `OPENAI_API_KEY`. Optional integrations
+(Instagram import, OpenWeather, Sentry, AI blog campaigns) are documented with setup
+notes in `backend/.env.example` — leave them blank to disable.
 
 AI blog generation has its own guide: [docs/ai-content.md](docs/ai-content.md).
 

@@ -20,6 +20,8 @@ const PROTECTED_ROUTES: Array<['get' | 'post' | 'patch' | 'delete', string]> = [
   ['get', '/api/ai-content/campaigns'],
   ['post', '/api/ai-content/campaigns'],
   ['get', '/api/ai-content/jobs'],
+  // AI auto-fill spends money at the model vendor: it must never be anonymous.
+  ['post', '/api/projects/admin/parse-instagram'],
 ]
 
 describe('JWT guard coverage (e2e)', () => {

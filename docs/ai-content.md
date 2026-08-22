@@ -5,7 +5,8 @@ Autonomous blog-draft generation. An administrator writes one editorial brief
 writes the article with OpenAI, sanitises it and stores it **as a draft**.
 Publishing always stays a manual decision — nothing ever goes live on its own.
 
-This feature is deliberately separate from the Groq chatbot: different provider,
+This feature shares the OpenAI layer in `src/ai/` with the chatbot and the project
+auto-fill, but stays operationally separate:
 different keys, different queue. Turning one off does not affect the other.
 
 Each deployed instance (pulserecipe.com, cookwithvibe.com, nextstoptips.com …)

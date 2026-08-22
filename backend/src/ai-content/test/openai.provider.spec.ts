@@ -6,8 +6,8 @@ jest.mock('openai', () => ({
 }))
 
 import OpenAI from 'openai'
-import { OpenAiContentProvider, isReasoningModel } from '../providers/openai.provider'
-import { makeArticle, makeConfig } from './helpers'
+import { isReasoningModel } from '../providers/openai.provider'
+import { makeArticle, makeProvider } from './helpers'
 
 function respondWith(payload: unknown, extra: Record<string, unknown> = {}) {
   createMock.mockResolvedValue({
@@ -38,7 +38,7 @@ describe('OpenAiContentProvider', () => {
 
   it('asks for the article with a strict JSON schema and returns the token usage', async () => {
     respondWith(makeArticle())
-    const provider = new OpenAiContentProvider(makeConfig())
+    const provider = makeProvider()
 
     const result = await provider.writeArticle(ARTICLE_REQUEST)
 
@@ -53,7 +53,7 @@ describe('OpenAiContentProvider', () => {
 
   it('never lets the schema describe a publication flag', async () => {
     respondWith(makeArticle())
-    await new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
     const schema = createMock.mock.calls[0][0].text.format.schema
     expect(Object.keys(schema.properties)).not.toContain('published')
     expect(schema.required).toEqual(['title', 'slug', 'excerpt', 'metaDescription', 'content', 'suggestedKeywords'])
@@ -61,7 +61,7 @@ describe('OpenAiContentProvider', () => {
 
   it('carries the editorial guardrails and the avoid-list into the prompt', async () => {
     respondWith(makeArticle())
-    await new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
     const { instructions, input } = createMock.mock.calls[0][0]
     expect(instructions).toContain('Never invent statistics')
     expect(instructions).toContain('Never mention that the text was produced by an AI')
@@ -71,7 +71,7 @@ describe('OpenAiContentProvider', () => {
 
   it('turns unparsable output into a permanent failure', async () => {
     respondWith('not json at all')
-    await expect(new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
+    await expect(makeProvider().writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
       kind: 'permanent',
       code: 'INVALID_JSON',
     })
@@ -79,7 +79,7 @@ describe('OpenAiContentProvider', () => {
 
   it('turns an empty reply into a permanent failure', async () => {
     createMock.mockResolvedValue({ status: 'completed', output_text: '   ', usage: null })
-    await expect(new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
+    await expect(makeProvider().writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
       code: 'EMPTY_RESPONSE',
     })
   })
@@ -90,7 +90,7 @@ describe('OpenAiContentProvider', () => {
       incomplete_details: { reason: 'max_output_tokens' },
       usage: { input_tokens: 10, output_tokens: 10 },
     })
-    await expect(new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
+    await expect(makeProvider().writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
       kind: 'transient',
       code: 'OUTPUT_TRUNCATED',
     })
@@ -100,27 +100,27 @@ describe('OpenAiContentProvider', () => {
       incomplete_details: { reason: 'content_filter' },
       usage: { input_tokens: 10, output_tokens: 10 },
     })
-    await expect(new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
+    await expect(makeProvider().writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({
       kind: 'permanent',
       code: 'RESPONSE_INCOMPLETE',
     })
   })
 
   it('fails clearly and without calling the SDK when the key is missing', async () => {
-    const provider = new OpenAiContentProvider(makeConfig({ OPENAI_API_KEY: '' }))
+    const provider = makeProvider({ OPENAI_API_KEY: '' })
     await expect(provider.writeArticle(ARTICLE_REQUEST)).rejects.toMatchObject({ code: 'MISSING_API_KEY' })
     expect(createMock).not.toHaveBeenCalled()
   })
 
   it('leaves retries to BullMQ rather than retrying inside the SDK', async () => {
     respondWith(makeArticle())
-    await new OpenAiContentProvider(makeConfig()).writeArticle(ARTICLE_REQUEST)
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
     expect((OpenAI as unknown as jest.Mock).mock.calls[0][0]).toMatchObject({ maxRetries: 0 })
   })
 
   it('returns trimmed, non-empty topic candidates', async () => {
     respondWith({ topics: ['  First idea  ', '', 'Second idea', 42] })
-    const result = await new OpenAiContentProvider(makeConfig()).suggestTopics({
+    const result = await makeProvider().suggestTopics({
       masterPrompt: 'Simple family recipes.',
       language: 'English',
       keywords: [],

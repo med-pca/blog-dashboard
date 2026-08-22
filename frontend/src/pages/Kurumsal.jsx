@@ -60,16 +60,16 @@ export default function Kurumsal() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    url: "https://renelenerji.com/kurumsal",
-    name: "About | Flavor Journal",
+    url: "https://pulserecipe.com/kurumsal",
+    name: "Kurumsal | Pulse Recipe",
     description:
-      "About Flavor Journal. A food-first platform sharing practical recipes and cooking guides for everyday life.",
+      "Pulse Recipe hakkında. Günlük yaşam için pratik tarifler ve yemek rehberleri paylaşan bir yemek odaklı platform.",
     mainEntity: {
       "@type": "Organization",
-      name: "Flavor Journal",
-      url: "https://renelenerji.com",
-      logo: "https://renelenerji.com/food/logo-mark.svg",
-      email: "hello@renelenerji.com",
+      name: "Pulse Recipe",
+      url: "https://pulserecipe.com",
+      logo: "https://pulserecipe.com/food/logo-mark.svg",
+      email: "hello@pulserecipe.com",
     },
   };
 
@@ -95,7 +95,7 @@ export default function Kurumsal() {
               <div className="w-24 h-24 rounded-full border-2 border-[#448834] bg-white shadow-lg flex items-center justify-center">
                 <img
                   src="/food/logo-mark.svg"
-                  alt="Flavor Journal"
+                  alt="Pulse Recipe"
                   className="w-16 h-16"
                   loading="lazy"
                 />
@@ -143,7 +143,7 @@ export default function Kurumsal() {
 
           <div>
             <p className="text-[#448834] font-semibold text-xs uppercase tracking-widest mb-4">
-              Flavor Journal
+              Pulse Recipe
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-tight">
               Practical Recipes For

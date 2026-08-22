@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
-import { GroqService, GROQ_MODEL, GROQ_FALLBACK_MODEL } from '../groq/groq.service'
+import { AI_PROVIDER, type AiProvider } from '../ai/ai-provider.types'
 import { REDIS_CLIENT } from '../redis/redis.module'
 import { hasNonLatinLeak, isContaminated, sanitizeContent } from './chat-guards'
 import { JUDGE_SYSTEM_PROMPT, judgeUserMessage, RETRY_NUDGE, SUMMARY_PROMPT, SYSTEM_PROMPT } from './chat-prompts'
@@ -16,20 +16,20 @@ export interface ChatMessage {
   content: string
 }
 
-// Günlük Groq bütçesi: kötüye kullanım kotayı bitirip gerçek müşterinin
+// Günlük model bütçesi: kötüye kullanım kotayı bitirip gerçek müşterinin
 // chatbot'unu susturmasın diye chatbot yoluna devre kesici konur.
-// Instagram parse tarafı bu bütçeden BAĞIMSIZDIR (GroqService'i ayrıca kullanır).
+// Proje auto-fill tarafı bu bütçeden BAĞIMSIZDIR.
 const DEFAULT_DAILY_LIMIT = 1000
-const BUDGET_KEY_PREFIX = 'groq:daily:'
+const BUDGET_KEY_PREFIX = 'ai:chat:daily:'
 const BUDGET_KEY_TTL_SECONDS = 48 * 60 * 60
 
 export const BUDGET_EXCEEDED_MESSAGE =
   'I cannot reply right now because of high demand. Press the "Continue on WhatsApp" ' +
   'button below to send your request straight to the Flavor Journal kitchen team.'
 
-export class GroqBudgetExceededError extends Error {
+export class AiBudgetExceededError extends Error {
   constructor() {
-    super('Groq günlük bütçesi aşıldı')
+    super('Günlük model bütçesi aşıldı')
   }
 }
 
@@ -39,14 +39,18 @@ export class ChatService {
 
   constructor(
     private config: ConfigService,
-    private groq: GroqService,
+    @Inject(AI_PROVIDER) private ai: AiProvider,
     @Inject(REDIS_CLIENT) private redis: Redis,
   ) {}
 
   // true → istek bütçeye sığdı; false → günlük limit doldu.
   // Redis erişilemezse fail-open: chatbot bütçe yüzünden hiç susmasın.
   private async consumeDailyBudget(): Promise<boolean> {
-    const limit = Number(this.config.get<string>('GROQ_DAILY_LIMIT') ?? DEFAULT_DAILY_LIMIT)
+    // AI_DAILY_LIMIT is the new name; GROQ_DAILY_LIMIT still works so an
+    // existing deployment keeps its configured ceiling until the env is updated.
+    const configured =
+      this.config.get<string>('AI_DAILY_LIMIT') ?? this.config.get<string>('GROQ_DAILY_LIMIT')
+    const limit = Number(configured ?? DEFAULT_DAILY_LIMIT)
     if (!Number.isFinite(limit) || limit <= 0) return true
 
     try {
@@ -55,7 +59,7 @@ export class ChatService {
       if (count === 1) await this.redis.expire(key, BUDGET_KEY_TTL_SECONDS)
       if (count > limit) {
         // Log seline dönmesin: yalnızca eşiğin aşıldığı ilk istekte error bas
-        if (count === limit + 1) this.logger.error(`Groq günlük bütçesi aşıldı (limit: ${limit})`)
+        if (count === limit + 1) this.logger.error(`Günlük model bütçesi aşıldı (limit: ${limit})`)
         return false
       }
       return true
@@ -67,27 +71,22 @@ export class ChatService {
     }
   }
 
-  private async callGroq(systemPrompt: string, messages: ChatMessage[], maxTokens = 400): Promise<string> {
-    const keys = this.groq.getKeys('chat')
-    if (!keys.length) {
-      this.logger.error('GROQ_CHAT_KEYS / GROQ_API_KEY tanımlı değil')
-      throw new ServiceUnavailableException('Chatbot şu anda kullanılamıyor')
-    }
-
+  private async callModel(systemPrompt: string, messages: ChatMessage[], maxTokens = 400): Promise<string> {
     if (!(await this.consumeDailyBudget())) {
-      throw new GroqBudgetExceededError()
+      throw new AiBudgetExceededError()
     }
 
-    const { res, data } = await this.groq.call(keys, {
-      model: GROQ_MODEL,
-      messages: [{ role: 'system', content: systemPrompt }, ...messages.slice(-12)],
-      max_tokens: maxTokens,
-      temperature: 0.3,
-    })
-
-    const content = data?.choices?.[0]?.message?.content
-    if (!res?.ok || typeof content !== 'string' || !content.trim()) {
-      this.logger.error(`Groq yanıtı kullanılamadı (durum: ${res?.status ?? 'ağ hatası'})`)
+    let content: string
+    try {
+      content = await this.ai.generateText({
+        operation: 'chat-reply',
+        instructions: systemPrompt,
+        messages: messages.slice(-12),
+        maxOutputTokens: maxTokens,
+      })
+    } catch {
+      // The provider already logged the vendor detail with secrets redacted.
+      this.logger.error('chat-reply generation failed')
       throw new ServiceUnavailableException('Yanıt alınamadı, lütfen tekrar deneyin')
     }
     // Cevap geçmişe geri döneceği için modeli de sanitize et; ayraç vb. kalıntılar
@@ -99,21 +98,27 @@ export class ChatService {
   // cheap 8B call. Fail-open when the judge is unreachable/unclear — same philosophy
   // as the budget counter: the chatbot is never silenced for the sake of language purity.
   // consumeDailyBudget is deliberately NOT called: every judge is bound 1:1 to an
-  // already budgeted generation, so total Groq usage stays within budget×MAX_CHAT_ATTEMPTS.
+  // already budgeted generation, so total usage stays within budget×MAX_CHAT_ATTEMPTS.
   private async isEnglishByJudge(text: string): Promise<boolean> {
-    const { res, data } = await this.groq.call(this.groq.getKeys('chat'), {
-      model: GROQ_FALLBACK_MODEL,
-      messages: [
-        { role: 'system', content: JUDGE_SYSTEM_PROMPT },
-        { role: 'user', content: judgeUserMessage(text) },
-      ],
-      max_tokens: 8,
-      temperature: 0,
-    })
-
-    const verdict = data?.choices?.[0]?.message?.content
-    if (!res?.ok || typeof verdict !== 'string' || !verdict.trim()) {
-      this.logger.warn(`Language judge unreachable, reply accepted (status: ${res?.status ?? 'network error'})`)
+    let verdict: string
+    try {
+      verdict = await this.ai.generateText({
+        operation: 'chat-language-judge',
+        instructions: JUDGE_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: judgeUserMessage(text) }],
+        // The verdict is one word, but reasoning models draw thinking tokens
+        // from the same budget; the client adds its own head room on top.
+        maxOutputTokens: 16,
+        // A judge is an optional quality gate — never make the user wait on
+        // retries for it; a failure fails open one line below.
+        retries: 0,
+      })
+    } catch {
+      this.logger.warn('Language judge unreachable, reply accepted')
+      return true
+    }
+    if (!verdict.trim()) {
+      this.logger.warn('Language judge returned an empty verdict, reply accepted')
       return true
     }
     // The verdict is searched anywhere in the text (decorations like "Verdict: NO"
@@ -137,7 +142,7 @@ export class ChatService {
   // Kullanıcıya göstermeden en fazla bu kadar üretim denenir; hepsi sızarsa sabit
   // mesaja düşülür. 2026-08-17'de canlıda 2 denemenin (ilk + tek retry) ikisi de
   // sızdırıp kullanıcıyı sabit hata mesajıyla baş başa bıraktığı görüldü — üçüncü
-  // deneme, ekstra Groq bütçesi karşılığında bu sert düşüşü nadirleştirir.
+  // deneme, ekstra model bütçesi karşılığında bu sert düşüşü nadirleştirir.
   private static readonly MAX_CHAT_ATTEMPTS = 3
 
   async chat(messages: ChatMessage[]): Promise<string> {
@@ -146,7 +151,7 @@ export class ChatService {
         // İlk deneme düz sistem promptuyla, sonrakiler düzeltici talimatla yapılır
         // (kör tekrar aynı sızıntıyı yeniden üretebiliyor)
         const systemPrompt = attempt === 1 ? SYSTEM_PROMPT : `${SYSTEM_PROMPT}\n\n${RETRY_NUDGE}`
-        const reply = await this.callGroq(systemPrompt, messages, 400)
+        const reply = await this.callModel(systemPrompt, messages, 400)
         if (!(await this.isLeaky(reply))) return reply
 
         const isLastAttempt = attempt === ChatService.MAX_CHAT_ATTEMPTS
@@ -160,7 +165,7 @@ export class ChatService {
     } catch (err) {
       // Bütçe dolduğunda hata yerine normal cevap gibi sabit mesaj dön;
       // frontend'de WhatsApp butonu görünür kalır
-      if (err instanceof GroqBudgetExceededError) return BUDGET_EXCEEDED_MESSAGE
+      if (err instanceof AiBudgetExceededError) return BUDGET_EXCEEDED_MESSAGE
       throw err
     }
   }
@@ -168,10 +173,10 @@ export class ChatService {
   async generateSummary(messages: ChatMessage[]): Promise<string> {
     let text: string
     try {
-      text = await this.callGroq(SUMMARY_PROMPT, messages, 300)
+      text = await this.callModel(SUMMARY_PROMPT, messages, 300)
     } catch (err) {
       // Frontend 503'te düz wa.me linkine düşüyor; bütçe aşımında da aynı yol
-      if (err instanceof GroqBudgetExceededError) {
+      if (err instanceof AiBudgetExceededError) {
         throw new ServiceUnavailableException('Özet oluşturulamadı')
       }
       throw err

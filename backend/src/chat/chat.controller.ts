@@ -56,7 +56,7 @@ export class ChatController {
 
     const reply = await this.chatService.chat(messages)
 
-    // Cevap callGroq'ta sanitize edildi; geçmişe temiz haliyle yazılır
+    // Cevap callModel'de sanitize edildi; geçmişe temiz haliyle yazılır
     await this.historyService.save(dto.sessionId, [...messages, { role: 'assistant', content: reply }])
     this.trackLead(this.leadService.upsertFromChat(dto.sessionId, messages, reply))
     return { reply }

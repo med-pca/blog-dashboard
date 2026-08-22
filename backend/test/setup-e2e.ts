@@ -33,8 +33,12 @@ process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN = 'e2e-webhook-verify-token'
 process.env.UMAMI_PASS = 'e2e-umami-pass'
 process.env.UMAMI_USER = 'admin'
 
-// Groq'a gerçek istek atılmaz (testler injection-reject ve DTO yollarını kullanır);
-// Joi boot kontrolünü geçmek için dummy key yeterli
+// Sağlayıcıya gerçek istek atılmaz (testler injection-reject, guard ve DTO
+// yollarını kullanır); Joi boot kontrolünü geçmek için dummy key yeterli.
+process.env.AI_PROVIDER = 'openai'
+process.env.OPENAI_API_KEY = 'sk-proj-E2EDUMMYKEY0000111122223333'
+// Eski Groq değişkenleri: AI_PROVIDER=groq geri dönüş yolunun hâlâ boot
+// edebildiğini doğrulamak dışında okunmaz.
 process.env.GROQ_CHAT_KEYS = 'e2e-groq-dummy-key'
 process.env.GROQ_PARSE_KEYS = 'e2e-groq-dummy-key'
 process.env.GROQ_API_KEY = ''
@@ -53,4 +57,3 @@ process.env.SENTRY_DSN = ''
 // bir istek bile gitmez. Aynı zamanda "özellik kapalıyken backend normal açılır"
 // koşulunu her e2e spec'inde doğrular.
 process.env.AI_CONTENT_ENABLED = 'false'
-process.env.OPENAI_API_KEY = ''

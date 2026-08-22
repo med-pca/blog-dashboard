@@ -22,6 +22,7 @@ import { ChatModule } from './chat/chat.module'
 import { QuoteModule } from './quote/quote.module'
 import { WebhooksModule } from './webhooks/webhooks.module'
 import { InstagramTokenModule } from './instagram-token/instagram-token.module'
+import { AiModule } from './ai/ai.module'
 import { GroqModule } from './groq/groq.module'
 import { WeatherModule } from './weather/weather.module'
 import { LogsModule } from './logs/logs.module'
@@ -60,8 +61,15 @@ import { HealthController } from './health.controller'
         ADMIN_USERNAME: Joi.string().empty('').default('admin'),
         UMAMI_USER: Joi.string().empty('').default('admin'),
         INSTAGRAM_HASHTAG: Joi.string().empty('').default('#proje'),
+        // ── Paylaşılan AI sağlayıcı katmanı ──
+        // 'groq' yalnızca geçici geri dönüş yolu; varsayılan openai.
+        AI_PROVIDER: Joi.string().valid('openai', 'groq').empty('').default('openai'),
+        OPENAI_TIMEOUT_MS: Joi.number().integer().min(1000).empty('').default(120000),
+        OPENAI_MAX_RETRIES: Joi.number().integer().min(0).max(10).empty('').default(3),
+        // Chatbot'un günlük istek üst sınırı. GROQ_DAILY_LIMIT eski adı, hâlâ okunur.
+        AI_DAILY_LIMIT: Joi.number().integer().min(1).empty('').optional(),
         GROQ_DAILY_LIMIT: Joi.number().integer().min(1).empty('').default(1000),
-        // ── AI blog üretimi (OpenAI) — Groq chatbot'tan tamamen ayrı ──
+        // ── AI blog üretimi (OpenAI kampanyaları) ──
         AI_CONTENT_ENABLED: Joi.string().valid('true', 'false').empty('').default('false'),
         OPENAI_MODEL: Joi.string().empty('').default('gpt-5-nano'),
         AI_DAILY_MAX_PER_CAMPAIGN: Joi.number().integer().min(1).empty('').default(100),
@@ -97,16 +105,21 @@ import { HealthController } from './health.controller'
         AI_COST_INPUT_PER_MTOK: Joi.number().min(0).allow('').optional(),
         AI_COST_OUTPUT_PER_MTOK: Joi.number().min(0).allow('').optional(),
       }).custom((env: Record<string, string | undefined>, helpers) => {
-        // Chatbot canlı sitenin parçası: yeni liste ya da eski key'lerden en az
-        // biri boot anında mevcut olmalı (GroqService.getKeys ile aynı öncelik)
         const has = (v?: string) => typeof v === 'string' && v.trim() !== ''
-        if (!has(env.GROQ_CHAT_KEYS) && !has(env.GROQ_API_KEY_3) && !has(env.GROQ_API_KEY)) {
-          return helpers.message({ custom: 'GROQ_CHAT_KEYS veya GROQ_API_KEY(_3) tanımlı olmalı' })
+        // Chatbot ve proje auto-fill canlı sitenin parçası: seçili sağlayıcının
+        // anahtarı boot anında mevcut olmalı. GROQ_* yalnızca AI_PROVIDER=groq
+        // iken aranır — OpenAI'ye geçen bir kurulum Groq anahtarı olmadan açılır.
+        if ((env.AI_PROVIDER ?? 'openai') === 'groq') {
+          if (!has(env.GROQ_CHAT_KEYS) && !has(env.GROQ_API_KEY_3) && !has(env.GROQ_API_KEY)) {
+            return helpers.message({ custom: 'AI_PROVIDER=groq iken GROQ_CHAT_KEYS veya GROQ_API_KEY(_3) tanımlı olmalı' })
+          }
+          if (!has(env.GROQ_PARSE_KEYS) && !has(env.GROQ_API_KEY)) {
+            return helpers.message({ custom: 'AI_PROVIDER=groq iken GROQ_PARSE_KEYS veya GROQ_API_KEY tanımlı olmalı' })
+          }
+        } else if (!has(env.OPENAI_API_KEY)) {
+          return helpers.message({ custom: 'AI_PROVIDER=openai iken OPENAI_API_KEY zorunlu' })
         }
-        if (!has(env.GROQ_PARSE_KEYS) && !has(env.GROQ_API_KEY)) {
-          return helpers.message({ custom: 'GROQ_PARSE_KEYS veya GROQ_API_KEY tanımlı olmalı' })
-        }
-        // AI blog üretimi kapalıyken anahtar aranmaz: backend anahtarsız açılır.
+        // AI blog üretimi kapalıyken ek anahtar aranmaz.
         if (env.AI_CONTENT_ENABLED === 'true' && !has(env.OPENAI_API_KEY)) {
           return helpers.message({ custom: 'AI_CONTENT_ENABLED=true iken OPENAI_API_KEY zorunlu' })
         }
@@ -153,6 +166,9 @@ import { HealthController } from './health.controller'
     QuoteModule,
     WebhooksModule,
     InstagramTokenModule,
+    AiModule,
+    // TEMPORARY: only reachable with AI_PROVIDER=groq. Remove together with
+    // src/groq/ and the GROQ_* variables once OpenAI is validated in production.
     GroqModule,
     WeatherModule,
     LogsModule,

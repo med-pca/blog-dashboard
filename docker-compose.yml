@@ -46,19 +46,27 @@ services:
       UMAMI_USER: ${UMAMI_USER:-admin}
       UMAMI_PASS: ${UMAMI_PASS}
       OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
-      GROQ_API_KEY: ${GROQ_API_KEY}
-      GROQ_API_KEY_2: ${GROQ_API_KEY_2}
-      GROQ_API_KEY_3: ${GROQ_API_KEY_3}
+      # Shared AI provider: chatbot, project auto-fill and blog campaigns all
+      # go through it. OpenAI is the default; AI_PROVIDER=groq is the temporary
+      # rollback path and is the only setting that reads the GROQ_* block below.
+      AI_PROVIDER: ${AI_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-nano}
+      OPENAI_TIMEOUT_MS: ${OPENAI_TIMEOUT_MS:-120000}
+      OPENAI_MAX_RETRIES: ${OPENAI_MAX_RETRIES:-3}
+      AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-}
+      # LEGACY — remove with src/groq/ once OpenAI is validated in production.
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_API_KEY_2: ${GROQ_API_KEY_2:-}
+      GROQ_API_KEY_3: ${GROQ_API_KEY_3:-}
       GROQ_CHAT_KEYS: ${GROQ_CHAT_KEYS:-}
       GROQ_PARSE_KEYS: ${GROQ_PARSE_KEYS:-}
       GROQ_DAILY_LIMIT: ${GROQ_DAILY_LIMIT:-1000}
       SENTRY_DSN: ${SENTRY_DSN}
-      # AI blog generation (OpenAI) — independent of the Groq chatbot above.
-      # Defaults keep the feature off, so an instance that never sets these
-      # boots exactly as before.
+      # AI blog generation — shares OPENAI_API_KEY/OPENAI_MODEL above, with its
+      # own queue and scheduler. Defaults keep the feature off, so an instance
+      # that never sets these boots exactly as before.
       AI_CONTENT_ENABLED: ${AI_CONTENT_ENABLED:-false}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-nano}
       AI_DAILY_MAX_PER_CAMPAIGN: ${AI_DAILY_MAX_PER_CAMPAIGN:-100}
       AI_WORKER_CONCURRENCY: ${AI_WORKER_CONCURRENCY:-1}
       AI_DEFAULT_INTERVAL_MINUTES: ${AI_DEFAULT_INTERVAL_MINUTES:-20}

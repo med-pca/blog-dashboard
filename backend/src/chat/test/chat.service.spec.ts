@@ -2,16 +2,14 @@ import { ServiceUnavailableException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BUDGET_EXCEEDED_MESSAGE, ChatService } from '../chat.service'
 import { JUDGE_SYSTEM_PROMPT, judgeUserMessage, RETRY_NUDGE } from '../chat-prompts'
-import { GroqService } from '../../groq/groq.service'
-
-type GroqPayload = { messages: { role: string; content: string }[] } & Record<string, unknown>
+import type { AiProvider, AiTextRequest } from '../../ai/ai-provider.types'
 
 interface TestService {
   service: ChatService
   call: jest.Mock
-  // Judge calls are identified through JUDGE_SYSTEM_PROMPT in the payload
+  // Judge calls are identified through JUDGE_SYSTEM_PROMPT in the instructions
   judgeCallCount: () => number
-  // Queues the next judge verdicts; null = network error. Empty queue means YES.
+  // Queues the next judge verdicts; null = provider failure. Empty queue means YES.
   setJudgeVerdicts: (...verdicts: (string | null)[]) => void
 }
 
@@ -20,35 +18,28 @@ function makeService(...replies: string[]): TestService {
   const genQueue = [...replies]
   const judgeQueue: (string | null)[] = []
 
-  const isJudgePayload = (payload: GroqPayload): boolean =>
-    payload.messages[0]?.content === JUDGE_SYSTEM_PROMPT
+  const isJudgeRequest = (request: AiTextRequest): boolean => request.instructions === JUDGE_SYSTEM_PROMPT
 
-  const call = jest.fn((_keys: string[], payload: GroqPayload) => {
-    if (isJudgePayload(payload)) {
+  const call = jest.fn((request: AiTextRequest) => {
+    if (isJudgeRequest(request)) {
       const verdict = judgeQueue.length ? judgeQueue.shift() : 'YES'
-      if (verdict == null) return Promise.resolve({ res: null, data: null })
-      return Promise.resolve({
-        res: { ok: true, status: 200 },
-        data: { choices: [{ message: { content: verdict } }] },
-      })
+      // The provider throws on failure now; the judge must still fail open.
+      if (verdict == null) return Promise.reject(new Error('provider unavailable'))
+      return Promise.resolve(verdict)
     }
-    return Promise.resolve({
-      res: { ok: true, status: 200 },
-      data: { choices: [{ message: { content: genQueue.shift() } }] },
-    })
+    return Promise.resolve(genQueue.shift() ?? '')
   })
 
-  const groq = { call, getKeys: jest.fn().mockReturnValue(['key1']) }
+  const ai = { name: 'openai', generateText: call, generateJson: jest.fn() }
   return {
     service: new ChatService(
       config as unknown as ConfigService,
-      groq as unknown as GroqService,
+      ai as unknown as AiProvider,
       // Default: the budget counter always allows; budget tests override it via withRedis
       { incr: jest.fn().mockResolvedValue(1), expire: jest.fn() } as unknown as import('ioredis').Redis,
     ),
     call,
-    judgeCallCount: () =>
-      call.mock.calls.filter(args => isJudgePayload(args[1] as GroqPayload)).length,
+    judgeCallCount: () => call.mock.calls.filter(args => isJudgeRequest(args[0] as AiTextRequest)).length,
     setJudgeVerdicts: (...verdicts: (string | null)[]) => judgeQueue.push(...verdicts),
   }
 }
@@ -56,7 +47,7 @@ function makeService(...replies: string[]): TestService {
 const MESSAGES = [{ role: 'user' as const, content: 'hello' }]
 
 describe('ChatService — non-English output guard', () => {
-  it('returns Groq reply unchanged when English', async () => {
+  it('returns the model reply unchanged when English', async () => {
     const { service, call, judgeCallCount } = makeService('How many servings do you cook for?')
     await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
     // clean path: 1 generation + 1 judge
@@ -74,7 +65,7 @@ describe('ChatService — non-English output guard', () => {
     expect(call).toHaveBeenCalledTimes(3)
     expect(judgeCallCount()).toBe(1)
     // first generation has no nudge, the retry carries the corrective instruction
-    const systemOf = (i: number) => (call.mock.calls[i][1] as GroqPayload).messages[0].content
+    const systemOf = (i: number) => (call.mock.calls[i][0] as AiTextRequest).instructions
     expect(systemOf(0)).not.toContain(RETRY_NUDGE)
     expect(systemOf(1)).toContain(RETRY_NUDGE)
   })
@@ -159,9 +150,9 @@ describe('ChatService — LLM language judge', () => {
     const { service, call } = makeService('How many servings do you cook for?')
     await service.chat(MESSAGES)
     const judgeCall = call.mock.calls.find(
-      args => (args[1] as GroqPayload).messages[0]?.content === JUDGE_SYSTEM_PROMPT,
+      args => (args[0] as AiTextRequest).instructions === JUDGE_SYSTEM_PROMPT,
     )
-    expect((judgeCall?.[1] as GroqPayload).messages[1].content).toBe(
+    expect((judgeCall?.[0] as AiTextRequest).messages[0].content).toBe(
       judgeUserMessage('How many servings do you cook for?'),
     )
   })
@@ -197,7 +188,7 @@ describe('ChatService — LLM language judge', () => {
   })
 })
 
-describe('ChatService — Groq daily budget circuit breaker', () => {
+describe('ChatService — daily budget circuit breaker', () => {
   function withRedis(
     service: ChatService,
     incrResult: number | Error,
@@ -211,7 +202,7 @@ describe('ChatService — Groq daily budget circuit breaker', () => {
     return redis
   }
 
-  it('returns the fixed message without calling Groq when the daily budget is exceeded', async () => {
+  it('returns the fixed message without calling the model when the daily budget is exceeded', async () => {
     const { service, call } = makeService('unused reply')
     withRedis(service, 1001) // default limit is 1000
 
@@ -224,7 +215,7 @@ describe('ChatService — Groq daily budget circuit breaker', () => {
     const redis = withRedis(service, 1)
 
     await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
-    expect(redis.incr).toHaveBeenCalledWith(expect.stringMatching(/^groq:daily:\d{4}-\d{2}-\d{2}$/))
+    expect(redis.incr).toHaveBeenCalledWith(expect.stringMatching(/^ai:chat:daily:\d{4}-\d{2}-\d{2}$/))
     expect(redis.expire).toHaveBeenCalledTimes(1)
     // the judge does NOT consume the budget counter: 1 generation + 1 judge, incr called once
     expect(judgeCallCount()).toBe(1)

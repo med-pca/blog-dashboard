@@ -1,25 +1,38 @@
-import { InternalServerErrorException } from '@nestjs/common'
-import { InstagramParseService } from '../instagram-parse.service'
-import { GroqService } from '../../groq/groq.service'
+import { ServiceUnavailableException, UnprocessableEntityException } from '@nestjs/common'
+import {
+  AI_INVALID_RESPONSE_MESSAGE,
+  AI_UNAVAILABLE_MESSAGE,
+  InstagramParseService,
+} from '../instagram-parse.service'
+import { AiPermanentError, AiTransientError } from '../../ai/errors'
+import type { AiProvider } from '../../ai/ai-provider.types'
 
 // B.1 regresyonu: parseInstagram `JSON.parse(...) as ParsedProject` ile bitiyordu.
 // `as` bir İDDİA olduğundan model ne döndürürse döndürsün doğrudan DB'ye gidiyordu
 // ve bu yol CreateProjectDto'nun ValidationPipe'ını BYPASS ediyor (manager.save).
 //
+// Sağlayıcı OpenAI'ye taşındıktan sonra da geçerli: Structured Outputs şemayı
+// vendor tarafında zorlar ama DB kısıtlarını (255 sınırı, numeric(10,2), text[])
+// bilmez, dolayısıyla bu DTO doğrulaması hâlâ tek güvencemiz.
+//
 // Politika: geçersiz alan DÜŞÜRÜLÜR, gönderi kurtarılır. Testlerin üç görevi var:
 //   1) bozuk alanın DB'ye ulaşmadığını kilitlemek
 //   2) aynı gönderideki SAĞLAM alanların korunduğunu kilitlemek (kurtarmanın özü)
-//   3) MEŞRU çıktının hâlâ geçtiğini kilitlemek — PARSE_PROMPT modele "emin
+//   3) MEŞRU çıktının hâlâ geçtiğini kilitlemek — prompt modele "emin
 //      olamadığın alanlar için boş string/boş dizi kullan" diyor, yani "" ve []
 //      beklenen yanıttır. DTO fazla katı olursa alanlar boşuna düşer.
 
-function makeService(content: string): { service: InstagramParseService; call: jest.Mock } {
-  const call = jest.fn().mockResolvedValue({
-    res: { ok: true, status: 200 },
-    data: { choices: [{ message: { content } }] },
-  })
-  const groq = { call, getKeys: jest.fn().mockReturnValue(['key1']) }
-  return { service: new InstagramParseService(groq as unknown as GroqService), call }
+// Sağlayıcı sahtesi: generateJson gövdeyi olduğu gibi döndürür.
+function makeService(value: unknown): { service: InstagramParseService; generateJson: jest.Mock } {
+  const generateJson = jest.fn().mockResolvedValue({ value, usage: { inputTokens: 0, outputTokens: 0 } })
+  const ai = { name: 'openai', generateJson, generateText: jest.fn() }
+  return { service: new InstagramParseService(ai as unknown as AiProvider), generateJson }
+}
+
+// Sağlayıcının hata attığı yol.
+function makeFailingService(err: unknown): InstagramParseService {
+  const ai = { name: 'openai', generateJson: jest.fn().mockRejectedValue(err), generateText: jest.fn() }
+  return new InstagramParseService(ai as unknown as AiProvider)
 }
 
 // Şemaya uyan tam gövde; testler bunun üzerine tek alan ezerek çalışır
@@ -35,8 +48,7 @@ const gecerli = {
   statBoxes: [{ value: '11,25 kWp', label: 'Kurulu Güç' }],
 }
 
-const parse = (govde: Record<string, unknown>) =>
-  makeService(JSON.stringify(govde)).service.parseInstagram('caption')
+const parse = (govde: Record<string, unknown>) => makeService(govde).service.parseInstagram('caption')
 
 describe('InstagramParseService.parseInstagram — LLM çıktısı şema doğrulaması (B.1)', () => {
   describe('geçersiz alanlar düşürülür, sağlam alanlar korunur', () => {
@@ -129,15 +141,15 @@ describe('InstagramParseService.parseInstagram — LLM çıktısı şema doğrul
   describe("name kurtarılamıyorsa gönderi atlanır", () => {
     it('name hiç yoksa hata atar', async () => {
       const { name: _atilan, ...nameSiz } = gecerli
-      await expect(parse(nameSiz)).rejects.toThrow(/name/)
+      await expect(parse(nameSiz)).rejects.toThrow(UnprocessableEntityException)
     })
 
     it('name geçersiz olduğu için düşerse hata atar', async () => {
-      await expect(parse({ ...gecerli, name: 'a'.repeat(300) })).rejects.toThrow(InternalServerErrorException)
+      await expect(parse({ ...gecerli, name: 'a'.repeat(300) })).rejects.toThrow(UnprocessableEntityException)
     })
 
     it('gövde tamamen alakasızsa hata atar (çöp taslak üretmez)', async () => {
-      await expect(parse({ foo: 'bar' })).rejects.toThrow(/name/)
+      await expect(parse({ foo: 'bar' })).rejects.toThrow(AI_INVALID_RESPONSE_MESSAGE)
     })
   })
 
@@ -173,30 +185,75 @@ describe('InstagramParseService.parseInstagram — LLM çıktısı şema doğrul
     })
   })
 
-  describe('mevcut hata yolları korunur', () => {
-    it('Groq anahtarı yoksa açıklayıcı hata atar', async () => {
-      const groq = { call: jest.fn(), getKeys: jest.fn().mockReturnValue([]) }
-      const service = new InstagramParseService(groq as unknown as GroqService)
-      await expect(service.parseInstagram('x')).rejects.toThrow(/GROQ_PARSE_KEYS/)
+  // Yeni sözleşme: kullanıcıya giden metin sağlayıcı adı ya da HTTP kodu içermez.
+  describe('hata yolları nötr mesaj döndürür', () => {
+    it('anahtar yapılandırılmamışsa geçici kullanılamazlık bildirir', async () => {
+      const service = makeFailingService(new AiPermanentError('MISSING_API_KEY', 'OPENAI_API_KEY is not configured'))
+      await expect(service.parseInstagram('x')).rejects.toThrow(ServiceUnavailableException)
+      await expect(service.parseInstagram('x')).rejects.toThrow(AI_UNAVAILABLE_MESSAGE)
     })
 
-    it('Groq API hata dönerse durum kodunu bildirir', async () => {
-      const groq = {
-        call: jest.fn().mockResolvedValue({ res: { ok: false, status: 429 }, data: null }),
-        getKeys: jest.fn().mockReturnValue(['key1']),
+    it('rate limit gibi geçici hatalarda nötr mesaj döndürür', async () => {
+      const service = makeFailingService(new AiTransientError('RATE_LIMITED', 'Too many requests'))
+      await expect(service.parseInstagram('x')).rejects.toThrow(AI_UNAVAILABLE_MESSAGE)
+    })
+
+    it('geçersiz JSON gelirse doğrulama mesajı döndürür', async () => {
+      const service = makeFailingService(new AiPermanentError('INVALID_JSON', 'Model response was not valid JSON'))
+      await expect(service.parseInstagram('x')).rejects.toThrow(UnprocessableEntityException)
+      await expect(service.parseInstagram('x')).rejects.toThrow(AI_INVALID_RESPONSE_MESSAGE)
+    })
+
+    it('hiçbir hata mesajı sağlayıcı adını ya da HTTP kodunu sızdırmaz', async () => {
+      const cases = [
+        new AiPermanentError('AUTH_REJECTED', 'Incorrect API key provided: sk-abc123'),
+        new AiTransientError('UPSTREAM_500', 'Groq API hatası: 401'),
+        new Error('connect ECONNREFUSED 1.2.3.4:443'),
+      ]
+      for (const err of cases) {
+        await expect(makeFailingService(err).parseInstagram('x')).rejects.toThrow(
+          new RegExp(`^(${AI_UNAVAILABLE_MESSAGE}|${AI_INVALID_RESPONSE_MESSAGE})$`),
+        )
       }
-      const service = new InstagramParseService(groq as unknown as GroqService)
-      await expect(service.parseInstagram('x')).rejects.toThrow(/429/)
+    })
+  })
+
+  describe('istek sözleşmesi', () => {
+    it('katı JSON şeması ister ve kullanıcı metnini veri olarak işaretler', async () => {
+      const { service, generateJson } = makeService(gecerli)
+      await service.parseInstagram('bir gönderi metni', 'batarya vurgusu')
+
+      const [request] = generateJson.mock.calls[0]
+      expect(request.schemaName).toBe('project_autofill')
+      expect(request.schema.additionalProperties).toBe(false)
+      // Şema alan adları formun beklediği DTO ile birebir aynı kalmalı
+      expect(request.schema.required).toEqual([
+        'name', 'location', 'kw', 'date', 'description', 'about', 'specs', 'highlights', 'statBoxes',
+      ])
+      // Yönetici metni yalnızca input'ta; sistem talimatlarına karışmaz
+      expect(request.input).toContain('bir gönderi metni')
+      expect(request.input).toContain('batarya vurgusu')
+      expect(request.instructions).not.toContain('bir gönderi metni')
     })
 
-    it('yanıtta JSON nesnesi yoksa hata atar', async () => {
-      const { service } = makeService('Üzgünüm, bu gönderiyi ayrıştıramadım.')
-      await expect(service.parseInstagram('x')).rejects.toThrow(/geçersiz yanıt/)
+    // pulserecipe.com is English: the model must be told to write English
+    // recipe-collection content, never Turkish solar content.
+    it('instructs the model to write English content for pulserecipe.com', async () => {
+      const { service, generateJson } = makeService(gecerli)
+      await service.parseInstagram('Weeknight Dinners')
+
+      const { instructions } = generateJson.mock.calls[0][0]
+      expect(instructions).toContain('pulserecipe.com')
+      expect(instructions).toMatch(/write in natural,? fluent english/i)
+      // No leftover Turkish-solar vocabulary from the previous project.
+      expect(instructions.toLowerCase()).not.toContain('renel')
+      expect(instructions.toLowerCase()).not.toContain('ges')
     })
 
-    it('bozuk JSON gelirse parse hatasını bildirir', async () => {
-      const { service } = makeService('{"name": "x", eksik}')
-      await expect(service.parseInstagram('x')).rejects.toThrow(/JSON parse hatası/)
+    it('instruction verilmezse istek yine geçerlidir (geriye dönük uyumluluk)', async () => {
+      const { service, generateJson } = makeService(gecerli)
+      await expect(service.parseInstagram('sadece metin')).resolves.toMatchObject({ name: gecerli.name })
+      expect(generateJson.mock.calls[0][0].input).toContain('sadece metin')
     })
   })
 })

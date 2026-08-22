@@ -3,13 +3,13 @@ import { Type } from 'class-transformer'
 import { StatBoxDto } from './create-project.dto'
 import type { ParsedProject } from '../instagram-types'
 
-// Groq parse çıktısının şeması. Instagram importu projeyi manager.save ile
+// Auto-fill çıktısının şeması. Instagram importu projeyi manager.save ile
 // yazdığından CreateProjectDto'nun ValidationPipe'ı bu yolda HİÇ çalışmıyor;
 // manuel girişe uygulanan garantilerin LLM girişine de uygulanması için
 // instagram-parse.service bu DTO'yu elle validate eder.
 //
 // İki bilinçli fark var (CreateProjectDto'dan kopyalanmamalı):
-//  1. @IsNotEmpty YOK — PARSE_PROMPT modele "emin olamadığın alanlar için boş
+//  1. @IsNotEmpty YOK — prompt modele "emin olamadığın alanlar için boş
 //     string ya da boş dizi kullan" diyor, yani "" MEŞRU bir yanıt. Import
 //     servisi zaten `parsed.x || default` ile dolduruyor.
 //  2. Hepsi @IsOptional — model alan atlayabilir (ParsedProject de öyle tanımlı).

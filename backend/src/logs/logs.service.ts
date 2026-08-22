@@ -13,7 +13,7 @@ const PAGE_SIZE = 50
 const DAY_MS = 24 * 60 * 60 * 1000
 
 // Hata fırtınası koruması: aynı mesaj+context bu pencere içinde tekrar yazılmaz
-// (Redis/Groq kesintisinde saniyede onlarca özdeş satır DB'ye akıyordu)
+// (Redis/sağlayıcı kesintisinde saniyede onlarca özdeş satır DB'ye akıyordu)
 const DEDUPE_WINDOW_MS = 10_000
 const DEDUPE_MAX_KEYS = 500
 

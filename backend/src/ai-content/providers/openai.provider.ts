@@ -1,7 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common'
-import OpenAI from 'openai'
+import { Injectable } from '@nestjs/common'
 import { AiContentConfig } from '../ai-content.config'
-import { AiPermanentError, AiTransientError } from '../lib/errors'
+import { OpenAiClient } from '../../ai/openai.client'
 import type {
   AiContentProvider,
   ArticleRequest,
@@ -61,24 +60,10 @@ const EDITORIAL_RULES = [
 
 @Injectable()
 export class OpenAiContentProvider implements AiContentProvider {
-  private readonly logger = new Logger(OpenAiContentProvider.name)
-  private client: OpenAI | null = null
-
-  constructor(private readonly config: AiContentConfig) {}
-
-  // Lazily built so a backend booted with AI_CONTENT_ENABLED=false never needs
-  // a key, and so a key rotated in the environment is picked up on next call.
-  private getClient(): OpenAI {
-    const apiKey = this.config.apiKey
-    if (!apiKey) {
-      throw new AiPermanentError('MISSING_API_KEY', 'OPENAI_API_KEY is not configured')
-    }
-    if (!this.client) {
-      // Retries are owned by BullMQ so that every attempt is visible in the job log.
-      this.client = new OpenAI({ apiKey, maxRetries: 0 })
-    }
-    return this.client
-  }
+  constructor(
+    private readonly config: AiContentConfig,
+    private readonly client: OpenAiClient,
+  ) {}
 
   async suggestTopics(request: TopicRequest): Promise<TopicResult> {
     const avoid = request.avoidTitles.length
@@ -140,8 +125,8 @@ export class OpenAiContentProvider implements AiContentProvider {
     return { article: parsed.value, usage: parsed.usage }
   }
 
-  // Single place where the SDK is called. Everything above works on plain
-  // objects, so swapping the provider only means reimplementing this class.
+  // Vendor access goes through the shared OpenAI client, which owns timeouts,
+  // error classification and log redaction for every AI feature in the app.
   private async respond<T>(options: {
     model: string
     timeoutMs: number
@@ -151,63 +136,21 @@ export class OpenAiContentProvider implements AiContentProvider {
     instructions: string
     input: string
   }): Promise<{ value: T; usage: { inputTokens: number; outputTokens: number } }> {
-    const client = this.getClient()
-
-    const response = await client.responses.create(
-      {
-        model: options.model,
-        instructions: options.instructions,
-        input: options.input,
-        max_output_tokens: options.maxOutputTokens,
-        // Reasoning models bill thinking tokens; "low" keeps a 40-a-day
-        // campaign affordable without visibly hurting article quality.
-        ...(isReasoningModel(options.model) ? { reasoning: { effort: 'low' as const } } : {}),
-        text: {
-          format: {
-            type: 'json_schema' as const,
-            name: options.schemaName,
-            strict: true,
-            schema: options.schema as Record<string, unknown>,
-          },
-        },
-      },
-      { timeout: options.timeoutMs },
-    )
-
-    const usage = {
-      inputTokens: response.usage?.input_tokens ?? 0,
-      outputTokens: response.usage?.output_tokens ?? 0,
-    }
-
-    if (response.status === 'incomplete') {
-      const reason = response.incomplete_details?.reason ?? 'unknown'
-      // Hitting the token ceiling is worth another attempt; a content filter is not.
-      if (reason === 'max_output_tokens') {
-        // Retryable: a fresh sample often lands inside the ceiling.
-        throw new AiTransientError('OUTPUT_TRUNCATED', 'Model output hit the token ceiling before finishing')
-      }
-      throw new AiPermanentError('RESPONSE_INCOMPLETE', `Model stopped early: ${reason}`)
-    }
-
-    const text = response.output_text?.trim() ?? ''
-    if (!text) throw new AiPermanentError('EMPTY_RESPONSE', 'Model returned no output text')
-
-    let value: T
-    try {
-      value = JSON.parse(text) as T
-    } catch {
-      // The body may echo prompt fragments, so it never reaches the log intact.
-      this.logger.warn(`Model returned unparsable JSON (${text.length} chars)`)
-      throw new AiPermanentError('INVALID_JSON', 'Model response was not valid JSON')
-    }
-    if (value === null || typeof value !== 'object') {
-      throw new AiPermanentError('INVALID_JSON', 'Model response was not a JSON object')
-    }
-    return { value, usage }
+    return this.client.respondJson<T>({
+      operation: `ai-content:${options.schemaName}`,
+      model: options.model,
+      timeoutMs: options.timeoutMs,
+      maxOutputTokens: options.maxOutputTokens,
+      instructions: options.instructions,
+      input: options.input,
+      schemaName: options.schemaName,
+      schema: options.schema as Record<string, unknown>,
+      // Retries stay with BullMQ so that every attempt is visible in the job log.
+      retries: 0,
+    })
   }
 }
 
-// gpt-5* and o-series bill reasoning tokens; older chat models reject the param.
-export function isReasoningModel(model: string): boolean {
-  return /^(gpt-5|o[134])/.test(model)
-}
+// Moved next to the SDK call site; re-exported so existing importers of this
+// module keep resolving it.
+export { isReasoningModel } from '../../ai/openai.client'

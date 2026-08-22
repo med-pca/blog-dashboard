@@ -120,13 +120,32 @@ export async function syncInstagram(): Promise<{ status: string }> {
   return json
 }
 
-export async function parseInstagramPost(text: string): Promise<Partial<Project>> {
+// Neutral fallbacks: the backend already answers with a vendor-free message,
+// but a proxy or a rate-limit response can arrive without one. The admin must
+// never be shown a model vendor name or a bare HTTP status.
+const AI_UNAVAILABLE = 'AI generation is temporarily unavailable. Please try again.'
+const AI_RATE_LIMITED = 'Too many auto-fill requests. Please wait a moment and try again.'
+
+export async function parseInstagramPost(
+  text: string,
+  instruction?: string,
+): Promise<Partial<Project>> {
   const res = await fetch(`${API}/api/projects/admin/parse-instagram`, {
     ...authOptions({ method: 'POST' }),
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(instruction ? { text, instruction } : { text }),
   })
-  const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Parsing failed')
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    // A message is only trusted when it reads like a sentence for the admin;
+    // anything else (a status line, a stack, a vendor error) is replaced.
+    const message =
+      typeof json.message === 'string' && /[a-z] [a-z]/i.test(json.message) && !/groq|openai/i.test(json.message)
+        ? json.message
+        : res.status === 429
+          ? AI_RATE_LIMITED
+          : AI_UNAVAILABLE
+    throw apiError(res, message)
+  }
   return json
 }
 

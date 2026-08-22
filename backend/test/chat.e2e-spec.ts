@@ -4,7 +4,7 @@ import { createE2eApp } from './e2e-utils'
 
 const SESSION = '3f2b8c1a-9d4e-4f6a-8b2c-1d3e5f7a9b0c'
 
-// Not: temiz mesaj yolu gerçek Groq API'sine istek atacağından burada test
+// Not: temiz mesaj yolu gerçek sağlayıcıya istek atacağından burada test
 // edilmez; bu spec kontratı (DTO + injection guard) uçtan uca doğrular.
 describe('Chat contract (e2e)', () => {
   let app: NestExpressApplication

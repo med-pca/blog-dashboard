@@ -7,11 +7,11 @@ import { WA_NUMBER } from "../lib/whatsapp";
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  name: "Flavor Journal",
-  url: "https://renelenerji.com",
-  telephone: "+90-554-379-60-04",
-  email: "mertcan.yilmaz@renelenerji.com",
-  image: "https://renelenerji.com/og-image.webp",
+  name: "Pulse Recipe",
+  url: "https://pulserecipe.com",
+  telephone: "+17065758955",
+  email: "contact@pulserecipe.com",
+  image: "https://pulserecipe.com/og-image.webp",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Kurtulus, Inkilap St. no:4 D:J",
@@ -38,7 +38,7 @@ const jsonLd = {
   ],
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "+90-554-379-60-04",
+    telephone: "+17065758955",
     contactType: "customer service",
     availableLanguage: "English",
   },
@@ -89,25 +89,25 @@ export default function Iletisim() {
             </a>
 
             <a
-              href={`tel:+${WA_NUMBER}`}
+              href="tel:+17065758955"
               className="flex items-center gap-5 bg-white border border-gray-200 hover:border-[#448834]/40 rounded-2xl p-7 transition-all border-b-4 border-b-[#448834]"
             >
               <Phone size={26} className="text-[#448834] shrink-0" />
               <div>
                 <p className="text-sm text-gray-400 font-medium mb-1">Phone</p>
-                <p className="font-semibold text-gray-800">+90 554 379 60 04</p>
+                <p className="font-semibold text-gray-800">+1 706 575 89 55</p>
               </div>
             </a>
 
             <a
-              href="mailto:mertcan.yilmaz@renelenerji.com"
+              href="mailto:contact@pulserecipe.com"
               className="flex items-center gap-5 bg-white border border-gray-200 hover:border-[#448834]/40 rounded-2xl p-7 transition-all border-b-4 border-b-[#f5ce31]"
             >
               <Mail size={26} className="text-[#448834] shrink-0" />
               <div>
                 <p className="text-sm text-gray-400 font-medium mb-1">Email</p>
                 <p className="font-semibold text-gray-800">
-                  mertcan.yilmaz@renelenerji.com
+                  contact@pulserecipe.com
                 </p>
               </div>
             </a>

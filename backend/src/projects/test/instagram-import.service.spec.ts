@@ -197,7 +197,7 @@ describe('InstagramImportService', () => {
     })
 
     // B.1: parseInstagram bozuk ALANLARI düşürüp gönderiyi kurtarıyor, ama
-    // kurtarılamayan durumlarda (name yok, Groq erişilemiyor) hâlâ throw ediyor.
+    // kurtarılamayan durumlarda (name yok, sağlayıcı erişilemiyor) hâlâ throw ediyor.
     // Döngünün o postu atlayıp DİĞERLERİNE DEVAM ettiğini kilitler — tek bozuk
     // gönderi tüm sync partisini düşürmemeli.
     it('skips a post whose parse failed and keeps importing the rest', async () => {

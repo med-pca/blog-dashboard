@@ -1,6 +1,9 @@
 import { ConfigService } from '@nestjs/config'
 import { ObjectLiteral, Repository } from 'typeorm'
 import { AiContentConfig } from '../ai-content.config'
+import { AiConfig } from '../../ai/ai.config'
+import { OpenAiClient } from '../../ai/openai.client'
+import { OpenAiContentProvider } from '../providers/openai.provider'
 import { AiContentCampaign } from '../entities/ai-content-campaign.entity'
 import { AiGenerationJob } from '../entities/ai-generation-job.entity'
 
@@ -17,6 +20,19 @@ export function makeConfig(env: Record<string, string> = {}): AiContentConfig {
   const config = new ConfigService()
   jest.spyOn(config, 'get').mockImplementation(((key: string) => values[key]) as never)
   return new AiContentConfig(config)
+}
+
+// The provider now reaches OpenAI through the shared client, so a spec builds
+// both halves from the same fake environment.
+export function makeProvider(env: Record<string, string> = {}): OpenAiContentProvider {
+  const values: Record<string, string> = {
+    OPENAI_API_KEY: 'sk-proj-TESTKEY000011112222333344445555',
+    OPENAI_MODEL: 'gpt-5-nano',
+    ...env,
+  }
+  const config = new ConfigService()
+  jest.spyOn(config, 'get').mockImplementation(((key: string) => values[key]) as never)
+  return new OpenAiContentProvider(makeConfig(env), new OpenAiClient(new AiConfig(config)))
 }
 
 export function makeCampaign(overrides: Partial<AiContentCampaign> = {}): AiContentCampaign {
