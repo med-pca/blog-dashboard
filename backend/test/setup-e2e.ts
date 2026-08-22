@@ -48,3 +48,9 @@ process.env.OPENWEATHER_API_KEY = ''
 process.env.UMAMI_URL = ''
 process.env.UMAMI_WEBSITE_ID = ''
 process.env.SENTRY_DSN = ''
+
+// AI blog üretimi e2e'de kapalı: ne scheduler ne worker başlar, OpenAI'ye tek
+// bir istek bile gitmez. Aynı zamanda "özellik kapalıyken backend normal açılır"
+// koşulunu her e2e spec'inde doğrular.
+process.env.AI_CONTENT_ENABLED = 'false'
+process.env.OPENAI_API_KEY = ''

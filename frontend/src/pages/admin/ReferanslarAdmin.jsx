@@ -145,31 +145,31 @@ export default function ReferanslarAdmin() {
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
-                <th className="px-4 py-4 w-10" />
-                <th className="text-left px-3 py-4 font-medium w-20">Image</th>
-                <th className="text-left px-5 py-4 font-medium">Name</th>
-                <th className="text-left px-5 py-4 font-medium">Status</th>
-                <th className="px-5 py-4" />
-              </tr>
-            </thead>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={refs.map((r) => r.id)} strategy={verticalListSortingStrategy}>
-                <tbody className="divide-y divide-gray-50">
-                  {refs.map((r) => (
-                    <SortableRow
-                      key={r.id}
-                      r={r}
-                      onDelete={handleDelete}
-                      deletingId={deletingId}
-                    />
-                  ))}
-                </tbody>
-              </SortableContext>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
+                    <th className="px-4 py-4 w-10" />
+                    <th className="text-left px-3 py-4 font-medium w-20">Image</th>
+                    <th className="text-left px-5 py-4 font-medium">Name</th>
+                    <th className="text-left px-5 py-4 font-medium">Status</th>
+                    <th className="px-5 py-4" />
+                  </tr>
+                </thead>
+                <SortableContext items={refs.map((r) => r.id)} strategy={verticalListSortingStrategy}>
+                  <tbody className="divide-y divide-gray-50">
+                    {refs.map((r) => (
+                      <SortableRow
+                        key={r.id}
+                        r={r}
+                        onDelete={handleDelete}
+                        deletingId={deletingId}
+                      />
+                    ))}
+                  </tbody>
+                </SortableContext>
+              </table>
             </DndContext>
-          </table>
           </div>
         </div>
       )}

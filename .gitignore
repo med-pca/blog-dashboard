@@ -37,3 +37,6 @@ backend/uploads/
 
 # Local review/todo scratch notes (not versioned)
 YAPILACAKLAR-*.txt
+
+# Local dev compose overrides (host port mappings etc.) — never deployed
+docker-compose.override.yml

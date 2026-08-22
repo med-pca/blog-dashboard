@@ -41,9 +41,104 @@ export interface BlogPost {
   excerpt: string
   coverImage: string | null
   published: boolean
+  // Set by the AI content pipeline; drives the "AI Draft" badge.
+  aiGenerated?: boolean
   sortOrder: number
   createdAt: string
   updatedAt: string
+}
+
+// ── AI content campaigns ────────────────────────────────────
+export type AiCampaignStatus = 'active' | 'paused' | 'completed'
+export type AiJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled'
+export type AiJobTrigger = 'scheduled' | 'manual' | 'retry' | 'test'
+
+export interface AiCampaign {
+  id: string
+  name: string
+  masterPrompt: string
+  language: string
+  tone: string
+  targetWords: number
+  keywords: string[]
+  dailyTarget: number
+  intervalMinutes: number
+  generationStartHour: number
+  generationEndHour: number
+  timezone: string
+  enabled: boolean
+  status: AiCampaignStatus
+  generatedToday: number
+  generatedTodayDate: string | null
+  lastGenerationAt: string | null
+  nextGenerationAt: string | null
+  lastRunAt: string | null
+  createdAt: string
+  updatedAt: string
+  // Only present on the list endpoint.
+  queued?: number
+  running?: number
+}
+
+export interface AiGenerationJob {
+  id: string
+  campaignId: string
+  campaign?: { id: string; name: string }
+  queueJobId: string
+  plannedFor: string
+  topic: string | null
+  status: AiJobStatus
+  triggerType: AiJobTrigger
+  attempt: number
+  maxAttempts: number
+  blogPostId: string | null
+  model: string
+  inputTokens: number | null
+  outputTokens: number | null
+  estimatedCost: number | null
+  errorCode: string | null
+  errorMessage: string | null
+  startedAt: string | null
+  completedAt: string | null
+  createdAt: string
+}
+
+export interface AiCampaignStats {
+  campaignId: string
+  status: AiCampaignStatus
+  enabled: boolean
+  dailyTarget: number
+  generatedToday: number
+  remainingToday: number
+  queued: number
+  running: number
+  failed24h: number
+  succeeded24h: number
+  totalDrafts: number
+  nextGenerationAt: string | null
+  lastGenerationAt: string | null
+  lastRunAt: string | null
+  inputTokens: number
+  outputTokens: number
+  estimatedCost: number
+  schedule: {
+    requiredMinutes: number
+    availableMinutes: number
+    fits: boolean
+    lastStartLabel: string
+    maxArticlesInWindow: number
+    suggestedIntervalMinutes: number
+  }
+  unavailableReason: string | null
+}
+
+export interface AiContentStatus {
+  enabled: boolean
+  model: string
+  dailyMaxPerCampaign: number
+  defaultIntervalMinutes: number
+  workerConcurrency: number
+  unavailableReason: string | null
 }
 
 export interface Reference {

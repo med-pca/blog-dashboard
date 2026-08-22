@@ -115,7 +115,9 @@ UMAMI_PASS=            # Umami password
 UMAMI_APP_SECRET=      # Umami app secret
 ```
 
-Optional integrations (Groq chatbot, Instagram import, OpenWeather, Sentry) are documented with setup notes in `backend/.env.example` — leave them blank to disable.
+Optional integrations (Groq chatbot, Instagram import, OpenWeather, Sentry, AI blog generation) are documented with setup notes in `backend/.env.example` — leave them blank to disable.
+
+AI blog generation has its own guide: [docs/ai-content.md](docs/ai-content.md).
 
 ## Testing
 
@@ -187,9 +189,11 @@ Uploaded files (project/blog media) live in the `uploads` volume — back up the
 **Features:**
 - Project management (create, edit, delete, media upload, Instagram import)
 - References management
-- Blog management
+- Blog management (AI-generated posts appear in the same list with an **AI Draft** badge)
+- AI Campaigns: autonomous blog-draft generation with OpenAI — see [docs/ai-content.md](docs/ai-content.md)
 - FAQ management
 - Chatbot lead management: transcripts, conversion funnel (KVKK: 6-month retention purge)
 - Log viewer: backend errors/warnings with level filter (30-day retention)
+- AI Generation Logs: one row per generation attempt, with tokens, cost and retry
 - Site analytics (Umami integration)
 - Account security: credential changes, two-factor authentication (2FA) setup

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Sparkles } from 'lucide-react'
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -51,15 +51,23 @@ function SortableRow({ post, onDelete, deletingId }) {
       </td>
       <td className="px-5 py-4 text-sm text-gray-400">{date}</td>
       <td className="px-5 py-4">
-        {post.published ? (
-          <span className="flex items-center gap-1.5 text-sm text-green-600">
-            <Eye size={14} /> Published
-          </span>
-        ) : (
-          <span className="flex items-center gap-1.5 text-sm text-gray-400">
-            <EyeOff size={14} /> Taslak
-          </span>
-        )}
+        <div className="flex flex-col items-start gap-1">
+          {post.published ? (
+            <span className="flex items-center gap-1.5 text-sm text-green-600">
+              <Eye size={14} /> Published
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-sm text-gray-400">
+              <EyeOff size={14} /> Taslak
+            </span>
+          )}
+          {/* Written by an AI campaign; publication stays a manual decision. */}
+          {post.aiGenerated && (
+            <span className="flex items-center gap-1 text-xs font-medium text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
+              <Sparkles size={11} /> {post.published ? 'AI' : 'AI Draft'}
+            </span>
+          )}
+        </div>
       </td>
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 justify-end">
@@ -152,32 +160,32 @@ export default function BlogAdmin() {
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
-                <th className="px-4 py-4 w-10" />
-                <th className="text-left px-3 py-4 font-medium w-20">Cover</th>
-                <th className="text-left px-5 py-4 font-medium">Title</th>
-                <th className="text-left px-5 py-4 font-medium">Date</th>
-                <th className="text-left px-5 py-4 font-medium">Status</th>
-                <th className="px-5 py-4" />
-              </tr>
-            </thead>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={posts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-                <tbody className="divide-y divide-gray-50">
-                  {posts.map((post) => (
-                    <SortableRow
-                      key={post.id}
-                      post={post}
-                      onDelete={handleDelete}
-                      deletingId={deletingId}
-                    />
-                  ))}
-                </tbody>
-              </SortableContext>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
+                    <th className="px-4 py-4 w-10" />
+                    <th className="text-left px-3 py-4 font-medium w-20">Cover</th>
+                    <th className="text-left px-5 py-4 font-medium">Title</th>
+                    <th className="text-left px-5 py-4 font-medium">Date</th>
+                    <th className="text-left px-5 py-4 font-medium">Status</th>
+                    <th className="px-5 py-4" />
+                  </tr>
+                </thead>
+                <SortableContext items={posts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+                  <tbody className="divide-y divide-gray-50">
+                    {posts.map((post) => (
+                      <SortableRow
+                        key={post.id}
+                        post={post}
+                        onDelete={handleDelete}
+                        deletingId={deletingId}
+                      />
+                    ))}
+                  </tbody>
+                </SortableContext>
+              </table>
             </DndContext>
-          </table>
           </div>
         </div>
       )}

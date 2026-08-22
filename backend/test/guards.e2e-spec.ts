@@ -16,6 +16,10 @@ const PROTECTED_ROUTES: Array<['get' | 'post' | 'patch' | 'delete', string]> = [
   ['get', '/api/chat/lead/admin/all'],
   ['get', '/api/chat/rating/admin/all'],
   ['get', '/api/chat/lead/admin/funnel'],
+  ['get', '/api/ai-content/status'],
+  ['get', '/api/ai-content/campaigns'],
+  ['post', '/api/ai-content/campaigns'],
+  ['get', '/api/ai-content/jobs'],
 ]
 
 describe('JWT guard coverage (e2e)', () => {

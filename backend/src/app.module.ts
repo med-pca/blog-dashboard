@@ -26,6 +26,7 @@ import { GroqModule } from './groq/groq.module'
 import { WeatherModule } from './weather/weather.module'
 import { LogsModule } from './logs/logs.module'
 import { AdsModule } from './ads/ads.module'
+import { AiContentModule } from './ai-content/ai-content.module'
 import { HealthController } from './health.controller'
 
 @Module({
@@ -60,6 +61,14 @@ import { HealthController } from './health.controller'
         UMAMI_USER: Joi.string().empty('').default('admin'),
         INSTAGRAM_HASHTAG: Joi.string().empty('').default('#proje'),
         GROQ_DAILY_LIMIT: Joi.number().integer().min(1).empty('').default(1000),
+        // ── AI blog üretimi (OpenAI) — Groq chatbot'tan tamamen ayrı ──
+        AI_CONTENT_ENABLED: Joi.string().valid('true', 'false').empty('').default('false'),
+        OPENAI_MODEL: Joi.string().empty('').default('gpt-5-nano'),
+        AI_DAILY_MAX_PER_CAMPAIGN: Joi.number().integer().min(1).empty('').default(100),
+        AI_WORKER_CONCURRENCY: Joi.number().integer().min(1).max(10).empty('').default(1),
+        AI_DEFAULT_INTERVAL_MINUTES: Joi.number().integer().min(5).empty('').default(20),
+        AI_MAX_ATTEMPTS: Joi.number().integer().min(1).max(10).empty('').default(3),
+        AI_REQUEST_TIMEOUT_MS: Joi.number().integer().min(10000).empty('').default(120000),
         // ── Opsiyonel (boşsa ilgili özellik devre dışı) ──
         // Virgüllü açık CORS origin listesi; boşsa FRONTEND_URL'den www türetilir
         CORS_ORIGINS: Joi.string().allow('').optional().custom((value: string, helpers) => {
@@ -83,6 +92,10 @@ import { HealthController } from './health.controller'
         GROQ_CHAT_KEYS: Joi.string().allow('').optional(),
         GROQ_PARSE_KEYS: Joi.string().allow('').optional(),
         SENTRY_DSN: Joi.string().allow('').optional(),
+        // Yalnızca AI_CONTENT_ENABLED=true iken zorunlu (aşağıdaki custom kural)
+        OPENAI_API_KEY: Joi.string().allow('').optional(),
+        AI_COST_INPUT_PER_MTOK: Joi.number().min(0).allow('').optional(),
+        AI_COST_OUTPUT_PER_MTOK: Joi.number().min(0).allow('').optional(),
       }).custom((env: Record<string, string | undefined>, helpers) => {
         // Chatbot canlı sitenin parçası: yeni liste ya da eski key'lerden en az
         // biri boot anında mevcut olmalı (GroqService.getKeys ile aynı öncelik)
@@ -92,6 +105,10 @@ import { HealthController } from './health.controller'
         }
         if (!has(env.GROQ_PARSE_KEYS) && !has(env.GROQ_API_KEY)) {
           return helpers.message({ custom: 'GROQ_PARSE_KEYS veya GROQ_API_KEY tanımlı olmalı' })
+        }
+        // AI blog üretimi kapalıyken anahtar aranmaz: backend anahtarsız açılır.
+        if (env.AI_CONTENT_ENABLED === 'true' && !has(env.OPENAI_API_KEY)) {
+          return helpers.message({ custom: 'AI_CONTENT_ENABLED=true iken OPENAI_API_KEY zorunlu' })
         }
         return env
       }),
@@ -140,6 +157,7 @@ import { HealthController } from './health.controller'
     WeatherModule,
     LogsModule,
     AdsModule,
+    AiContentModule,
   ],
   controllers: [HealthController],
   providers: [

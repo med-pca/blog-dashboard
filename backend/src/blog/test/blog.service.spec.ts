@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm'
 import { BlogService } from '../blog.service'
 import { BlogPost } from '../entities/blog-post.entity'
-import { sanitizeRichHtml, stripHtml } from '../../common/html-sanitize'
+import { sanitizeAiHtml, sanitizeRichHtml, stripHtml } from '../../common/html-sanitize'
 import { PublicCacheService } from '../../common/public-cache.service'
 
 function makeService() {
@@ -110,5 +110,36 @@ describe('BlogService — findBySlug cache (4.4)', () => {
     await expect(service.findBySlug('yeni')).rejects.toThrow('Yazı bulunamadı')
     await expect(service.findBySlug('yeni')).resolves.toMatchObject({ slug: 'yeni' })
     expect(repo.findOne).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('sanitizeAiHtml — generated article allowlist', () => {
+  it('keeps the tags a generated article is allowed to use', () => {
+    const html =
+      '<h2>Bölüm</h2><h3>Alt başlık</h3><p>Metin <strong>kalın</strong> <em>eğik</em></p>' +
+      '<ul><li>bir</li></ul><ol><li>iki</li></ol><blockquote>alıntı</blockquote>'
+    expect(sanitizeAiHtml(html)).toBe(html)
+  })
+
+  it('strips everything the editor allows but a generated article must not emit', () => {
+    expect(sanitizeAiHtml('<p style="text-align:center">x</p>')).toBe('<p>x</p>')
+    expect(sanitizeAiHtml('<span style="color:#fff">x</span>')).toBe('x')
+    expect(sanitizeAiHtml('<pre><code>rm -rf /</code></pre>')).toBe('rm -rf /')
+    expect(sanitizeAiHtml('<img src="x.png">metin')).toBe('metin')
+    expect(sanitizeAiHtml('<iframe src="https://kotu.example"></iframe>metin')).toBe('metin')
+    expect(sanitizeAiHtml('<p onclick="alert(1)">x</p>')).toBe('<p>x</p>')
+  })
+
+  it('demotes a stray h1 rather than dropping its text', () => {
+    expect(sanitizeAiHtml('<h1>Başlık</h1>')).toBe('<h2>Başlık</h2>')
+    expect(sanitizeAiHtml('<h4>Derin</h4>')).toBe('<h3>Derin</h3>')
+  })
+
+  it('allows only https links and always forces rel', () => {
+    expect(sanitizeAiHtml('<a href="https://ornek.com">x</a>')).toBe(
+      '<a href="https://ornek.com" rel="noopener noreferrer">x</a>',
+    )
+    expect(sanitizeAiHtml('<a href="http://ornek.com">x</a>')).toBe('<a rel="noopener noreferrer">x</a>')
+    expect(sanitizeAiHtml('<a href="javascript:alert(1)">x</a>')).toBe('<a rel="noopener noreferrer">x</a>')
   })
 })

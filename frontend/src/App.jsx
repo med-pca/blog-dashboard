@@ -51,6 +51,10 @@ const Loglar = lazy(() => import("./pages/admin/Loglar"));
 const Analitik = lazy(() => import("./pages/admin/Analitik"));
 const Guvenlik = lazy(() => import("./pages/admin/Guvenlik"));
 const AdsAdmin = lazy(() => import("./pages/admin/AdsAdmin"));
+const AiCampaignsAdmin = lazy(() => import("./pages/admin/AiCampaignsAdmin"));
+const AiCampaignForm = lazy(() => import("./pages/admin/AiCampaignForm"));
+const AiCampaignDetail = lazy(() => import("./pages/admin/AiCampaignDetail"));
+const AiLoglar = lazy(() => import("./pages/admin/AiLoglar"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -61,7 +65,9 @@ function ScrollToTop() {
 }
 
 function ProtectedRoute({ children }) {
-  const { isAuth } = useAdminAuth();
+  const auth = useAdminAuth();
+  if (!auth || auth.checking) return <PageLoader fullScreen />;
+  const { isAuth } = auth;
   if (!isAuth) return <Navigate to="/rnl-panel/login" replace />;
   return children;
 }
@@ -212,6 +218,11 @@ function AdminRoutes() {
             <Route path="blog" element={<BlogAdmin />} />
             <Route path="blog/yeni" element={<BlogForm />} />
             <Route path="blog/:id/duzenle" element={<BlogForm />} />
+            <Route path="ai-kampanyalar" element={<AiCampaignsAdmin />} />
+            <Route path="ai-kampanyalar/yeni" element={<AiCampaignForm />} />
+            <Route path="ai-kampanyalar/:id" element={<AiCampaignDetail />} />
+            <Route path="ai-kampanyalar/:id/duzenle" element={<AiCampaignForm />} />
+            <Route path="ai-loglar" element={<AiLoglar />} />
             <Route path="sss" element={<SSSAdmin />} />
             <Route path="degerlendirmeler" element={<ChatDegerlendirme />} />
             <Route path="teklif-talepleri" element={<TeklifTalepleri />} />

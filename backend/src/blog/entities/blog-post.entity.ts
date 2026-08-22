@@ -34,6 +34,11 @@ export class BlogPost {
   @Column({ default: false })
   published: boolean
 
+  // Written only by the AI content pipeline; drives the "AI Draft" badge in the
+  // admin list. Not part of CreateBlogPostDto, so it cannot be set over the API.
+  @Column({ default: false })
+  aiGenerated: boolean
+
   @Column({ nullable: true })
   publishedAt: Date
 

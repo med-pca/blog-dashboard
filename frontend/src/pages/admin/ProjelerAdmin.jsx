@@ -213,35 +213,35 @@ export default function ProjelerAdmin() {
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
-                  <th className="px-4 py-4 w-8" />
-                  <th className="text-left px-3 py-4 font-medium">Collection</th>
-                  <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Category</th>
-                  <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Recipes</th>
-                  <th className="text-left px-5 py-4 font-medium">Status</th>
-                  <th className="px-5 py-4" />
-                </tr>
-              </thead>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-                  <tbody className="divide-y divide-gray-50">
-                    {projects.map((p) => (
-                      <SortableRow
-                        key={p.id}
-                        p={p}
-                        coverPhoto={coverPhoto}
-                        onDelete={handleDelete}
-                        deletingId={deletingId}
-                        onTogglePublish={handleTogglePublish}
-                        togglingId={togglingId}
-                      />
-                    ))}
-                  </tbody>
-                </SortableContext>
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
+                      <th className="px-4 py-4 w-8" />
+                      <th className="text-left px-3 py-4 font-medium">Collection</th>
+                      <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Category</th>
+                      <th className="text-left px-5 py-4 font-medium hidden sm:table-cell">Recipes</th>
+                      <th className="text-left px-5 py-4 font-medium">Status</th>
+                      <th className="px-5 py-4" />
+                    </tr>
+                  </thead>
+                  <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+                    <tbody className="divide-y divide-gray-50">
+                      {projects.map((p) => (
+                        <SortableRow
+                          key={p.id}
+                          p={p}
+                          coverPhoto={coverPhoto}
+                          onDelete={handleDelete}
+                          deletingId={deletingId}
+                          onTogglePublish={handleTogglePublish}
+                          togglingId={togglingId}
+                        />
+                      ))}
+                    </tbody>
+                  </SortableContext>
+                </table>
               </DndContext>
-            </table>
             </div>
           </div>
         )}

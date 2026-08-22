@@ -25,10 +25,8 @@ export function AdminAuthProvider({ children }) {
     return done
   }
 
-  if (checking) return null
-
   return (
-    <AdminAuthContext.Provider value={{ saveToken, logout, isAuth }}>
+    <AdminAuthContext.Provider value={{ saveToken, logout, isAuth, checking }}>
       {children}
     </AdminAuthContext.Provider>
   )

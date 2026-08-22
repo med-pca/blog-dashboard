@@ -11,6 +11,12 @@ export default defineConfig({
       '/uploads': 'http://127.0.0.1:3001',
     },
   },
+  // Component tests need a DOM; the pure src/lib tests run fine under jsdom too.
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.js'],
+    css: false,
+  },
   build: {
     rollupOptions: {
       output: {
