@@ -1,31 +1,65 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Sparkles } from 'lucide-react'
-import { DndContext, closestCenter } from '@dnd-kit/core'
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { fetchAllBlogPosts, deleteBlogPost, reorderBlogPosts } from '../../api/admin'
-import { useAdminAuth } from '../../contexts/AdminAuthContext'
-import { API } from '../../api/config.js'
-import { useDndReorder } from '../../hooks/useDndReorder.js'
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  EyeOff,
+  GripVertical,
+  Sparkles,
+} from "lucide-react";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  fetchAllBlogPosts,
+  deleteBlogPost,
+  reorderBlogPosts,
+} from "../../api/admin";
+import { useAdminAuth } from "../../contexts/AdminAuthContext";
+import { API } from "../../api/config.js";
+import { useDndReorder } from "../../hooks/useDndReorder.js";
 
 function SortableRow({ post, onDelete, deletingId }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: post.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: post.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    position: 'relative',
-  }
+    position: "relative",
+  };
 
   const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })
-    : new Date(post.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })
+    ? new Date(post.publishedAt).toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : new Date(post.createdAt).toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
 
   return (
-    <tr ref={setNodeRef} style={style} className="hover:bg-gray-50/50 transition-colors bg-white">
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className="hover:bg-gray-50/50 transition-colors bg-white"
+    >
       <td className="px-4 py-4 w-10">
         <button
           {...attributes}
@@ -38,15 +72,25 @@ function SortableRow({ post, onDelete, deletingId }) {
       <td className="px-3 py-4 w-20">
         <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
           {post.coverImage ? (
-            <img src={`${API}${post.coverImage}`} alt={post.title} className="w-full h-full object-cover" />
+            <img
+              src={`${API}${post.coverImage}`}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <span className="text-gray-300 text-xs">No image</span>
           )}
         </div>
       </td>
       <td className="px-5 py-4">
-        <p className="font-semibold text-gray-900 text-base leading-snug">{post.title}</p>
-        {post.excerpt && <p className="text-sm text-gray-400 mt-0.5 line-clamp-1">{post.excerpt}</p>}
+        <p className="font-semibold text-gray-900 text-base leading-snug">
+          {post.title}
+        </p>
+        {post.excerpt && (
+          <p className="text-sm text-gray-400 mt-0.5 line-clamp-1">
+            {post.excerpt}
+          </p>
+        )}
         <p className="text-xs text-gray-300 mt-1">/blog/{post.slug}</p>
       </td>
       <td className="px-5 py-4 text-sm text-gray-400">{date}</td>
@@ -64,7 +108,7 @@ function SortableRow({ post, onDelete, deletingId }) {
           {/* Written by an AI campaign; publication stays a manual decision. */}
           {post.aiGenerated && (
             <span className="flex items-center gap-1 text-xs font-medium text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
-              <Sparkles size={11} /> {post.published ? 'AI' : 'AI Draft'}
+              <Sparkles size={11} /> {post.published ? "AI" : "AI Draft"}
             </span>
           )}
         </div>
@@ -87,47 +131,53 @@ function SortableRow({ post, onDelete, deletingId }) {
         </div>
       </td>
     </tr>
-  )
+  );
 }
 
 export default function BlogAdmin() {
-  const { logout } = useAdminAuth()
-  const navigate = useNavigate()
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [deletingId, setDeletingId] = useState(null)
-  const [saving, setSaving] = useState(false)
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const { sensors, handleDragEnd } = useDndReorder(posts, setPosts, reorderBlogPosts, setSaving)
+  const { sensors, handleDragEnd } = useDndReorder(
+    posts,
+    setPosts,
+    reorderBlogPosts,
+    setSaving,
+  );
 
   const load = () => {
-    setLoading(true)
+    setLoading(true);
     fetchAllBlogPosts()
       .then(setPosts)
       .catch((err) => {
         if (err.status === 401) {
-          logout()
-          navigate('/rnl-panel/login')
+          logout();
+          navigate("/rnl-panel/login");
         }
       })
-      .finally(() => setLoading(false))
-  }
+      .finally(() => setLoading(false));
+  };
 
-  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
+  useEffect(() => {
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (id, title) => {
-    if (!confirm(`Delete the "${title}" post?`)) return
-    setDeletingId(id)
+    if (!confirm(`Delete the "${title}" post?`)) return;
+    setDeletingId(id);
     try {
-      await deleteBlogPost(id)
-      setPosts((prev) => prev.filter((p) => p.id !== id))
+      await deleteBlogPost(id);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
-      alert('Silinemedi: ' + err.message)
+      alert("Silinemedi: " + err.message);
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
-  }
+  };
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -136,7 +186,9 @@ export default function BlogAdmin() {
           <h1 className="text-xl font-bold text-gray-900">Blog Posts</h1>
           <p className="text-sm text-gray-400 mt-0.5">
             {posts.length} posts
-            {saving && <span className="ml-2 text-[#448834]">· kaydediliyor...</span>}
+            {saving && (
+              <span className="ml-2 text-[#448834]">· kaydediliyor...</span>
+            )}
           </p>
         </div>
         <Link
@@ -153,26 +205,38 @@ export default function BlogAdmin() {
       ) : posts.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="mb-4">No blog posts yet.</p>
-          <Link to="/rnl-panel/blog/yeni" className="text-[#448834] font-semibold hover:underline">
+          <Link
+            to="/rnl-panel/blog/yeni"
+            className="text-[#448834] font-semibold hover:underline"
+          >
             Add the first post
           </Link>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
                     <th className="px-4 py-4 w-10" />
-                    <th className="text-left px-3 py-4 font-medium w-20">Cover</th>
+                    <th className="text-left px-3 py-4 font-medium w-20">
+                      Cover
+                    </th>
                     <th className="text-left px-5 py-4 font-medium">Title</th>
                     <th className="text-left px-5 py-4 font-medium">Date</th>
                     <th className="text-left px-5 py-4 font-medium">Status</th>
                     <th className="px-5 py-4" />
                   </tr>
                 </thead>
-                <SortableContext items={posts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+                <SortableContext
+                  items={posts.map((p) => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
                   <tbody className="divide-y divide-gray-50">
                     {posts.map((post) => (
                       <SortableRow
@@ -190,5 +254,5 @@ export default function BlogAdmin() {
         </div>
       )}
     </main>
-  )
+  );
 }

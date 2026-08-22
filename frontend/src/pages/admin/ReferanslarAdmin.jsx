@@ -1,27 +1,45 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical } from 'lucide-react'
-import { DndContext, closestCenter } from '@dnd-kit/core'
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { fetchAllReferences, deleteReference, reorderReferences } from '../../api/admin'
-import { useAdminAuth } from '../../contexts/AdminAuthContext'
-import { API } from '../../api/config.js'
-import { useDndReorder } from '../../hooks/useDndReorder.js'
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  fetchAllReferences,
+  deleteReference,
+  reorderReferences,
+} from "../../api/admin";
+import { useAdminAuth } from "../../contexts/AdminAuthContext";
+import { API } from "../../api/config.js";
+import { useDndReorder } from "../../hooks/useDndReorder.js";
 
 function SortableRow({ r, onDelete, deletingId }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: r.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: r.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    position: 'relative',
-  }
+    position: "relative",
+  };
 
   return (
-    <tr ref={setNodeRef} style={style} className="hover:bg-gray-50/50 transition-colors bg-white">
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className="hover:bg-gray-50/50 transition-colors bg-white"
+    >
       <td className="px-4 py-5 w-10">
         <button
           {...attributes}
@@ -34,9 +52,15 @@ function SortableRow({ r, onDelete, deletingId }) {
       <td className="px-3 py-5">
         <div className="w-16 h-16 shrink-0 flex items-center justify-center">
           {r.logo ? (
-            <img src={`${API}${r.logo}`} alt={r.name} className="max-h-14 max-w-full object-contain" />
+            <img
+              src={`${API}${r.logo}`}
+              alt={r.name}
+              className="max-h-14 max-w-full object-contain"
+            />
           ) : (
-            <span className="text-gray-300 text-base font-bold">{r.name.charAt(0)}</span>
+            <span className="text-gray-300 text-base font-bold">
+              {r.name.charAt(0)}
+            </span>
           )}
         </div>
       </td>
@@ -72,47 +96,53 @@ function SortableRow({ r, onDelete, deletingId }) {
         </div>
       </td>
     </tr>
-  )
+  );
 }
 
 export default function ReferanslarAdmin() {
-  const { logout } = useAdminAuth()
-  const navigate = useNavigate()
-  const [refs, setRefs] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [deletingId, setDeletingId] = useState(null)
-  const [saving, setSaving] = useState(false)
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
+  const [refs, setRefs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const { sensors, handleDragEnd } = useDndReorder(refs, setRefs, reorderReferences, setSaving)
+  const { sensors, handleDragEnd } = useDndReorder(
+    refs,
+    setRefs,
+    reorderReferences,
+    setSaving,
+  );
 
   const load = () => {
-    setLoading(true)
+    setLoading(true);
     fetchAllReferences()
       .then(setRefs)
       .catch((err) => {
         if (err.status === 401) {
-          logout()
-          navigate('/rnl-panel/login')
+          logout();
+          navigate("/rnl-panel/login");
         }
       })
-      .finally(() => setLoading(false))
-  }
+      .finally(() => setLoading(false));
+  };
 
-  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
+  useEffect(() => {
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`Delete the "${name}" community entry?`)) return
-    setDeletingId(id)
+    if (!confirm(`Delete the "${name}" community entry?`)) return;
+    setDeletingId(id);
     try {
-      await deleteReference(id)
-      setRefs((prev) => prev.filter((r) => r.id !== id))
+      await deleteReference(id);
+      setRefs((prev) => prev.filter((r) => r.id !== id));
     } catch (err) {
-      alert('Could not delete: ' + err.message)
+      alert("Could not delete: " + err.message);
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
-  }
+  };
 
   return (
     <main className="max-w-2xl mx-auto px-6 py-8">
@@ -138,25 +168,37 @@ export default function ReferanslarAdmin() {
       ) : refs.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="mb-4">No community entries yet.</p>
-          <Link to="/rnl-panel/referanslar/yeni" className="text-[#448834] font-semibold hover:underline">
+          <Link
+            to="/rnl-panel/referanslar/yeni"
+            className="text-[#448834] font-semibold hover:underline"
+          >
             Add the first entry
           </Link>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
                     <th className="px-4 py-4 w-10" />
-                    <th className="text-left px-3 py-4 font-medium w-20">Image</th>
+                    <th className="text-left px-3 py-4 font-medium w-20">
+                      Image
+                    </th>
                     <th className="text-left px-5 py-4 font-medium">Name</th>
                     <th className="text-left px-5 py-4 font-medium">Status</th>
                     <th className="px-5 py-4" />
                   </tr>
                 </thead>
-                <SortableContext items={refs.map((r) => r.id)} strategy={verticalListSortingStrategy}>
+                <SortableContext
+                  items={refs.map((r) => r.id)}
+                  strategy={verticalListSortingStrategy}
+                >
                   <tbody className="divide-y divide-gray-50">
                     {refs.map((r) => (
                       <SortableRow
@@ -174,5 +216,5 @@ export default function ReferanslarAdmin() {
         </div>
       )}
     </main>
-  )
+  );
 }

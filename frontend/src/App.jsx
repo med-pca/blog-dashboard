@@ -221,7 +221,10 @@ function AdminRoutes() {
             <Route path="ai-kampanyalar" element={<AiCampaignsAdmin />} />
             <Route path="ai-kampanyalar/yeni" element={<AiCampaignForm />} />
             <Route path="ai-kampanyalar/:id" element={<AiCampaignDetail />} />
-            <Route path="ai-kampanyalar/:id/duzenle" element={<AiCampaignForm />} />
+            <Route
+              path="ai-kampanyalar/:id/duzenle"
+              element={<AiCampaignForm />}
+            />
             <Route path="ai-loglar" element={<AiLoglar />} />
             <Route path="sss" element={<SSSAdmin />} />
             <Route path="degerlendirmeler" element={<ChatDegerlendirme />} />
