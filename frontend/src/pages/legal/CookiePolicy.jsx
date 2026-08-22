@@ -64,7 +64,7 @@ export default function CookiePolicy() {
   return (
     <LegalPage
       title="Cookie Policy"
-      description="Which cookies Flavor Journal uses, what each category does, and how to control or refuse them."
+      description="Which cookies Pulse Recipe uses, what each category does, and how to control or refuse them."
       updated={LEGAL_UPDATED}
       intro="This page lists every category of cookie this site uses and gives you a direct way to control each one."
       sections={SECTIONS}

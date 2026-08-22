@@ -43,7 +43,7 @@ export default function Projelerimiz() {
       ? {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Collections | Flavor Journal",
+          name: "Collections | Pulse Recipe",
           url: "https://renelenerji.com/projelerimiz",
           description:
             "Curated recipe collections for weeknights, prep, and seasonal cooking.",

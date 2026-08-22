@@ -54,7 +54,7 @@ export default function Disclaimer() {
   return (
     <LegalPage
       title="Disclaimer"
-      description="Important notes on allergies, nutrition estimates, food safety and advertising on Flavor Journal."
+      description="Important notes on allergies, nutrition estimates, food safety and advertising on Pulse Recipe."
       updated={LEGAL_UPDATED}
       intro="Please read this before cooking from our recipes — especially the sections on allergies and food safety."
       sections={SECTIONS}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { submitQuoteRequest } from "../api/quote";
-import { waLink } from "../lib/whatsapp";
+import { waLink, WHATSAPP_ENABLED } from "../lib/whatsapp";
 
 const SERVICE_TYPES = [
   { value: "cati-ges", label: "Home Cooking Plan" },
@@ -14,20 +14,14 @@ const INPUT_CLASS =
   "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]";
 const LABEL_CLASS = "block text-sm font-medium text-gray-700 mb-1";
 
-// "0554 379 60 04" biçiminde gruplu gösterim; en fazla 11 hane (0 + 10 haneli numara)
-function formatPhone(digits) {
-  let result = digits.slice(0, 4);
-  if (digits.length > 4) result += " " + digits.slice(4, 7);
-  if (digits.length > 7) result += " " + digits.slice(7, 9);
-  if (digits.length > 9) result += " " + digits.slice(9, 11);
-  return result;
-}
-
+// International-friendly: keep a leading "+", digits and common separators,
+// but nothing else. The backend re-normalises, so we only stop obvious junk
+// and cap the length. No country is assumed.
 function handlePhoneInput(raw) {
-  let digits = raw.replace(/\D/g, "");
-  if (digits && !digits.startsWith("0")) digits = `0${digits}`;
-  digits = digits.slice(0, 11);
-  return formatPhone(digits);
+  let value = raw.replace(/[^\d+\s()-]/g, "");
+  // A "+" is only meaningful as the very first character.
+  value = value.replace(/(?!^)\+/g, "");
+  return value.slice(0, 20);
 }
 
 const INITIAL_FORM = {
@@ -83,19 +77,21 @@ export default function TeklifForm({ onSuccess }) {
         </div>
         <p className="font-semibold text-gray-900 mb-1.5">Request received</p>
         <p className="text-sm text-gray-500 max-w-xs mx-auto">
-          Our team will contact you shortly. If it is urgent, you can also
-          message us on WhatsApp.
+          Our team will contact you shortly.
+          {WHATSAPP_ENABLED && " If it is urgent, you can also message us on WhatsApp."}
         </p>
-        <a
-          href={waLink(
-            `Hi, this is ${form.name}. I have just submitted the request form.`,
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block mt-4 text-sm font-semibold text-[#448834] hover:text-[#357228] transition-colors"
-        >
-          Message us on WhatsApp
-        </a>
+        {WHATSAPP_ENABLED && (
+          <a
+            href={waLink(
+              `Hi, this is ${form.name}. I have just submitted the request form.`,
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-4 text-sm font-semibold text-[#448834] hover:text-[#357228] transition-colors"
+          >
+            Message us on WhatsApp
+          </a>
+        )}
       </div>
     );
   }
@@ -138,9 +134,9 @@ export default function TeklifForm({ onSuccess }) {
               setForm({ ...form, phone: handlePhoneInput(e.target.value) })
             }
             className={INPUT_CLASS}
-            placeholder="0554 379 60 04"
+            placeholder="+1 706 575 8955"
             autoComplete="tel"
-            inputMode="numeric"
+            inputMode="tel"
           />
         </div>
         <div>

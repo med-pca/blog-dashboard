@@ -2,19 +2,19 @@ import { describe, expect, it } from 'vitest'
 import { WA_NUMBER, waLink } from './whatsapp'
 
 describe('waLink', () => {
-  it('doğru numaraya wa.me linki üretir', () => {
-    expect(waLink('merhaba')).toBe(`https://wa.me/${WA_NUMBER}?text=merhaba`)
+  it('builds a wa.me link to the configured number', () => {
+    expect(waLink('hello')).toBe(`https://wa.me/${WA_NUMBER}?text=hello`)
   })
 
-  it('mesajı URL-encode eder', () => {
-    const link = waLink('Merhaba, teklif almak istiyorum & detaylı bilgi')
-    expect(link).toContain('wa.me/905543796004?text=')
+  it('URL-encodes the message', () => {
+    const link = waLink('Hi, I would like a quote & more details')
+    expect(link).toContain(`wa.me/${WA_NUMBER}?text=`)
     expect(link).toContain(encodeURIComponent('&'))
     expect(link).not.toContain(' ')
   })
 
-  it('çok satırlı özet mesajını güvenle taşır', () => {
-    const message = 'Merhaba,\n\nİlgilendiğim sistem: Çatı GES\nDetaylı teklif almak istiyorum.'
+  it('safely carries a multi-line summary message', () => {
+    const message = 'Hi,\n\nTopic of interest: Weeknight Dinners\nI would like more details.'
     expect(waLink(message)).toBe(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`)
   })
 })

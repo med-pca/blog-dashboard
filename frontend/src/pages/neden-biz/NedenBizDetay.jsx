@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import SEO from "../../components/SEO";
-import { waLink } from "../../lib/whatsapp";
+import { waLink, WHATSAPP_ENABLED } from "../../lib/whatsapp";
 
 const pages = [
   {
@@ -162,12 +162,12 @@ export default function NedenBizDetay() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: `${page.title} | Flavor Journal`,
+    name: `${page.title} | Pulse Recipe`,
     description: page.description,
     url: `https://renelenerji.com/neden-biz/${page.slug}`,
     publisher: {
       "@type": "Organization",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       url: "https://renelenerji.com",
     },
   };
@@ -218,7 +218,7 @@ export default function NedenBizDetay() {
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="bg-[#448834] px-5 py-4">
                   <p className="text-white font-bold text-sm">
-                    Why Flavor Journal?
+                    Why Pulse Recipe?
                   </p>
                 </div>
                 <nav className="divide-y divide-gray-50">
@@ -261,7 +261,8 @@ export default function NedenBizDetay() {
                   Tell us what you cook most and we will suggest the right
                   recipes.
                 </p>
-                <a
+                {WHATSAPP_ENABLED ? (
+                  <a
                   href={waLink(page.waMessage)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -269,6 +270,11 @@ export default function NedenBizDetay() {
                 >
                   Contact Us
                 </a>
+                ) : (
+                  <Link to="/iletisim" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                  Contact Us
+                </Link>
+                )}
               </div>
             </aside>
 
@@ -294,7 +300,7 @@ export default function NedenBizDetay() {
 
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8 mb-4 sm:mb-6">
                 <p className="text-[#448834] font-semibold text-xs uppercase tracking-widest mb-3">
-                  Flavor Journal
+                  Pulse Recipe
                 </p>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-5">
                   {page.title}
@@ -334,7 +340,8 @@ export default function NedenBizDetay() {
                   Tell us what you cook most and we will suggest the right
                   recipes.
                 </p>
-                <a
+                {WHATSAPP_ENABLED ? (
+                  <a
                   href={waLink(page.waMessage)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -342,6 +349,11 @@ export default function NedenBizDetay() {
                 >
                   Contact Us
                 </a>
+                ) : (
+                  <Link to="/iletisim" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                  Contact Us
+                </Link>
+                )}
               </div>
             </div>
           </div>

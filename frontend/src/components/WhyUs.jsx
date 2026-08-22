@@ -7,7 +7,7 @@ import {
   HeartHandshake,
   CheckCircle,
 } from "lucide-react";
-import { waLink } from "../lib/whatsapp";
+import { waLink, WHATSAPP_ENABLED } from "../lib/whatsapp";
 
 const WA_MESSAGE =
   "Hi, I would like personalized recipe guidance for my weekly cooking routine.";
@@ -126,7 +126,8 @@ export default function WhyUs() {
             <p className="text-gray-500 text-base">
               Reach out for recipe ideas tailored to your routine.
             </p>
-            <a
+            {WHATSAPP_ENABLED ? (
+              <a
               href={waLink(WA_MESSAGE)}
               target="_blank"
               rel="noopener noreferrer"
@@ -134,6 +135,11 @@ export default function WhyUs() {
             >
               Get Suggestions
             </a>
+            ) : (
+              <Link to="/iletisim" className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors">
+              Get Suggestions
+            </Link>
+            )}
           </div>
         </div>
       </div>

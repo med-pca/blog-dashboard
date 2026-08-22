@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         <div className="relative z-10 text-center">
           <p className="text-white/70 text-sm sm:text-lg mb-2 drop-shadow-md tracking-widest uppercase">Admin Panel</p>
           <h1 className="text-white text-4xl sm:text-6xl font-bold drop-shadow-lg">Welcome back</h1>
-          <p className="text-white/60 text-base sm:text-xl mt-3 drop-shadow-md">Flavor Journal</p>
+          <p className="text-white/60 text-base sm:text-xl mt-3 drop-shadow-md">Pulse Recipe</p>
         </div>
       </div>
 

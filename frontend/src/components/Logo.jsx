@@ -11,7 +11,7 @@ export default function Logo({ textWhite = false, className = 'h-20 w-auto' }) {
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="Flavor Journal"
+      aria-label="Pulse Recipe"
     >
       <g transform="translate(0 -6) scale(0.8333)">
         {/* Chef hat */}
@@ -40,7 +40,7 @@ export default function Logo({ textWhite = false, className = 'h-20 w-auto' }) {
         fontWeight="700"
         fill={brand}
       >
-        Flavor
+        Pulse
       </text>
       <text
         x="216"
@@ -50,7 +50,7 @@ export default function Logo({ textWhite = false, className = 'h-20 w-auto' }) {
         letterSpacing="6"
         fill={text}
       >
-        JOURNAL
+        RECIPE
       </text>
     </svg>
   )

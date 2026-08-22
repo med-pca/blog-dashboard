@@ -52,7 +52,7 @@ const jsonLd = {
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       provider: {
         "@type": "Organization",
-        name: "Flavor Journal",
+        name: "Pulse Recipe",
         url: "https://renelenerji.com",
       },
     },

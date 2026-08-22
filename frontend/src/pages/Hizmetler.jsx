@@ -5,7 +5,7 @@ import Services from "../components/Services";
 const recipesJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Recipes | Flavor Journal",
+  name: "Recipes | Pulse Recipe",
   url: "https://renelenerji.com/hizmetler",
   description:
     "Explore recipes by meal type, kitchen skills, and practical food guides for everyday home cooking.",

@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import { serializeJsonLd } from "../lib/jsonLd";
 
-const SITE_NAME = "Flavor Journal";
+const SITE_NAME = "Pulse Recipe";
 const SITE_URL = "https://renelenerji.com";
 const DEFAULT_IMAGE = "https://renelenerji.com/og-image.webp";
 const DEFAULT_DESC =

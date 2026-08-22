@@ -77,7 +77,7 @@ export default function Kurumsal() {
     <>
       <SEO
         title="About"
-        description="About Flavor Journal. A food-first platform sharing practical recipes and cooking guides for everyday life."
+        description="About Pulse Recipe. A food-first platform sharing practical recipes and cooking guides for everyday life."
         jsonLd={jsonLd}
       />
       <PageHeader title="About" />
@@ -151,7 +151,7 @@ export default function Kurumsal() {
               Real Home Kitchens
             </h2>
             <p className="text-gray-500 leading-relaxed mb-5">
-              Flavor Journal is built for everyday cooks who want reliable
+              Pulse Recipe is built for everyday cooks who want reliable
               recipes without complexity. We focus on clear methods, balanced
               meals, and approachable ingredient choices.
             </p>
@@ -181,7 +181,7 @@ export default function Kurumsal() {
               Our Values
             </p>
             <h2 className="text-3xl font-bold text-gray-900">
-              Why Flavor Journal?
+              Why Pulse Recipe?
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

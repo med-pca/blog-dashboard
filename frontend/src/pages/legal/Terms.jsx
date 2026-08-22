@@ -67,9 +67,9 @@ export default function Terms() {
   return (
     <LegalPage
       title="Terms of Service"
-      description="The terms that apply when you use Flavor Journal, including how our recipes and content may be used."
+      description="The terms that apply when you use Pulse Recipe, including how our recipes and content may be used."
       updated={LEGAL_UPDATED}
-      intro="These terms set out what you can expect from Flavor Journal and what we ask of you in return."
+      intro="These terms set out what you can expect from Pulse Recipe and what we ask of you in return."
       sections={SECTIONS}
     />
   );

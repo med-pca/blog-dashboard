@@ -11,7 +11,7 @@ import {
   PiggyBank,
   ArrowRight,
 } from "lucide-react";
-import { waLink } from "../lib/whatsapp";
+import { waLink, WHATSAPP_ENABLED } from "../lib/whatsapp";
 
 const categories = [
   {
@@ -292,7 +292,8 @@ export default function Services() {
                         >
                           View Details
                         </Link>
-                        <a
+                        {WHATSAPP_ENABLED && (
+                          <a
                           href={waLink(s.waMessage)}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -302,6 +303,7 @@ export default function Services() {
                           Ask For Tips
                           <ArrowRight size={15} />
                         </a>
+                        )}
                       </div>
                     </div>
                   </div>

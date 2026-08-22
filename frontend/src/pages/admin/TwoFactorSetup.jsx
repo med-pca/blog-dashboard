@@ -188,7 +188,7 @@ export default function TwoFactorSetup() {
 
           <form onSubmit={handleConfirm} className="space-y-3">
             <div>
-              <p className="text-sm font-semibold text-gray-800 mb-1">2. Uygulamadaki kodu girin</p>
+              <p className="text-sm font-semibold text-gray-800 mb-1">2. Enter the code from your app</p>
               <input
                 type="text"
                 inputMode="numeric"

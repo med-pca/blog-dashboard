@@ -25,7 +25,7 @@ const BUDGET_KEY_TTL_SECONDS = 48 * 60 * 60
 
 export const BUDGET_EXCEEDED_MESSAGE =
   'I cannot reply right now because of high demand. Press the "Continue on WhatsApp" ' +
-  'button below to send your request straight to the Flavor Journal kitchen team.'
+  'button below to send your request straight to the Pulse Recipe kitchen team.'
 
 export class AiBudgetExceededError extends Error {
   constructor() {

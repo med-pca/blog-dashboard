@@ -99,12 +99,12 @@ export default function BlogDetay() {
     dateModified: post.updatedAt || post.publishedAt || post.createdAt,
     author: {
       "@type": "Organization",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       url: "https://renelenerji.com",
     },
     publisher: {
       "@type": "Organization",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       logo: {
         "@type": "ImageObject",
         url: "https://renelenerji.com/food/logo-mark.svg",

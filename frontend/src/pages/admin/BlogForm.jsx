@@ -85,7 +85,7 @@ export default function BlogForm() {
     e.preventDefault()
     setError('')
     if (!form.title.trim()) { setError('Title is required.'); return }
-    if (!form.slug.trim()) { setError('Slug zorunludur.'); return }
+    if (!form.slug.trim()) { setError('Slug is required.'); return }
     if (!form.content.trim()) { setError('Content is required.'); return }
 
     setSaving(true)

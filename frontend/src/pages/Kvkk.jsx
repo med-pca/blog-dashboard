@@ -4,7 +4,7 @@ import { LEGAL_CONTACT, LEGAL_UPDATED, LEGAL_OWNER } from "../lib/legal";
 const SECTIONS = [
   {
     title: "1. Who we are",
-    body: `${LEGAL_OWNER} ("Flavor Journal", "we", "us") runs this website as a food and recipe publication. We decide why and how the personal data described below is processed, which makes us the data controller for it.
+    body: `${LEGAL_OWNER} ("Pulse Recipe", "we", "us") runs this website as a food and recipe publication. We decide why and how the personal data described below is processed, which makes us the data controller for it.
 
 Contact: ${LEGAL_CONTACT}`,
   },
@@ -93,7 +93,7 @@ export default function Kvkk() {
   return (
     <LegalPage
       title="Privacy Policy"
-      description="How Flavor Journal collects, uses and protects your personal data, including cookies and third-party advertising."
+      description="How Pulse Recipe collects, uses and protects your personal data, including cookies and third-party advertising."
       updated={LEGAL_UPDATED}
       intro="This policy explains what we collect when you read our recipes, send us a message or use the chat assistant, why we collect it, and the choices you have."
       sections={SECTIONS}

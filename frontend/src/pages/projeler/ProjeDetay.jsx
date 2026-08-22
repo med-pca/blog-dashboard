@@ -13,7 +13,7 @@ import { ProjeDetaySkeleton } from "../../components/Skeletons";
 import LoadError from "../../components/LoadError";
 import { fetchProjectBySlug, mediaUrl } from "../../api/projects";
 import SEO from "../../components/SEO";
-import { waLink } from "../../lib/whatsapp";
+import { waLink, WHATSAPP_ENABLED } from "../../lib/whatsapp";
 
 export default function ProjeDetay() {
   const { slug } = useParams();
@@ -121,12 +121,12 @@ export default function ProjeDetay() {
     url: `https://renelenerji.com/projelerimiz/${slug}`,
     author: {
       "@type": "Organization",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       url: "https://renelenerji.com",
     },
     publisher: {
       "@type": "Organization",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       url: "https://renelenerji.com",
     },
   };
@@ -328,7 +328,8 @@ export default function ProjeDetay() {
               </div>
             )}
 
-            <a
+            {WHATSAPP_ENABLED ? (
+              <a
               href={waLink(
                 `Hi, I would like recommendations similar to ${project.name}. Could you share details?`,
               )}
@@ -339,6 +340,12 @@ export default function ProjeDetay() {
               {project.ctaText || "Get Similar Suggestions"}
               <ArrowRight size={17} />
             </a>
+            ) : (
+              <Link to="/iletisim" className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-[#448834]/25">
+              {project.ctaText || "Get Similar Suggestions"}
+              <ArrowRight size={17} />
+            </Link>
+            )}
           </div>
         </div>
       </section>

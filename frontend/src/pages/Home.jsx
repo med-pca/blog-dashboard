@@ -3,6 +3,7 @@ import Stats from "../components/Stats";
 import Services from "../components/Services";
 import WhyUs from "../components/WhyUs";
 import HowItWorks from "../components/HowItWorks";
+import LatestPosts from "../components/LatestPosts";
 import LogoMarquee from "../components/LogoMarquee";
 import SEO from "../components/SEO";
 import { WA_NUMBER } from "../lib/whatsapp";
@@ -13,7 +14,7 @@ const homeSchema = {
     {
       "@type": "WebSite",
       "@id": "https://pulserecipe.com/#website",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       url: "https://pulserecipe.com",
       inLanguage: "en-US",
       publisher: { "@id": "https://pulserecipe.com/#organization" },
@@ -21,7 +22,7 @@ const homeSchema = {
     {
       "@type": "Organization",
       "@id": "https://pulserecipe.com/#organization",
-      name: "Flavor Journal",
+      name: "Pulse Recipe",
       url: "https://pulserecipe.com",
       logo: {
         "@type": "ImageObject",
@@ -40,7 +41,7 @@ const homeSchema = {
     {
       "@type": "Blog",
       "@id": "https://pulserecipe.com/#blog",
-      name: "Flavor Journal Recipes",
+      name: "Pulse Recipe Blog",
       description:
         "Simple, seasonal, and practical recipes for everyday home cooking.",
       url: "https://pulserecipe.com/blog",
@@ -59,6 +60,7 @@ export default function Home() {
       <Services />
       <WhyUs />
       <HowItWorks />
+      <LatestPosts />
       <LogoMarquee />
     </>
   );

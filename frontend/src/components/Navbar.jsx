@@ -85,7 +85,7 @@ export default function Navbar() {
           <Link
             to="/"
             className="flex items-center select-none"
-            aria-label="Flavor Journal Home"
+            aria-label="Pulse Recipe Home"
           >
             <Logo textWhite={transparent} className="h-16 w-auto" />
           </Link>

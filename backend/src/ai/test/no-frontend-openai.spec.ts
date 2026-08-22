@@ -12,17 +12,24 @@ const FRONTEND_SRC = join(REPO_ROOT, 'frontend', 'src')
 
 function tracked(pattern: string, path: string): string[] {
   try {
-    // -I skips binary files; a non-zero exit just means "no match".
-    return execFileSync('git', ['grep', '-I', '-l', '-i', '-e', pattern, '--', path], {
-      cwd: REPO_ROOT,
-      encoding: 'utf8',
-    })
+    // -I skips binary files; a non-zero exit just means "no match". This spec is
+    // itself excluded: it necessarily contains every pattern it searches for
+    // (VITE_OPENAI, sk-, api.openai.com…) as string literals, so it would always
+    // self-match once tracked.
+    return execFileSync(
+      'git',
+      ['grep', '-I', '-l', '-i', '-e', pattern, '--', path, `:(exclude)${SELF}`],
+      { cwd: REPO_ROOT, encoding: 'utf8' },
+    )
       .split('\n')
       .filter(Boolean)
   } catch {
     return []
   }
 }
+
+// Repo-relative path of this spec, so `tracked()` can exclude it from its own scans.
+const SELF = 'backend/src/ai/test/no-frontend-openai.spec.ts'
 
 describe('frontend never talks to OpenAI', () => {
   it('has no OpenAI SDK dependency in the frontend package', () => {

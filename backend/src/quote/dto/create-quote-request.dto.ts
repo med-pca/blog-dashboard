@@ -10,17 +10,18 @@ export class CreateQuoteRequestDto {
   @MaxLength(120)
   name: string
 
-  // Rakam dışı her karakter atılır; başındaki tek "0" (yerel çevirme) düşürülür ve
-  // "90" ülke kodu yoksa eklenir — hem "0554 379 60 04" hem "554 379 60 04" hem
-  // "905543796004" girdisi aynı kanonik forma ("905XXXXXXXXX") normalize edilir
+  // International numbers: strip spaces, dashes, dots and parentheses, keep an
+  // optional leading "+" so a country code is preserved. "+1 706 575 8955",
+  // "706-575-8955" and "0554 379 60 04" all normalise to a clean digit string.
   @Transform(({ value }) => {
     if (typeof value !== 'string') return value
-    let digits = value.replace(/\D/g, '')
-    if (digits.startsWith('0')) digits = digits.slice(1)
-    if (!digits.startsWith('90')) digits = `90${digits}`
-    return digits
+    const trimmed = value.trim()
+    const hasPlus = trimmed.startsWith('+')
+    const digits = trimmed.replace(/\D/g, '')
+    return hasPlus ? `+${digits}` : digits
   })
-  @Matches(/^905\d{9}$/, { message: 'Geçerli bir cep telefonu numarası girin' })
+  // E.164 allows up to 15 digits; 7 is a safe lower bound for any real number.
+  @Matches(/^\+?[0-9]{7,15}$/, { message: 'Please enter a valid phone number' })
   phone: string
 
   @IsOptional()
@@ -28,7 +29,7 @@ export class CreateQuoteRequestDto {
   @MaxLength(120)
   city?: string
 
-  @IsIn(SERVICE_TYPES, { message: 'Geçersiz hizmet tipi' })
+  @IsIn(SERVICE_TYPES, { message: 'Invalid topic selection' })
   serviceType: QuoteServiceType
 
   @IsOptional()
@@ -43,7 +44,7 @@ export class CreateQuoteRequestDto {
   @MaxLength(2000)
   message?: string
 
-  @Equals(true, { message: 'KVKK aydınlatma metnini onaylamanız gerekiyor' })
+  @Equals(true, { message: 'You must accept the Privacy Policy' })
   kvkkConsent: boolean
 
   // Honeypot: gerçek kullanıcılar bu alanı görmez/doldurmaz. forbidNonWhitelisted

@@ -1,4 +1,4 @@
-// Editorial seed content for the Flavor Journal blog.
+// Editorial seed content for the Pulse Recipe blog.
 // Each entry is a complete, self-contained article: unique subject, its own
 // structure, no shared boilerplate. Run with `npm run seed:blog` (idempotent —
 // matched on slug, so re-running updates rather than duplicating).

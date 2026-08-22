@@ -45,9 +45,19 @@ describe('Quote requests (e2e)', () => {
     expect(res.body.id).toBeDefined()
 
     const saved = await ds.getRepository(QuoteRequest).findOne({ where: { id: res.body.id } })
-    expect(saved?.phone).toBe('905543796004')
+    expect(saved?.phone).toBe('05543796004')
     expect(saved?.status).toBe('new')
     expect(saved?.kvkkConsent).toBe(true)
+  })
+
+  it('accepts an international phone number and keeps the country code', async () => {
+    const res = await request(server)
+      .post('/api/quote')
+      .send({ ...VALID_BODY, phone: '+1 706 575 8955' })
+      .expect(201)
+
+    const saved = await ds.getRepository(QuoteRequest).findOne({ where: { id: res.body.id } })
+    expect(saved?.phone).toBe('+17065758955')
   })
 
   it('rejects submission without kvkk consent', async () => {

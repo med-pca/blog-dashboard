@@ -20,7 +20,7 @@ export default function LogoMarquee() {
   return (
     <section className="pt-10 pb-28 bg-white overflow-hidden">
       <div className="text-center mb-16">
-        <p className="text-[#357228] font-semibold text-xs uppercase tracking-widest mb-3">Flavor Journal</p>
+        <p className="text-[#357228] font-semibold text-xs uppercase tracking-widest mb-3">Pulse Recipe</p>
         <h2 className="text-4xl font-bold text-gray-900">Kitchens That Cook With Us</h2>
       </div>
 

@@ -2,7 +2,6 @@ import { Phone, Mail, MapPin, Clock, MessageSquare } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 import SEO from "../components/SEO";
 import TeklifForm from "../components/TeklifForm";
-import { WA_NUMBER } from "../lib/whatsapp";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -49,7 +48,7 @@ export default function Iletisim() {
     <>
       <SEO
         title="Contact"
-        description="Contact Flavor Journal for recipe questions, content collaboration, and cooking guidance."
+        description="Contact Pulse Recipe for recipe questions, content collaboration, and cooking guidance."
         jsonLd={jsonLd}
       />
       <PageHeader title="Contact" />
@@ -151,7 +150,7 @@ export default function Iletisim() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm h-65 sm:h-90 lg:h-105">
             <iframe
-              title="Flavor Journal Location"
+              title="Pulse Recipe Location"
               src="https://maps.google.com/maps?q=Kurtulus%2C%20Inkilap%20Sk.%20No%3A4%2C%2045500%20Soma%2FManisa&output=embed&hl=en"
               width="100%"
               height="100%"

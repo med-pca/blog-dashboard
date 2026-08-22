@@ -49,13 +49,13 @@ export default function Blog() {
       ? {
           "@context": "https://schema.org",
           "@type": "Blog",
-          name: "Flavor Journal",
+          name: "Pulse Recipe",
           url: "https://renelenerji.com/blog",
           description:
             "Fresh recipes, practical kitchen tips, and seasonal food inspiration.",
           publisher: {
             "@type": "Organization",
-            name: "Flavor Journal",
+            name: "Pulse Recipe",
             url: "https://renelenerji.com",
           },
           blogPost: posts.map((p) => ({

@@ -4,7 +4,7 @@
 // NOTE: LEGAL_OWNER and LEGAL_JURISDICTION are placeholders taken from the
 // contact details already published on the site. Confirm the registered legal
 // entity and governing law before treating these pages as final.
-export const LEGAL_OWNER = "Flavor Journal";
+export const LEGAL_OWNER = "Pulse Recipe";
 export const LEGAL_CONTACT = "contact@pulserecipe.com";
 export const LEGAL_SITE = "pulserecipe.com";
 export const LEGAL_JURISDICTION = "Türkiye";
