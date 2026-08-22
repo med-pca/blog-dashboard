@@ -5,12 +5,17 @@ import PageHeader from "../components/PageHeader";
 import { ProjelerimizSkeleton } from "../components/Skeletons";
 import LoadError from "../components/LoadError";
 import { fetchProjects, mediaUrl } from "../api/projects";
+import { fetchCollectionPostCounts } from "../api/blog.js";
 import SEO from "../components/SEO";
+import { SITE_URL } from "../lib/site";
 
 export default function Projelerimiz() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // { collectionId: publishedRecipeCount }; null until loaded, so the cards can
+  // fall back to the stored figure instead of flashing a wrong "0 recipes".
+  const [postCounts, setPostCounts] = useState(null);
 
   function load() {
     setLoading(true);
@@ -19,6 +24,10 @@ export default function Projelerimiz() {
       .then(setProjects)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
+    // Counts are decoration: a failure here leaves the grid intact.
+    fetchCollectionPostCounts()
+      .then(setPostCounts)
+      .catch(() => setPostCounts(null));
   }
 
   useEffect(() => {
@@ -26,7 +35,9 @@ export default function Projelerimiz() {
     load();
   }, []);
 
-  const totalKw = projects.reduce((sum, p) => sum + Number(p.kw), 0);
+  // How many published recipes are linked to a collection.
+  const recipeCount = (p) => (postCounts ? (postCounts[p.id] ?? 0) : Number(p.kw));
+  const totalRecipes = projects.reduce((sum, p) => sum + recipeCount(p), 0);
 
   const coverPhoto = (p) => {
     const thumb = p.media?.find((m) => m.type === "thumbnail");
@@ -44,7 +55,7 @@ export default function Projelerimiz() {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "Collections | Pulse Recipe",
-          url: "https://renelenerji.com/projelerimiz",
+          url: `${SITE_URL}/projelerimiz`,
           description:
             "Curated recipe collections for weeknights, prep, and seasonal cooking.",
           mainEntity: {
@@ -53,7 +64,7 @@ export default function Projelerimiz() {
             itemListElement: projects.map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
-              url: `https://renelenerji.com/projelerimiz/${p.slug}`,
+              url: `${SITE_URL}/projelerimiz/${p.slug}`,
               name: p.name,
             })),
           },
@@ -88,7 +99,7 @@ export default function Projelerimiz() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
           {[
             { v: projects.length.toString(), l: "Published Collections" },
-            { v: `${Math.round(totalKw * 10) / 10}`, l: "Featured Recipes" },
+            { v: `${Math.round(totalRecipes * 10) / 10}`, l: "Featured Recipes" },
             { v: "Global", l: "Kitchen Audience" },
           ].map(({ v, l }) => (
             <div key={l} className="text-center px-6 py-4">
@@ -165,9 +176,12 @@ export default function Projelerimiz() {
                           {p.date}
                         </span>
                       </div>
-                      <span className="text-[#448834] font-bold text-lg font-['Rajdhani'] flex items-center gap-1">
+                      <span
+                        className="text-[#448834] font-bold text-lg font-['Rajdhani'] flex items-center gap-1"
+                        title={`${recipeCount(p)} recipes in this collection`}
+                      >
                         <BookOpen size={13} className="text-[#448834]" />
-                        {p.kw}
+                        {recipeCount(p)}
                       </span>
                     </div>
                   </div>

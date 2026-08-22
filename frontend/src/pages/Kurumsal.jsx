@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 import SEO from "../components/SEO";
+import { SITE_URL } from "../lib/site";
 
 const values = [
   {
@@ -60,16 +61,16 @@ export default function Kurumsal() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    url: "https://pulserecipe.com/kurumsal",
-    name: "Kurumsal | Pulse Recipe",
+    url: `${SITE_URL}/kurumsal`,
+    name: "About | Pulse Recipe",
     description:
-      "Pulse Recipe hakkında. Günlük yaşam için pratik tarifler ve yemek rehberleri paylaşan bir yemek odaklı platform.",
+      "About Pulse Recipe. A food-first platform sharing practical recipes and cooking guides for everyday life.",
     mainEntity: {
       "@type": "Organization",
       name: "Pulse Recipe",
-      url: "https://pulserecipe.com",
-      logo: "https://pulserecipe.com/food/logo-mark.svg",
-      email: "hello@pulserecipe.com",
+      url: SITE_URL,
+      logo: `${SITE_URL}/food/logo-mark.svg`,
+      email: "contact@pulserecipe.com",
     },
   };
 

@@ -8,22 +8,8 @@ import SEO from "../components/SEO";
 import AdSenseBlock from "../components/AdSenseBlock";
 import { fetchPosts } from "../api/blog.js";
 import { formatDate } from "../lib/date.js";
-import { API } from "../api/config.js";
-
-const FOOD_FALLBACKS = [
-  "/food/illustration-1.svg",
-  "/food/illustration-2.svg",
-  "/food/illustration-3.svg",
-  "/food/illustration-4.svg",
-];
-
-function resolveCoverSrc(coverImage, fallbackIndex) {
-  if (!coverImage) return FOOD_FALLBACKS[fallbackIndex % FOOD_FALLBACKS.length];
-  if (/^https?:\/\//i.test(coverImage)) return coverImage;
-  // Bundled artwork under /food/ is served by the frontend; uploads live on the API host.
-  if (coverImage.startsWith("/food/")) return coverImage;
-  return `${API}${coverImage}`;
-}
+import { fallbackCover, resolveCoverSrc } from "../lib/postCover.js";
+import { SITE_URL } from "../lib/site";
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
@@ -50,22 +36,22 @@ export default function Blog() {
           "@context": "https://schema.org",
           "@type": "Blog",
           name: "Pulse Recipe",
-          url: "https://renelenerji.com/blog",
+          url: `${SITE_URL}/blog`,
           description:
             "Fresh recipes, practical kitchen tips, and seasonal food inspiration.",
           publisher: {
             "@type": "Organization",
             name: "Pulse Recipe",
-            url: "https://renelenerji.com",
+            url: SITE_URL,
           },
           blogPost: posts.map((p) => ({
             "@type": "BlogPosting",
             headline: p.title,
-            url: `https://renelenerji.com/blog/${p.slug}`,
+            url: `${SITE_URL}/blog/${p.slug}`,
             datePublished: p.publishedAt || p.createdAt,
             description: p.excerpt || p.title,
             ...(p.coverImage
-              ? { image: `https://renelenerji.com${p.coverImage}` }
+              ? { image: `${SITE_URL}${p.coverImage}` }
               : {}),
           })),
         }
@@ -130,8 +116,7 @@ export default function Blog() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 food-photo"
                       loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.src =
-                          FOOD_FALLBACKS[index % FOOD_FALLBACKS.length];
+                        e.currentTarget.src = fallbackCover(index);
                       }}
                     />
                     <span className="absolute top-3 left-3 rounded-full bg-white/85 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-orange-800 tracking-wide">

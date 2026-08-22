@@ -3,22 +3,7 @@ import { Link } from "react-router-dom";
 import { Calendar, ArrowRight } from "lucide-react";
 import { fetchPosts } from "../api/blog.js";
 import { formatDate } from "../lib/date.js";
-import { API } from "../api/config.js";
-
-const FOOD_FALLBACKS = [
-  "/food/illustration-1.svg",
-  "/food/illustration-2.svg",
-  "/food/illustration-3.svg",
-  "/food/illustration-4.svg",
-];
-
-// Same resolution rules as the Blog list page so covers render identically.
-function resolveCoverSrc(coverImage, fallbackIndex) {
-  if (!coverImage) return FOOD_FALLBACKS[fallbackIndex % FOOD_FALLBACKS.length];
-  if (/^https?:\/\//i.test(coverImage)) return coverImage;
-  if (coverImage.startsWith("/food/")) return coverImage;
-  return `${API}${coverImage}`;
-}
+import { fallbackCover, resolveCoverSrc } from "../lib/postCover.js";
 
 // "Latest from the blog" strip for the home page: the three most recent posts
 // with a clear path to read more. It fails silent — if the blog is empty or the
@@ -77,7 +62,7 @@ export default function LatestPosts() {
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.src =
-                      FOOD_FALLBACKS[index % FOOD_FALLBACKS.length];
+                      fallbackCover(index);
                   }}
                 />
               </div>

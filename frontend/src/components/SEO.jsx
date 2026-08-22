@@ -1,10 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import { serializeJsonLd } from "../lib/jsonLd";
+import { SITE_NAME, SITE_URL } from "../lib/site";
 
-const SITE_NAME = "Pulse Recipe";
-const SITE_URL = "https://renelenerji.com";
-const DEFAULT_IMAGE = "https://renelenerji.com/og-image.webp";
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.webp`;
 const DEFAULT_DESC =
   "Fresh recipes, practical kitchen tips, and seasonal food inspiration.";
 

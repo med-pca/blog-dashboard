@@ -9,27 +9,8 @@ import SEO from "../components/SEO";
 import AdSenseBlock from "../components/AdSenseBlock";
 import { fetchPostBySlug } from "../api/blog.js";
 import { formatDate } from "../lib/date.js";
-import { API } from "../api/config.js";
-
-const FOOD_FALLBACKS = [
-  "/food/illustration-1.svg",
-  "/food/illustration-2.svg",
-  "/food/illustration-3.svg",
-  "/food/illustration-4.svg",
-];
-
-function pickFallback(seed = "") {
-  const sum = Array.from(seed).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return FOOD_FALLBACKS[sum % FOOD_FALLBACKS.length];
-}
-
-function resolveCoverSrc(coverImage, slug) {
-  if (!coverImage) return pickFallback(slug);
-  if (/^https?:\/\//i.test(coverImage)) return coverImage;
-  // Bundled artwork under /food/ is served by the frontend; uploads live on the API host.
-  if (coverImage.startsWith("/food/")) return coverImage;
-  return `${API}${coverImage}`;
-}
+import { fallbackCover, resolveCoverSrc } from "../lib/postCover.js";
+import { SITE_URL } from "../lib/site";
 
 export default function BlogDetay() {
   const { slug } = useParams();
@@ -86,8 +67,8 @@ export default function BlogDetay() {
   const absoluteImage = post.coverImage
     ? /^https?:\/\//i.test(post.coverImage)
       ? post.coverImage
-      : `https://renelenerji.com${post.coverImage}`
-    : `https://renelenerji.com${pickFallback(post.slug || slug)}`;
+      : `${SITE_URL}${post.coverImage}`
+    : `${SITE_URL}${fallbackCover(post.slug || slug)}`;
 
   const blogSchema = {
     "@context": "https://schema.org",
@@ -100,14 +81,14 @@ export default function BlogDetay() {
     author: {
       "@type": "Organization",
       name: "Pulse Recipe",
-      url: "https://renelenerji.com",
+      url: SITE_URL,
     },
     publisher: {
       "@type": "Organization",
       name: "Pulse Recipe",
       logo: {
         "@type": "ImageObject",
-        url: "https://renelenerji.com/food/logo-mark.svg",
+        url: `${SITE_URL}/food/logo-mark.svg`,
       },
     },
   };
@@ -134,7 +115,7 @@ export default function BlogDetay() {
             className="w-full max-h-80 object-cover food-photo"
             loading="lazy"
             onError={(e) => {
-              e.currentTarget.src = pickFallback(post.slug || slug);
+              e.currentTarget.src = fallbackCover(post.slug || slug);
             }}
           />
           <span className="absolute top-4 left-4 rounded-full bg-white/85 backdrop-blur px-3 py-1 text-[10px] font-semibold text-orange-800 tracking-wide">

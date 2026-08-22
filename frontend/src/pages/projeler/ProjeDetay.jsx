@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
+  Calendar,
   CheckCircle2,
   X,
   Play,
@@ -12,8 +13,12 @@ import PageHeader from "../../components/PageHeader";
 import { ProjeDetaySkeleton } from "../../components/Skeletons";
 import LoadError from "../../components/LoadError";
 import { fetchProjectBySlug, mediaUrl } from "../../api/projects";
+import { fetchPostsByCollection } from "../../api/blog.js";
 import SEO from "../../components/SEO";
+import { formatDate } from "../../lib/date.js";
+import { fallbackCover, resolveCoverSrc } from "../../lib/postCover.js";
 import { waLink, WHATSAPP_ENABLED } from "../../lib/whatsapp";
+import { SITE_URL } from "../../lib/site";
 
 export default function ProjeDetay() {
   const { slug } = useParams();
@@ -22,6 +27,8 @@ export default function ProjeDetay() {
   const [error, setError] = useState(null);
   const [current, setCurrent] = useState(0);
   const [lightbox, setLightbox] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [postsLoading, setPostsLoading] = useState(true);
 
   function load() {
     setLoading(true);
@@ -35,9 +42,33 @@ export default function ProjeDetay() {
   useEffect(() => {
     setCurrent(0);
     setLightbox(null);
+    setPosts([]);
+    setPostsLoading(true);
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  // Recipes attached to this collection. Loaded after the collection itself,
+  // since the endpoint keys off its id. A failure here empties the section
+  // rather than breaking the page — the collection is still readable without it.
+  useEffect(() => {
+    if (!project?.id) return;
+    let ignore = false;
+    setPostsLoading(true);
+    fetchPostsByCollection(project.id)
+      .then((list) => {
+        if (!ignore) setPosts(list);
+      })
+      .catch(() => {
+        if (!ignore) setPosts([]);
+      })
+      .finally(() => {
+        if (!ignore) setPostsLoading(false);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [project?.id]);
 
   if (loading || (error && error.status !== 404)) {
     return (
@@ -100,7 +131,7 @@ export default function ProjeDetay() {
   const firstImage = media.find((m) => m.type === "image");
   const coverSrc = thumbMedia ?? firstImage;
   const coverImg = coverSrc
-    ? `https://renelenerji.com${mediaUrl(coverSrc.src)}`
+    ? `${SITE_URL}${mediaUrl(coverSrc.src)}`
     : undefined;
   const projectDesc = [
     project.location && `${project.location}`,
@@ -118,16 +149,16 @@ export default function ProjeDetay() {
     headline: project.name,
     description: projectDesc.slice(0, 160),
     image: coverImg,
-    url: `https://renelenerji.com/projelerimiz/${slug}`,
+    url: `${SITE_URL}/projelerimiz/${slug}`,
     author: {
       "@type": "Organization",
       name: "Pulse Recipe",
-      url: "https://renelenerji.com",
+      url: SITE_URL,
     },
     publisher: {
       "@type": "Organization",
       name: "Pulse Recipe",
-      url: "https://renelenerji.com",
+      url: SITE_URL,
     },
   };
 
@@ -349,6 +380,94 @@ export default function ProjeDetay() {
           </div>
         </div>
       </section>
+
+      {/* Recipes linked to this collection. Hidden while empty so a collection
+          without posts yet never renders a bare heading. */}
+      {(postsLoading || posts.length > 0) && (
+        <section className="py-16 bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+              <div>
+                <p className="text-[#448834] font-semibold text-xs uppercase tracking-widest mb-2">
+                  In This Collection
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  {project.name} Recipes
+                </h2>
+                {!postsLoading && (
+                  <p className="text-gray-500 text-sm mt-2">
+                    {posts.length} recipe{posts.length === 1 ? "" : "s"} in this
+                    collection.
+                  </p>
+                )}
+              </div>
+              <Link
+                to="/blog"
+                className="text-[#448834] text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all"
+              >
+                All recipes <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {postsLoading ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-gray-100 overflow-hidden animate-pulse"
+                  >
+                    <div className="h-48 bg-gray-100" />
+                    <div className="p-5 space-y-3">
+                      <div className="h-3 w-24 bg-gray-100 rounded" />
+                      <div className="h-4 w-full bg-gray-100 rounded" />
+                      <div className="h-3 w-2/3 bg-gray-100 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {posts.map((post, index) => (
+                  <Link
+                    key={post.id}
+                    to={`/blog/${post.slug}`}
+                    className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-[#448834]/20 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
+                  >
+                    <div className="h-48 overflow-hidden bg-gray-100">
+                      <img
+                        src={resolveCoverSrc(post.coverImage, post.slug)}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = fallbackCover(index);
+                        }}
+                      />
+                    </div>
+                    <div className="p-5 flex flex-col flex-1">
+                      <p className="text-xs text-gray-400 flex items-center gap-1.5 mb-3">
+                        <Calendar size={11} />
+                        {formatDate(post.publishedAt || post.createdAt)}
+                      </p>
+                      <h3 className="font-bold text-gray-900 text-base leading-snug mb-2">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                      )}
+                      <span className="text-[#448834] text-sm font-semibold flex items-center gap-1 mt-auto group-hover:gap-2 transition-all">
+                        Read Recipe <ArrowRight size={14} />
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Lightbox */}
       {lightbox !== null && media[lightbox] && (

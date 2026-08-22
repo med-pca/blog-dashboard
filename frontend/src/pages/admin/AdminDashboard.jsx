@@ -65,7 +65,7 @@ export default function AdminDashboard() {
           Overview
         </p>
       <div className="relative bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden flex flex-col sm:flex-row">
-        <img src="/statsbanner.webp" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[25%] w-full h-auto opacity-10 pointer-events-none" />
+        <img src="/food/stats-bg.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[25%] w-full h-auto opacity-10 pointer-events-none" />
         <div className="relative flex-1 px-6 sm:px-7 py-5 sm:py-6 overflow-hidden border-b sm:border-b-0 sm:border-r border-gray-100">
           <div className="relative z-10">
             <p className="text-5xl font-bold text-[#448834] font-['Rajdhani'] drop-shadow-sm">{projects.length}</p>

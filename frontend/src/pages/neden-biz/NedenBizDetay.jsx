@@ -12,6 +12,7 @@ import {
 import PageHeader from "../../components/PageHeader";
 import SEO from "../../components/SEO";
 import { waLink, WHATSAPP_ENABLED } from "../../lib/whatsapp";
+import { SITE_URL } from "../../lib/site";
 
 const pages = [
   {
@@ -164,11 +165,11 @@ export default function NedenBizDetay() {
     "@type": "WebPage",
     name: `${page.title} | Pulse Recipe`,
     description: page.description,
-    url: `https://renelenerji.com/neden-biz/${page.slug}`,
+    url: `${SITE_URL}/neden-biz/${page.slug}`,
     publisher: {
       "@type": "Organization",
       name: "Pulse Recipe",
-      url: "https://renelenerji.com",
+      url: SITE_URL,
     },
   };
 

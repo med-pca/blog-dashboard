@@ -50,7 +50,7 @@ export class SitemapService {
   ) {}
 
   private get site(): string {
-    return this.config.get<string>('FRONTEND_URL', 'https://renelenerji.com').replace(/\/$/, '')
+    return this.config.get<string>('FRONTEND_URL', 'https://pulserecipe.com').replace(/\/$/, '')
   }
 
   // Bot trafiği her seferinde iki sorgu atmasın; bust yok, ≤60sn bayatlık kabul

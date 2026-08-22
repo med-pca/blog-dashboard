@@ -2,6 +2,8 @@ import 'reflect-metadata'
 import { DataSource } from 'typeorm'
 import { config } from 'dotenv'
 import { BlogPost } from './blog/entities/blog-post.entity'
+import { Project } from './projects/entities/project.entity'
+import { ProjectMedia } from './projects/entities/project-media.entity'
 import { BLOG_SEED_POSTS } from './blog-seed-posts'
 
 config()
@@ -13,7 +15,8 @@ const ds = new DataSource({
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASS || 'postgres',
   database: process.env.DB_NAME || 'renel_enerji',
-  entities: [BlogPost],
+  // BlogPost.collection -> Project ilişkisi hedef entity'ler olmadan metadata kuramaz
+  entities: [BlogPost, Project, ProjectMedia],
 })
 
 // Idempotent: a post is matched on its slug, so re-running updates the copy in

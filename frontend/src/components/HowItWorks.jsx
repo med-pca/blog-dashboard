@@ -3,25 +3,25 @@ const steps = [
     num: "01",
     title: "Plan Your Week",
     desc: "Choose recipes based on your schedule, appetite, and pantry staples.",
-    img: "/food/illustration-1.svg",
+    img: "/food/illustration-1.webp",
   },
   {
     num: "02",
     title: "Build Your Shopping List",
     desc: "Group ingredients smartly and avoid duplicates to save time and money.",
-    img: "/food/illustration-2.svg",
+    img: "/food/illustration-2.webp",
   },
   {
     num: "03",
     title: "Cook With Confidence",
     desc: "Follow clear instructions, timing cues, and practical preparation tips.",
-    img: "/food/illustration-3.svg",
+    img: "/food/illustration-3.webp",
   },
   {
     num: "04",
     title: "Store & Reuse Smartly",
     desc: "Keep leftovers fresh and remix them into easy meals for the next day.",
-    img: "/food/illustration-4.svg",
+    img: "/food/illustration-4.webp",
   },
 ];
 

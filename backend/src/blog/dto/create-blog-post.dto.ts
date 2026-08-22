@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNotIn, IsNumber, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator'
+import { IsBoolean, IsNotEmpty, IsNotIn, IsNumber, IsOptional, IsString, IsUUID, Matches, Max, MaxLength, Min } from 'class-validator'
 import { Transform, Type } from 'class-transformer'
 import { RESERVED_SLUGS } from '../../common/reserved-slugs'
 
@@ -39,6 +39,13 @@ export class CreateBlogPostDto {
   @IsBoolean()
   @Transform(({ value }) => value === true || value === 'true')
   published?: boolean
+
+  // Yazının bağlandığı koleksiyon. Formdaki "koleksiyon yok" seçeneği boş
+  // string gönderir; null'a çevrilir ve IsOptional null'ı geçirir.
+  @IsOptional()
+  @Transform(({ value }) => (value === '' ? null : value))
+  @IsUUID()
+  collectionId?: string | null
 
   @IsOptional()
   @IsNumber()

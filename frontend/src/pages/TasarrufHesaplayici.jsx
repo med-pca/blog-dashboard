@@ -12,6 +12,7 @@ import {
 import SEO from "../components/SEO";
 import PageHeader from "../components/PageHeader";
 import { TARIFFS, calculateGes, parseBillInput } from "../lib/gesCalc";
+import { SITE_URL } from "../lib/site";
 
 const formatAmount = (value) => value.toLocaleString("en-US");
 
@@ -44,7 +45,7 @@ const jsonLd = {
     {
       "@type": "WebApplication",
       name: "Recipe Planning Impact Calculator",
-      url: "https://renelenerji.com/tasarruf-hesaplayici",
+      url: `${SITE_URL}/tasarruf-hesaplayici`,
       description:
         "Enter your monthly food budget to estimate your weekly cooking rhythm, recipe count, and yearly savings.",
       applicationCategory: "UtilitiesApplication",
@@ -53,7 +54,7 @@ const jsonLd = {
       provider: {
         "@type": "Organization",
         name: "Pulse Recipe",
-        url: "https://renelenerji.com",
+        url: SITE_URL,
       },
     },
     {

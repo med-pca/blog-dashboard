@@ -18,6 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import {
   fetchAllBlogPosts,
+  fetchAllProjects,
   deleteBlogPost,
   reorderBlogPosts,
 } from "../../api/admin";
@@ -25,7 +26,7 @@ import { useAdminAuth } from "../../contexts/AdminAuthContext";
 import { API } from "../../api/config.js";
 import { useDndReorder } from "../../hooks/useDndReorder.js";
 
-function SortableRow({ post, onDelete, deletingId }) {
+function SortableRow({ post, collectionName, onDelete, deletingId }) {
   const {
     attributes,
     listeners,
@@ -93,6 +94,15 @@ function SortableRow({ post, onDelete, deletingId }) {
         )}
         <p className="text-xs text-gray-300 mt-1">/blog/{post.slug}</p>
       </td>
+      <td className="px-5 py-4">
+        {collectionName ? (
+          <span className="inline-block text-xs font-medium text-[#448834] bg-green-50 px-2 py-1 rounded-full">
+            {collectionName}
+          </span>
+        ) : (
+          <span className="text-xs text-gray-300">—</span>
+        )}
+      </td>
       <td className="px-5 py-4 text-sm text-gray-400">{date}</td>
       <td className="px-5 py-4">
         <div className="flex flex-col items-start gap-1">
@@ -138,6 +148,8 @@ export default function BlogAdmin() {
   const { logout } = useAdminAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
+  // { koleksiyonId: ad } — satırdaki rozet için; alınamazsa rozet boş kalır.
+  const [collectionNames, setCollectionNames] = useState({});
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -164,6 +176,11 @@ export default function BlogAdmin() {
 
   useEffect(() => {
     load();
+    fetchAllProjects()
+      .then((list) =>
+        setCollectionNames(Object.fromEntries(list.map((c) => [c.id, c.name]))),
+      )
+      .catch(() => setCollectionNames({}));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (id, title) => {
@@ -228,6 +245,9 @@ export default function BlogAdmin() {
                       Cover
                     </th>
                     <th className="text-left px-5 py-4 font-medium">Title</th>
+                    <th className="text-left px-5 py-4 font-medium">
+                      Collection
+                    </th>
                     <th className="text-left px-5 py-4 font-medium">Date</th>
                     <th className="text-left px-5 py-4 font-medium">Status</th>
                     <th className="px-5 py-4" />
@@ -242,6 +262,7 @@ export default function BlogAdmin() {
                       <SortableRow
                         key={post.id}
                         post={post}
+                        collectionName={collectionNames[post.collectionId]}
                         onDelete={handleDelete}
                         deletingId={deletingId}
                       />

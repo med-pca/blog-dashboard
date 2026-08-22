@@ -6,47 +6,39 @@ import HowItWorks from "../components/HowItWorks";
 import LatestPosts from "../components/LatestPosts";
 import LogoMarquee from "../components/LogoMarquee";
 import SEO from "../components/SEO";
-import { WA_NUMBER } from "../lib/whatsapp";
+import { SITE_URL } from "../lib/site";
 
 const homeSchema = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://pulserecipe.com/#website",
+      "@id": `${SITE_URL}/#website`,
       name: "Pulse Recipe",
-      url: "https://pulserecipe.com",
+      url: SITE_URL,
       inLanguage: "en-US",
-      publisher: { "@id": "https://pulserecipe.com/#organization" },
+      publisher: { "@id": `${SITE_URL}/#organization` },
     },
     {
       "@type": "Organization",
-      "@id": "https://pulserecipe.com/#organization",
+      "@id": `${SITE_URL}/#organization`,
       name: "Pulse Recipe",
-      url: "https://pulserecipe.com",
+      url: SITE_URL,
       logo: {
         "@type": "ImageObject",
-        url: "https://pulserecipe.com/food/logo-mark.svg",
+        url: `${SITE_URL}/food/logo-mark.svg`,
       },
-      telephone: `+${WA_NUMBER}`,
-      email: "hello@pulserecipe.com",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Soma",
-        addressRegion: "Manisa",
-        addressCountry: "TR",
-      },
-      sameAs: ["https://www.pulserecipe.com"],
+      email: "contact@pulserecipe.com",
     },
     {
       "@type": "Blog",
-      "@id": "https://pulserecipe.com/#blog",
+      "@id": `${SITE_URL}/#blog`,
       name: "Pulse Recipe Blog",
       description:
         "Simple, seasonal, and practical recipes for everyday home cooking.",
-      url: "https://pulserecipe.com/blog",
+      url: `${SITE_URL}/blog`,
       inLanguage: "en-US",
-      publisher: { "@id": "https://pulserecipe.com/#organization" },
+      publisher: { "@id": `${SITE_URL}/#organization` },
     },
   ],
 };

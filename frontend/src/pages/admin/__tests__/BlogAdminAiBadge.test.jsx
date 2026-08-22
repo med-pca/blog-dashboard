@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('../../../api/admin', () => ({
   fetchAllBlogPosts: vi.fn(),
+  fetchAllProjects: vi.fn(),
   deleteBlogPost: vi.fn(),
   reorderBlogPosts: vi.fn(),
 }))
@@ -11,7 +12,7 @@ vi.mock('../../../contexts/AdminAuthContext', () => ({
   useAdminAuth: () => ({ logout: vi.fn() }),
 }))
 
-import { fetchAllBlogPosts } from '../../../api/admin'
+import { fetchAllBlogPosts, fetchAllProjects } from '../../../api/admin'
 import BlogAdmin from '../BlogAdmin'
 
 const HAND_WRITTEN = {
@@ -25,6 +26,8 @@ const HAND_WRITTEN = {
   createdAt: '2026-05-01T10:00:00.000Z',
   publishedAt: '2026-05-01T10:00:00.000Z',
 }
+
+const SMOOTHIES = { id: 'col-1', name: 'Smoothies', published: true }
 
 const AI_DRAFT = {
   id: 'post-2',
@@ -50,6 +53,7 @@ describe('BlogAdmin — AI Draft badge', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(fetchAllBlogPosts).mockResolvedValue([HAND_WRITTEN, AI_DRAFT])
+    vi.mocked(fetchAllProjects).mockResolvedValue([SMOOTHIES])
   })
 
   it('lists generated drafts alongside hand-written posts', async () => {
@@ -76,6 +80,21 @@ describe('BlogAdmin — AI Draft badge', () => {
     renderList()
     expect(await screen.findByText('AI')).toBeInTheDocument()
     expect(screen.queryByText('AI Draft')).not.toBeInTheDocument()
+  })
+
+  it('shows the collection a post is linked to', async () => {
+    vi.mocked(fetchAllBlogPosts).mockResolvedValue([
+      { ...HAND_WRITTEN, collectionId: 'col-1' },
+    ])
+    renderList()
+    expect(await screen.findByText('Smoothies')).toBeInTheDocument()
+  })
+
+  it('leaves the collection cell empty for an unassigned post', async () => {
+    vi.mocked(fetchAllBlogPosts).mockResolvedValue([HAND_WRITTEN])
+    renderList()
+    await screen.findByText('Our kitchen story')
+    expect(screen.queryByText('Smoothies')).not.toBeInTheDocument()
   })
 
   it('links a generated draft to the normal blog editor', async () => {

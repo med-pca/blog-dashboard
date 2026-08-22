@@ -41,6 +41,8 @@ export interface BlogPost {
   excerpt: string
   coverImage: string | null
   published: boolean
+  // Collection (Project) the post belongs to; null when unassigned.
+  collectionId?: string | null
   // Set by the AI content pipeline; drives the "AI Draft" badge.
   aiGenerated?: boolean
   sortOrder: number

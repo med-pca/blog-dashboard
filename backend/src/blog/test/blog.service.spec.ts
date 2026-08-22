@@ -9,6 +9,8 @@ function makeService() {
     create: jest.fn((dto: Partial<BlogPost>) => ({ ...dto })),
     save: jest.fn((entity: BlogPost) => Promise.resolve(entity)),
     findOne: jest.fn(),
+    find: jest.fn().mockResolvedValue([]),
+    createQueryBuilder: jest.fn(),
     metadata: { tableName: 'blog_posts' },
   } as unknown as Repository<BlogPost>
 
@@ -141,5 +143,52 @@ describe('sanitizeAiHtml — generated article allowlist', () => {
     )
     expect(sanitizeAiHtml('<a href="http://ornek.com">x</a>')).toBe('<a rel="noopener noreferrer">x</a>')
     expect(sanitizeAiHtml('<a href="javascript:alert(1)">x</a>')).toBe('<a rel="noopener noreferrer">x</a>')
+  })
+})
+
+describe('BlogService — koleksiyona bağlı yazılar', () => {
+  it('yalnızca o koleksiyonun yayınlanmış yazılarını sorgular', async () => {
+    const { service, repo } = makeService()
+    ;(repo.find as jest.Mock).mockResolvedValue([{ id: '1', slug: 'smoothie' }])
+
+    const posts = await service.findByCollection('c1')
+
+    expect(posts).toEqual([{ id: '1', slug: 'smoothie' }])
+    expect((repo.find as jest.Mock).mock.calls[0][0]).toMatchObject({
+      where: { published: true, collectionId: 'c1' },
+    })
+  })
+
+  it('koleksiyon listesi cache\'lenir, farklı koleksiyon ayrı anahtar kullanır', async () => {
+    const { service, repo } = makeService()
+    await service.findByCollection('c1')
+    await service.findByCollection('c1')
+    await service.findByCollection('c2')
+    expect(repo.find).toHaveBeenCalledTimes(2)
+  })
+
+  it('yazı kaydedildiğinde koleksiyon cache\'i düşer', async () => {
+    const { service, repo } = makeService()
+    await service.findByCollection('c1')
+    await service.create({ title: 'Yeni', slug: 'yeni', content: '<p>x</p>' })
+    await service.findByCollection('c1')
+    expect(repo.find).toHaveBeenCalledTimes(2)
+  })
+
+  it('sayımları { koleksiyonId: adet } sözlüğüne çevirir', async () => {
+    const { service, repo } = makeService()
+    ;(repo.createQueryBuilder as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn().mockResolvedValue([
+        { collectionId: 'c1', count: '3' },
+        { collectionId: 'c2', count: '1' },
+      ]),
+    })
+
+    await expect(service.countsByCollection()).resolves.toEqual({ c1: 3, c2: 1 })
   })
 })

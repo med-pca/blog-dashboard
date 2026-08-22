@@ -3,12 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Upload, X } from 'lucide-react'
 import {
   fetchAllBlogPosts,
+  fetchAllProjects,
   createBlogPost,
   updateBlogPost,
   uploadBlogCover,
 } from '../../api/admin'
 import RichTextEditor from '../../components/RichTextEditor'
 import { API } from '../../api/config.js'
+import { SITE_DOMAIN } from '../../lib/site'
 
 function slugify(text) {
   return text
@@ -33,14 +35,24 @@ export default function BlogForm() {
     excerpt: '',
     metaDescription: '',
     content: '',
+    collectionId: '',
     published: false,
   })
+  const [collections, setCollections] = useState([])
   const [coverPreview, setCoverPreview] = useState(null)
   const [coverFile, setCoverFile] = useState(null)
   const [slugManual, setSlugManual] = useState(false)
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  // Koleksiyon seçimi için tüm projeler (taslaklar dahil): yazı, koleksiyon
+  // yayına alınmadan da bağlanabilsin. Liste alınamazsa seçim kapalı kalır.
+  useEffect(() => {
+    fetchAllProjects()
+      .then(setCollections)
+      .catch(() => setCollections([]))
+  }, [])
 
   useEffect(() => {
     if (!isEdit) return
@@ -53,6 +65,7 @@ export default function BlogForm() {
         excerpt: post.excerpt || '',
         metaDescription: post.metaDescription || '',
         content: post.content || '',
+        collectionId: post.collectionId || '',
         published: post.published || false,
       })
       if (post.coverImage) setCoverPreview(`${API}${post.coverImage}`)
@@ -152,7 +165,7 @@ export default function BlogForm() {
             placeholder="url-adresi"
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
-          <p className="text-xs text-gray-400 mt-1">renelenerji.com/blog/{form.slug || '...'}</p>
+          <p className="text-xs text-gray-400 mt-1">{SITE_DOMAIN}/blog/{form.slug || '...'}</p>
         </div>
 
         {/* Summary */}
@@ -179,6 +192,27 @@ export default function BlogForm() {
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
           <p className="text-xs text-gray-400 mt-1">{form.metaDescription.length}/160</p>
+        </div>
+
+        {/* Collection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Collection</label>
+          <select
+            value={form.collectionId}
+            onChange={(e) => set('collectionId', e.target.value)}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
+          >
+            <option value="">No collection</option>
+            {collections.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {c.published ? '' : ' (taslak)'}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            The post is listed on this collection&apos;s page. Leave empty to keep it in the blog only.
+          </p>
         </div>
 
         {/* Cover Image */}

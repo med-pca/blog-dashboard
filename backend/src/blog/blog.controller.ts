@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Header, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Header, HttpCode, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common'
 import { BlogService } from './blog.service'
 import { CreateBlogPostDto } from './dto/create-blog-post.dto'
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto'
@@ -13,6 +13,20 @@ export class BlogController {
   @Header('Cache-Control', 'public, max-age=60')
   findAll() {
     return this.service.findAllPublic()
+  }
+
+  // Bu iki uç ':slug'dan ÖNCE tanımlı olmalı: aksi halde tek segmentli
+  // 'collection-counts' slug sanılıp 404 döner (Nest sırayla eşleştirir).
+  @Get('collection-counts')
+  @Header('Cache-Control', 'public, max-age=60')
+  collectionCounts() {
+    return this.service.countsByCollection()
+  }
+
+  @Get('collection/:collectionId')
+  @Header('Cache-Control', 'public, max-age=60')
+  findByCollection(@Param('collectionId', ParseUUIDPipe) collectionId: string) {
+    return this.service.findByCollection(collectionId)
   }
 
   @Get(':slug')

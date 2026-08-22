@@ -16,13 +16,15 @@ import PageHeader from "../../components/PageHeader";
 import SEO from "../../components/SEO";
 import AdSenseBlock from "../../components/AdSenseBlock";
 import { waLink, WHATSAPP_ENABLED } from "../../lib/whatsapp";
+import { SITE_URL } from "../../lib/site";
 
 const services = [
   {
     slug: "sulama",
     icon: ChefHat,
     title: "Smart Meal Prep Planning",
-    photo: "/food/illustration-1.svg",
+    photo: "/guides/meal-prep-planning.webp",
+    photoAlt: "Weekly meal prep plan with organized balanced meals and a shopping list",
     subtitle: "Plan your weekly meals with less waste and more consistency.",
     description:
       "Meal prep can save both time and budget when done with a clear structure. We help you organize ingredient flow, prep order, and storage so your week becomes easier.",
@@ -43,7 +45,8 @@ const services = [
     slug: "cati-arazi",
     icon: CookingPot,
     title: "Home Kitchen Recipe Systems",
-    photo: "/food/illustration-2.svg",
+    photo: "/guides/home-kitchen-systems.webp",
+    photoAlt: "Organized home kitchen workflow with prepared ingredients and a simmering pot",
     subtitle:
       "Build a repeatable home-cooking system that actually fits your routine.",
     description:
@@ -65,7 +68,8 @@ const services = [
     slug: "bag-evi",
     icon: PiggyBank,
     title: "Low-Budget Cooking Strategies",
-    photo: "/food/illustration-3.svg",
+    photo: "/guides/budget-cooking.webp",
+    photoAlt: "Affordable pantry staples and a balanced budget-friendly homemade meal",
     subtitle: "Cook better on a budget without giving up flavor or variety.",
     description:
       "Budget cooking works best with smart planning and ingredient overlap. We guide you to choose high-value staples and build multiple meals from the same base.",
@@ -86,7 +90,8 @@ const services = [
     slug: "ev-sarj",
     icon: Utensils,
     title: "Kitchen Gear and Setup Guidance",
-    photo: "/food/illustration-4.svg",
+    photo: "/guides/kitchen-gear.webp",
+    photoAlt: "Essential durable cookware and utensils arranged in a warm home kitchen",
     subtitle: "Choose tools that improve results instead of adding clutter.",
     description:
       "Not every kitchen needs expensive equipment. We help you pick tools that meaningfully improve speed, texture, and consistency for daily cooking.",
@@ -107,7 +112,7 @@ const services = [
     icon: Wrench,
     title: "Recipe Troubleshooting Support",
     photoAlt: "Cook reviewing recipe notes in a home kitchen",
-    photo: "/food/illustration-1.svg",
+    photo: "/guides/recipe-troubleshooting.webp",
     subtitle: "Fix texture, timing, and flavor issues with practical guidance.",
     description:
       "When recipes fail, small adjustments make a big difference. We help identify root causes such as heat control, moisture balance, and timing order.",
@@ -128,7 +133,7 @@ const services = [
     icon: Timer,
     title: "Fast Weeknight Cooking",
     photoAlt: "Fast dinner preparation workflow in a modern kitchen",
-    photo: "/food/illustration-2.svg",
+    photo: "/guides/fast-weeknight-cooking.webp",
     subtitle: "Cook complete meals faster with better workflow design.",
     description:
       "Weeknight cooking becomes easier when prep and heat steps are optimized. We show you how to shorten active time while keeping strong flavor.",
@@ -149,7 +154,7 @@ const services = [
     icon: CalendarDays,
     title: "Menu Planning Consulting",
     photoAlt: "Weekly menu planning board with recipe notes",
-    photo: "/food/illustration-3.svg",
+    photo: "/guides/menu-planning.webp",
     subtitle: "Plan weekly menus with confidence and less decision fatigue.",
     description:
       "A clear menu system removes daily guesswork and improves grocery efficiency. We help you define patterns that match your household rhythm.",
@@ -170,7 +175,7 @@ const services = [
     icon: Sparkles,
     title: "Cooking Performance Coaching",
     photoAlt: "Home cook tracking recipe outcomes and improvements",
-    photo: "/food/illustration-4.svg",
+    photo: "/guides/cooking-coaching.webp",
     subtitle: "Improve cooking quality with focused technique coaching.",
     description:
       "Consistent cooking comes from small repeatable habits. We guide you through practical improvements in prep, seasoning, and timing control.",
@@ -213,12 +218,12 @@ export default function HizmetDetay() {
     "@type": "Service",
     name: service.title,
     description: service.description,
-    image: `https://renelenerji.com${service.photo}`,
-    url: `https://renelenerji.com/hizmetler/${service.slug}`,
+    image: `${SITE_URL}${service.photo}`,
+    url: `${SITE_URL}/hizmetler/${service.slug}`,
     provider: {
       "@type": "Organization",
       name: "Pulse Recipe",
-      url: "https://renelenerji.com",
+      url: SITE_URL,
     },
     areaServed: { "@type": "Place", name: "Global" },
   };
@@ -228,7 +233,7 @@ export default function HizmetDetay() {
       <SEO
         title={service.title}
         description={`${service.subtitle} ${service.description}`.slice(0, 160)}
-        image={`https://renelenerji.com${service.photo}`}
+        image={`${SITE_URL}${service.photo}`}
         jsonLd={jsonLd}
       />
       <PageHeader
