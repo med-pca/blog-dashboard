@@ -239,6 +239,10 @@ server {
             proxy_pass http://prerender:3000/${PRERENDER_ORIGIN}$request_uri;
             break;
         }
-        try_files $uri $uri/ /index.html;
+        # Do not try $uri/ here: SPA routes such as /about collide with the
+        # real /about/ asset directory and nginx redirects the route into a
+        # directory listing that is forbidden. Real static files still match
+        # $uri; every other request belongs to React Router.
+        try_files $uri /index.html;
     }
 }

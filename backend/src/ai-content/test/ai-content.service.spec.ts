@@ -194,6 +194,23 @@ describe('AiContentService — content validation', () => {
     expect(created[0].content).toContain('<h2>Ingredients</h2>')
   })
 
+  it('removes internal image, keyword and collection notes from reader-facing content', async () => {
+    const prose = `<p>${'Useful recipe guidance for a real home cook. '.repeat(45)}</p>`
+    const { service, created } = makeService({
+      article: {
+        content:
+          `<h2>Ingredients</h2>${prose}` +
+          '<h2>Collection alignment</h2><p>Dinner campaign requirements.</p>' +
+          '<h2>Image prompt</h2><p>Internal visual description.</p>' +
+          '<h2>Keywords</h2><ul><li>easy dinner recipe</li></ul>',
+      },
+    })
+    await service.runJob(RUN)
+    const content = created[0].content as string
+    expect(content).toContain('Useful recipe guidance')
+    expect(content).not.toMatch(/image prompt|keywords|collection alignment|campaign requirements/i)
+  })
+
   it('fails without creating a post when the body is empty after sanitising', async () => {
     const { service, created, jobs } = makeService({ article: { content: '<script>alert(1)</script>' } })
     await expect(service.runJob(RUN)).rejects.toMatchObject({ code: 'EMPTY_CONTENT' })

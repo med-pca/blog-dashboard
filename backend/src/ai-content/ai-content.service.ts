@@ -27,6 +27,23 @@ const CONTENT_MAX = 100_000
 const MIN_WORDS = 150
 const SLUG_ATTEMPTS = 25
 
+// Models occasionally repeat structured-output fields inside the reader-facing
+// HTML. Remove those internal sections server-side as a final invariant. This
+// protects old/custom campaign prompts as well as the current OpenAI prompt.
+function removeInternalArticleSections(html: string): string {
+  const forbiddenHeading =
+    '(?:image\\s*prompt|suggested\\s*keywords?|keywords?|collection\\s*alignment|campaign\\s*(?:instructions?|requirements?)|editorial\\s*(?:notes?|review)|review\\s*notes?|final\\s+note\\s+on\\s+the\\s+.+?collection)'
+  let clean = html.replace(
+    new RegExp(`<h[23][^>]*>\\s*${forbiddenHeading}\\s*<\\/h[23]>[\\s\\S]*?(?=<h[23]\\b|$)`, 'gi'),
+    '',
+  )
+  clean = clean.replace(
+    new RegExp(`<p[^>]*>\\s*(?:<strong>)?${forbiddenHeading}(?::[^<]*)?(?:<\\/strong>)?\\s*<\\/p>`, 'gi'),
+    '',
+  )
+  return clean.trim()
+}
+
 export interface RunJobOptions {
   jobId: string
   // Last BullMQ attempt: a transient failure here is final, so the campaign's
@@ -213,7 +230,7 @@ export class AiContentService {
     const title = stripHtml(String(article.title ?? '')).trim().slice(0, TITLE_MAX)
     if (!title) throw new AiPermanentError('EMPTY_TITLE', 'Model returned an empty title')
 
-    const content = sanitizeAiHtml(String(article.content ?? '')).trim()
+    const content = removeInternalArticleSections(sanitizeAiHtml(String(article.content ?? '')).trim())
     if (!content) throw new AiPermanentError('EMPTY_CONTENT', 'Article body was empty after sanitising')
     if (content.length > CONTENT_MAX) {
       throw new AiPermanentError('CONTENT_TOO_LONG', `Article body exceeds ${CONTENT_MAX} characters`)

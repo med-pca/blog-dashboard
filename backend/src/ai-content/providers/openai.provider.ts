@@ -53,9 +53,12 @@ const EDITORIAL_RULES = [
   'Never invent statistics, studies, quotes, sources, prices or testimonials.',
   'Never claim personal experience and never claim a recipe or method was tested.',
   'Never invent an author biography, culinary qualification, reader feedback, rating or review.',
-  'For recipes, make quantities, serving yield, pan size, cooking sequence, liquid ratios and total timing internally consistent.',
-  'For recipes containing meat, give conservative doneness guidance and a safe internal-temperature check; never rely on color alone.',
+  'For recipes, make quantities, serving yield, pan size, equipment capacity, cooking sequence, liquid ratios and total timing internally consistent. Never call a recipe one-pan when another cooking vessel is required.',
+  'Use conservative US food-safety guidance: whole beef/pork/lamb/veal cuts 145°F plus a 3-minute rest; fish 145°F; ground meat and egg dishes 160°F; poultry, casseroles and reheated leftovers 165°F. Never suggest a lower value as safe and never rely on color alone.',
+  'Do not create instructions for home fermentation, canning, vacuum preservation or other pathogen-sensitive preservation processes. Choose a lower-risk topic instead.',
+  'Do not recommend storing raw shell eggs mixed with other ingredients for later meal prep. Cook egg dishes fully before storage.',
   'Do not invent exact prices, nutrition values or health benefits. Use cautious storage guidance and tell readers to refrigerate perishable food promptly.',
+  'Do not call a dish healthy, balanced, high-protein, protein-packed, low-carb or suitable for a medical diet unless verified nutrition data was explicitly supplied.',
   'Avoid generic SEO templates. Vary the recipe format and vocabulary only where that improves clarity.',
   'Never mention that the text was produced by an AI, a model or an assistant.',
   'Do not pad: no filler paragraphs, no repeated sentences, no restated headings.',
@@ -63,6 +66,9 @@ const EDITORIAL_RULES = [
   'Give no medical, legal or financial advice that could be unsafe; add no health claims.',
   'Do not reference images inside the article body.',
   'The imagePrompt must describe the exact finished dish from this recipe, including its visible ingredients, texture, cooking method and plating. Never add a garnish or ingredient absent from the recipe.',
+  'The content field is reader-facing article HTML only. Never put imagePrompt, suggestedKeywords, SEO keywords, collection alignment, editorial notes, review notes, campaign instructions or JSON field labels inside content.',
+  'Do not repeat the exact article title as an h2. Do not add generic Overview, Key Benefits, Conclusion or Final Note sections merely to reach the target length.',
+  'Use campaign keywords sparingly and naturally. Never repeat an awkward exact-match phrase for SEO.',
   'Use only these HTML tags: p, h2, h3, ul, ol, li, strong, em, blockquote.',
   'Do not emit script, style, iframe, img, form or any on* attribute.',
   'Only add a link when it is genuinely necessary, and only to a well-known https site.',
@@ -75,10 +81,11 @@ const SILENT_REVIEW_CHECKLIST = [
   'Originality: compare the proposed article with every title in the avoid-list. Reject cosmetic variations that keep the same main ingredient, starch, cooking vessel, sauce and reader promise.',
   'Editorial value: make sure the article gives topic-specific help rather than generic filler or a reusable SEO template.',
   'Recipe arithmetic: recalculate ingredient totals, serving yield and every per-serving statement; remove any number that cannot be supported.',
-  'Method consistency: confirm that every ingredient is used, every step is in a workable order, vessel size is plausible, liquid ratios are coherent and prep plus cook time can equal total time.',
+  'Method consistency: simulate the recipe from start to finish. Confirm that every ingredient is used, every step is physically workable in the named cookware, the pan is not overcrowded, vessel size is plausible, liquid ratios are coherent and prep plus cook time equals total time.',
   'Food safety: check conservative internal temperatures, refrigeration, cooling, reheating and allergen wording where relevant.',
   'Language quality: remove awkward phrases, mistranslations, contradictions, repeated conclusions and robotic transitions.',
   'Trust: remove personal anecdotes, testing claims, ratings, prices, nutrition figures, credentials or reader feedback that were not supplied as verified facts.',
+  'Clean output: ensure content contains no image prompt, keywords list, collection alignment, campaign instruction, internal note, duplicated title, repeated variations section or editorial checklist.',
 ].join('\n- ')
 
 @Injectable()
@@ -124,7 +131,9 @@ export class OpenAiContentProvider implements AiContentProvider {
     const avoid = request.avoidTitles.length
       ? `\n\nDo not overlap with these existing articles:\n- ${request.avoidTitles.join('\n- ')}`
       : ''
-    const keywords = request.keywords.length ? `\nWork these keywords in naturally: ${request.keywords.join(', ')}.` : ''
+    const keywords = request.keywords.length
+      ? `\nThese are topic hints, not mandatory exact-match phrases: ${request.keywords.join(', ')}. Use only those that read naturally and never print a keyword list.`
+      : ''
 
     // Reasoning tokens count against max_output_tokens, so leave generous head
     // room above the prose budget or the reply comes back `incomplete`.
@@ -143,7 +152,8 @@ export class OpenAiContentProvider implements AiContentProvider {
         `Editorial brief:\n${request.masterPrompt}\n\n` +
         `Write the full article for this exact topic: ${request.topic}\n` +
         `Target length: about ${request.targetWords} words.${keywords}\n` +
-        'Structure the body with h2 sections and, where useful, h3 subsections and lists.\n\n' +
+        'Choose only sections that genuinely help this specific recipe. Use h2 and, where useful, h3 and lists; vary the structure naturally between articles.\n' +
+        'Keep the title concise and specific, preferably 50–70 characters. Put imagePrompt and suggestedKeywords only in their dedicated JSON fields, never in content.\n\n' +
         'Before returning the JSON, silently act as a senior human editor and correct the draft using this checklist. ' +
         'Return only the final corrected article; do not output the checklist or review notes.\n- ' +
         SILENT_REVIEW_CHECKLIST +

@@ -70,6 +70,10 @@ describe('OpenAiContentProvider', () => {
     expect(input).toContain('senior human editor')
     expect(input).toContain('Recipe arithmetic')
     expect(input).toContain('Food safety')
+    expect(instructions).toContain('reader-facing article HTML only')
+    expect(instructions).toContain('whole beef/pork/lamb/veal cuts 145°F')
+    expect(instructions).toContain('Do not create instructions for home fermentation')
+    expect(input).toContain('never print a keyword list')
   })
 
   it('turns unparsable output into a permanent failure', async () => {
