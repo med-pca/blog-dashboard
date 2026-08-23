@@ -19,7 +19,7 @@ import { SITE_URL } from "../../lib/site";
 
 const services = [
   {
-    slug: "sulama",
+    slug: "meal-prep",
     icon: ChefHat,
     title: "Meal Prep & Batch Cooking",
     photo: "/guides/meal-prep-planning.webp",
@@ -64,7 +64,7 @@ const services = [
     ],
   },
   {
-    slug: "cati-arazi",
+    slug: "weeknight-dinners",
     icon: CookingPot,
     title: "Weeknight Dinners",
     photo: "/guides/home-kitchen-systems.webp",
@@ -109,7 +109,7 @@ const services = [
     ],
   },
   {
-    slug: "bag-evi",
+    slug: "budget-cooking",
     icon: PiggyBank,
     title: "Budget Cooking",
     photo: "/guides/budget-cooking.webp",
@@ -154,7 +154,7 @@ const services = [
     ],
   },
   {
-    slug: "ev-sarj",
+    slug: "kitchen-setup",
     icon: Utensils,
     title: "Kitchen Setup & Gear",
     photo: "/guides/kitchen-gear.webp",
@@ -200,7 +200,7 @@ const services = [
     ],
   },
   {
-    slug: "ges-bakim-onarim",
+    slug: "cooking-mistakes",
     icon: Wrench,
     title: "Fixing Common Cooking Mistakes",
     photo: "/guides/recipe-troubleshooting.webp",
@@ -245,7 +245,7 @@ const services = [
     ],
   },
   {
-    slug: "elektrik-altyapi-bakimi",
+    slug: "30-minute-meals",
     icon: Timer,
     title: "Fast 30-Minute Meals",
     photo: "/guides/fast-weeknight-cooking.webp",
@@ -289,7 +289,7 @@ const services = [
     ],
   },
   {
-    slug: "proje-danismanlik",
+    slug: "menu-planning",
     icon: CalendarDays,
     title: "Weekly Menu Planning",
     photo: "/guides/menu-planning.webp",
@@ -334,7 +334,7 @@ const services = [
     ],
   },
   {
-    slug: "enerji-danismanlik",
+    slug: "cooking-techniques",
     icon: Sparkles,
     title: "Core Cooking Techniques",
     photo: "/guides/cooking-coaching.webp",
@@ -395,13 +395,13 @@ export default function HizmetDetay() {
       chip.offsetLeft - container.offsetWidth / 2 + chip.offsetWidth / 2;
   }, [slug]);
 
-  if (!service) return <Navigate to="/hizmetler" replace />;
+  if (!service) return <Navigate to="/guides" replace />;
 
   const Icon = service.icon;
 
   // Editorial guide, not a service offering: Article for the page itself, plus a
   // FAQPage for the questions rendered further down.
-  const pageUrl = `${SITE_URL}/hizmetler/${service.slug}`;
+  const pageUrl = `${SITE_URL}/guides/${service.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -445,7 +445,7 @@ export default function HizmetDetay() {
       />
       <PageHeader
         title={service.title}
-        parent={{ to: "/hizmetler", label: "Guides" }}
+        parent={{ to: "/guides", label: "Guides" }}
       />
 
       <div className="lg:hidden bg-white border-b border-gray-100 sticky top-24 z-40">
@@ -460,7 +460,7 @@ export default function HizmetDetay() {
               <Link
                 key={s.slug}
                 ref={active ? activeChipRef : null}
-                to={`/hizmetler/${s.slug}`}
+                to={`/guides/${s.slug}`}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-colors ${
                   active
                     ? "bg-[#448834] text-white"
@@ -490,7 +490,7 @@ export default function HizmetDetay() {
                     return (
                       <Link
                         key={s.slug}
-                        to={`/hizmetler/${s.slug}`}
+                        to={`/guides/${s.slug}`}
                         className={`flex items-center gap-3 px-5 py-3.5 text-sm transition-colors group ${
                           active
                             ? "bg-[#448834]/8 text-[#448834] font-semibold"
@@ -605,7 +605,7 @@ export default function HizmetDetay() {
                   {service.related.map((post) => (
                     <li key={post.slug}>
                       <Link
-                        to={`/blog/${post.slug}`}
+                        to={`/recipes/${post.slug}`}
                         className="flex items-start gap-3 py-3.5 first:pt-0 last:pb-0 group"
                       >
                         <ChevronRight

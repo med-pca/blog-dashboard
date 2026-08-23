@@ -75,7 +75,7 @@ export default function ProjeDetay() {
       <>
         <PageHeader
           title="Collection Detail"
-          parent={{ label: "Collections", to: "/projelerimiz" }}
+          parent={{ label: "Collections", to: "/collections" }}
         />
         {loading ? (
           <ProjeDetaySkeleton />
@@ -94,14 +94,14 @@ export default function ProjeDetay() {
       <>
         <PageHeader
           title="Collection Not Found"
-          parent={{ label: "Collections", to: "/projelerimiz" }}
+          parent={{ label: "Collections", to: "/collections" }}
         />
         <div className="py-32 text-center">
           <p className="text-gray-500 mb-4">
             This collection was not found or has been removed.
           </p>
           <Link
-            to="/projelerimiz"
+            to="/collections"
             className="text-[#448834] font-semibold hover:underline"
           >
             Back to all collections
@@ -149,7 +149,7 @@ export default function ProjeDetay() {
     headline: project.name,
     description: projectDesc.slice(0, 160),
     image: coverImg,
-    url: `${SITE_URL}/projelerimiz/${slug}`,
+    url: `${SITE_URL}/collections/${slug}`,
     author: {
       "@type": "Organization",
       name: "Pulse Recipe",
@@ -172,7 +172,7 @@ export default function ProjeDetay() {
       />
       <PageHeader
         title={project.name}
-        parent={{ label: "Collections", to: "/projelerimiz" }}
+        parent={{ label: "Collections", to: "/collections" }}
       />
 
       <section className="py-16 bg-gray-50">
@@ -372,7 +372,7 @@ export default function ProjeDetay() {
               <ArrowRight size={17} />
             </a>
             ) : (
-              <Link to="/iletisim" className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-[#448834]/25">
+              <Link to="/contact" className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-[#448834]/25">
               {project.ctaText || "Get Similar Suggestions"}
               <ArrowRight size={17} />
             </Link>
@@ -402,7 +402,7 @@ export default function ProjeDetay() {
                 )}
               </div>
               <Link
-                to="/blog"
+                to="/recipes"
                 className="text-[#448834] text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all"
               >
                 All recipes <ArrowRight size={14} />
@@ -430,7 +430,7 @@ export default function ProjeDetay() {
                 {posts.map((post, index) => (
                   <Link
                     key={post.id}
-                    to={`/blog/${post.slug}`}
+                    to={`/recipes/${post.slug}`}
                     className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-[#448834]/20 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
                   >
                     <div className="h-48 overflow-hidden bg-gray-100">

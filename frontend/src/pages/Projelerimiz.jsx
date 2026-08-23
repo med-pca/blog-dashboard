@@ -55,7 +55,7 @@ export default function Projelerimiz() {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "Collections | Pulse Recipe",
-          url: `${SITE_URL}/projelerimiz`,
+          url: `${SITE_URL}/collections`,
           description:
             "Curated recipe collections for weeknights, prep, and seasonal cooking.",
           mainEntity: {
@@ -64,7 +64,7 @@ export default function Projelerimiz() {
             itemListElement: projects.map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
-              url: `${SITE_URL}/projelerimiz/${p.slug}`,
+              url: `${SITE_URL}/collections/${p.slug}`,
               name: p.name,
             })),
           },
@@ -132,7 +132,7 @@ export default function Projelerimiz() {
               {projects.map((p) => (
                 <Link
                   key={p.id}
-                  to={`/projelerimiz/${p.slug}`}
+                  to={`/collections/${p.slug}`}
                   className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-[#448834]/20 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
                 >
                   <div className="h-56 overflow-hidden relative bg-gray-100">
@@ -206,7 +206,7 @@ export default function Projelerimiz() {
             minutes.
           </p>
           <Link
-            to="/iletisim"
+            to="/contact"
             className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg shadow-[#448834]/25"
           >
             Contact Us

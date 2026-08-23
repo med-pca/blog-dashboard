@@ -8,7 +8,6 @@ Pulse Recipe is an English-language food blog sharing approachable recipes, meal
 - [Recipes](https://pulserecipe.com/hizmetler)
 - [Collections](https://pulserecipe.com/projelerimiz)
 - [Blog](https://pulserecipe.com/blog)
-- [Community](https://pulserecipe.com/referanslar)
 - [About](https://pulserecipe.com/kurumsal)
 - [Contact](https://pulserecipe.com/iletisim)
 - [FAQ](https://pulserecipe.com/sss)
@@ -19,23 +18,23 @@ Pulse Recipe is an English-language food blog sharing approachable recipes, meal
 
 ## Recipe Guides
 
-- [Weeknight Dinners](https://pulserecipe.com/hizmetler/cati-arazi)
-- [Fast 30-Minute Meals](https://pulserecipe.com/hizmetler/elektrik-altyapi-bakimi)
-- [Core Cooking Techniques](https://pulserecipe.com/hizmetler/enerji-danismanlik)
-- [Fixing Common Cooking Mistakes](https://pulserecipe.com/hizmetler/ges-bakim-onarim)
-- [Weekly Menu Planning](https://pulserecipe.com/hizmetler/proje-danismanlik)
-- [Meal Prep & Batch Cooking](https://pulserecipe.com/hizmetler/sulama)
-- [Budget Cooking](https://pulserecipe.com/hizmetler/bag-evi)
-- [Kitchen Setup & Gear](https://pulserecipe.com/hizmetler/ev-sarj)
+- [Weeknight Dinners](https://pulserecipe.com/hizmetler/weeknight-dinners)
+- [Fast 30-Minute Meals](https://pulserecipe.com/hizmetler/30-minute-meals)
+- [Core Cooking Techniques](https://pulserecipe.com/hizmetler/cooking-techniques)
+- [Fixing Common Cooking Mistakes](https://pulserecipe.com/hizmetler/cooking-mistakes)
+- [Weekly Menu Planning](https://pulserecipe.com/hizmetler/menu-planning)
+- [Meal Prep & Batch Cooking](https://pulserecipe.com/hizmetler/meal-prep)
+- [Budget Cooking](https://pulserecipe.com/hizmetler/budget-cooking)
+- [Kitchen Setup & Gear](https://pulserecipe.com/hizmetler/kitchen-setup)
 
 ## Why Pulse Recipe
 
-- [Chef-Tested Methods](https://pulserecipe.com/neden-biz/muhendislik-altyapisi)
-- [Complete Meal Guides](https://pulserecipe.com/neden-biz/anahtar-teslim-hizmet)
-- [Sustainable Cooking](https://pulserecipe.com/neden-biz/surdurulebilir-enerji)
-- [Efficiency-Focused Cooking](https://pulserecipe.com/neden-biz/verimlilik-odakli)
-- [Community and Trust](https://pulserecipe.com/neden-biz/yerel-ve-guvenilir)
-- [Kitchen Gear Recommendations](https://pulserecipe.com/neden-biz/onayli-ekipmanlar)
+- [Chef-Tested Methods](https://pulserecipe.com/neden-biz/tested-recipes)
+- [Complete Meal Guides](https://pulserecipe.com/neden-biz/practical-system)
+- [Sustainable Cooking](https://pulserecipe.com/neden-biz/seasonal-ingredients)
+- [Efficiency-Focused Cooking](https://pulserecipe.com/neden-biz/budget-planning)
+- [Community and Trust](https://pulserecipe.com/neden-biz/friendly-community)
+- [Kitchen Gear Recommendations](https://pulserecipe.com/neden-biz/reliable-methodology)
 
 ## Resources
 

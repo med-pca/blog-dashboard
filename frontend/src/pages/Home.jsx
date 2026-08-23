@@ -4,7 +4,6 @@ import Services from "../components/Services";
 import WhyUs from "../components/WhyUs";
 import HowItWorks from "../components/HowItWorks";
 import LatestPosts from "../components/LatestPosts";
-import LogoMarquee from "../components/LogoMarquee";
 import SEO from "../components/SEO";
 import { SITE_URL } from "../lib/site";
 
@@ -36,7 +35,7 @@ const homeSchema = {
       name: "Pulse Recipe Blog",
       description:
         "Simple, seasonal, and practical recipes for everyday home cooking.",
-      url: `${SITE_URL}/blog`,
+      url: `${SITE_URL}/recipes`,
       inLanguage: "en-US",
       publisher: { "@id": `${SITE_URL}/#organization` },
     },
@@ -53,7 +52,6 @@ export default function Home() {
       <WhyUs />
       <HowItWorks />
       <LatestPosts />
-      <LogoMarquee />
     </>
   );
 }

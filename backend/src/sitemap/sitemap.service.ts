@@ -8,31 +8,30 @@ import { PublicCacheService } from '../common/public-cache.service'
 
 const STATIC_URLS = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
-  { loc: '/hizmetler', priority: '0.9', changefreq: 'monthly' },
-  { loc: '/hizmetler/sulama', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/cati-arazi', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/bag-evi', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/ev-sarj', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/ges-bakim-onarim', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/elektrik-altyapi-bakimi', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/proje-danismanlik', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/hizmetler/enerji-danismanlik', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/kurumsal', priority: '0.8', changefreq: 'monthly' },
-  { loc: '/projelerimiz', priority: '0.8', changefreq: 'weekly' },
-  { loc: '/referanslar', priority: '0.7', changefreq: 'weekly' },
-  { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
-  { loc: '/sss', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/iletisim', priority: '0.8', changefreq: 'monthly' },
-  { loc: '/kvkk', priority: '0.3', changefreq: 'yearly' },
+  { loc: '/guides', priority: '0.9', changefreq: 'monthly' },
+  { loc: '/guides/meal-prep', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/weeknight-dinners', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/budget-cooking', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/kitchen-setup', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/cooking-mistakes', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/30-minute-meals', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/menu-planning', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/guides/cooking-techniques', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/about', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/collections', priority: '0.8', changefreq: 'weekly' },
+  { loc: '/recipes', priority: '0.8', changefreq: 'weekly' },
+  { loc: '/faq', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/contact', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
   { loc: '/cookies', priority: '0.3', changefreq: 'yearly' },
   { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
   { loc: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
-  { loc: '/neden-biz/muhendislik-altyapisi', priority: '0.6', changefreq: 'monthly' },
-  { loc: '/neden-biz/anahtar-teslim-hizmet', priority: '0.6', changefreq: 'monthly' },
-  { loc: '/neden-biz/surdurulebilir-enerji', priority: '0.6', changefreq: 'monthly' },
-  { loc: '/neden-biz/verimlilik-odakli', priority: '0.6', changefreq: 'monthly' },
-  { loc: '/neden-biz/yerel-ve-guvenilir', priority: '0.6', changefreq: 'monthly' },
-  { loc: '/neden-biz/onayli-ekipmanlar', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/why-us/tested-recipes', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/why-us/practical-system', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/why-us/seasonal-ingredients', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/why-us/budget-planning', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/why-us/friendly-community', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/why-us/reliable-methodology', priority: '0.6', changefreq: 'monthly' },
 ]
 
 function xmlEscape(s: string): string {
@@ -79,7 +78,7 @@ export class SitemapService {
     const staticUrls = STATIC_URLS.map((u) => urlTag(u.loc, { priority: u.priority, changefreq: u.changefreq }))
 
     const blogUrls = posts.map((p) =>
-      urlTag(`/blog/${p.slug}`, {
+      urlTag(`/recipes/${p.slug}`, {
         lastmod: p.updatedAt || p.publishedAt,
         priority: '0.7',
         changefreq: 'monthly',
@@ -87,7 +86,7 @@ export class SitemapService {
     )
 
     const projectUrls = projects.map((p) =>
-      urlTag(`/projelerimiz/${p.slug}`, {
+      urlTag(`/collections/${p.slug}`, {
         lastmod: p.updatedAt,
         priority: '0.6',
         changefreq: 'monthly',

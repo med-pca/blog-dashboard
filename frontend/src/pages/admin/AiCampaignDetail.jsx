@@ -230,7 +230,7 @@ export default function AiCampaignDetail() {
                   >
                     {draft.title}
                   </Link>
-                  <p className="text-xs text-gray-300 mt-0.5">/blog/{draft.slug}</p>
+                  <p className="text-xs text-gray-300 mt-0.5">/recipes/{draft.slug}</p>
                 </div>
                 <span
                   className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${

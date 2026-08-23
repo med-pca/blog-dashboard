@@ -59,19 +59,6 @@ export function SSSSkeleton() {
   )
 }
 
-export function ReferencesSkeleton() {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center gap-3">
-          <Skeleton className="w-full h-44 rounded-xl" />
-          <Skeleton className="h-3 w-3/4" />
-        </div>
-      ))}
-    </div>
-  )
-}
-
 export function BlogDetaySkeleton() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-16">

@@ -24,7 +24,7 @@ const categories = [
       {
         icon: CookingPot,
         title: "Weeknight Dinners",
-        slug: "cati-arazi",
+        slug: "weeknight-dinners",
         description:
           "Real dinners on a weeknight, built around one pan and ingredients matched by cooking time.",
         features: [
@@ -39,7 +39,7 @@ const categories = [
       {
         icon: Timer,
         title: "Fast 30-Minute Meals",
-        slug: "elektrik-altyapi-bakimi",
+        slug: "30-minute-meals",
         description:
           "Thirty minutes start to plate, by removing dead time rather than turning the heat up.",
         features: [
@@ -54,7 +54,7 @@ const categories = [
       {
         icon: Sparkles,
         title: "Core Cooking Techniques",
-        slug: "enerji-danismanlik",
+        slug: "cooking-techniques",
         description:
           "Seasoning, browning, heat control and knife work — the ideas underneath almost every recipe.",
         features: [
@@ -69,7 +69,7 @@ const categories = [
       {
         icon: Wrench,
         title: "Fixing Common Cooking Mistakes",
-        slug: "ges-bakim-onarim",
+        slug: "cooking-mistakes",
         description:
           "Too salty, too bland, watery or burnt — what actually caused it and what still saves it.",
         features: [
@@ -93,7 +93,7 @@ const categories = [
       {
         icon: CalendarDays,
         title: "Weekly Menu Planning",
-        slug: "proje-danismanlik",
+        slug: "menu-planning",
         description:
           "Plan four dinners rather than seven, ordered by what spoils first.",
         features: [
@@ -108,7 +108,7 @@ const categories = [
       {
         icon: ChefHat,
         title: "Meal Prep & Batch Cooking",
-        slug: "sulama",
+        slug: "meal-prep",
         description:
           "Prepare components instead of finished meals, and assemble them differently each night.",
         features: [
@@ -123,7 +123,7 @@ const categories = [
       {
         icon: PiggyBank,
         title: "Budget Cooking",
-        slug: "bag-evi",
+        slug: "budget-cooking",
         description:
           "Spend less without eating worse — cheap protein, pantry umami, and far less waste.",
         features: [
@@ -147,7 +147,7 @@ const categories = [
       {
         icon: Utensils,
         title: "Kitchen Setup & Gear",
-        slug: "ev-sarj",
+        slug: "kitchen-setup",
         description:
           "One sharp knife, one heavy pan, a set of scales — and why the gadgets can wait.",
         features: [
@@ -242,7 +242,7 @@ export default function Services() {
                   >
                     {/* Photo */}
                     <Link
-                      to={`/hizmetler/${s.slug}`}
+                      to={`/guides/${s.slug}`}
                       className="block h-36 overflow-hidden"
                     >
                       <img
@@ -254,7 +254,7 @@ export default function Services() {
                     </Link>
 
                     <div className="p-5 flex flex-col gap-3 flex-1 bg-white">
-                      <Link to={`/hizmetler/${s.slug}`} className="contents">
+                      <Link to={`/guides/${s.slug}`} className="contents">
                         <div className="flex items-center gap-3">
                           <Icon className="text-[#448834]" size={22} />
                           <div className="h-0.5 flex-1 rounded-full bg-[#448834]/30" />
@@ -282,7 +282,7 @@ export default function Services() {
 
                       <div className="flex items-center justify-between gap-2 pt-1">
                         <Link
-                          to={`/hizmetler/${s.slug}`}
+                          to={`/guides/${s.slug}`}
                           aria-label={`View details for ${s.title}`}
                           className="text-sm font-semibold text-gray-500 hover:text-[#448834] transition-colors"
                         >

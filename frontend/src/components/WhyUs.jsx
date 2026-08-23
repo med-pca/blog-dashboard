@@ -16,37 +16,37 @@ const reasons = [
   {
     icon: Award,
     title: "Tested Home Recipes",
-    slug: "muhendislik-altyapisi",
+    slug: "tested-recipes",
     desc: "Every recipe is tested with practical home-kitchen constraints and clear step guidance.",
   },
   {
     icon: Wrench,
     title: "Practical Cooking System",
-    slug: "anahtar-teslim-hizmet",
+    slug: "practical-system",
     desc: "From prep to plating, we provide repeatable workflows that save time every week.",
   },
   {
     icon: Leaf,
     title: "Seasonal Ingredients",
-    slug: "surdurulebilir-enerji",
+    slug: "seasonal-ingredients",
     desc: "Cook with seasonal produce to improve flavor, reduce waste, and shop smarter.",
   },
   {
     icon: BarChart3,
     title: "Budget Aware Planning",
-    slug: "verimlilik-odakli",
+    slug: "budget-planning",
     desc: "Simple budget strategies help you keep meals satisfying without overspending.",
   },
   {
     icon: HeartHandshake,
     title: "Friendly Community",
-    slug: "yerel-ve-guvenilir",
+    slug: "friendly-community",
     desc: "A warm space for shared tips, food inspiration, and everyday kitchen confidence.",
   },
   {
     icon: CheckCircle,
     title: "Reliable Methodology",
-    slug: "onayli-ekipmanlar",
+    slug: "reliable-methodology",
     desc: "Ingredient notes, clear measures, and realistic timing make recipes easier to follow.",
   },
 ];
@@ -108,7 +108,7 @@ export default function WhyUs() {
                   {desc}
                 </p>
                 <Link
-                  to={`/neden-biz/${slug}`}
+                  to={`/why-us/${slug}`}
                   aria-label={`More details about ${title}`}
                   className="text-[#357228] text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all w-fit"
                 >
@@ -136,7 +136,7 @@ export default function WhyUs() {
               Get Suggestions
             </a>
             ) : (
-              <Link to="/iletisim" className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors">
+              <Link to="/contact" className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors">
               Get Suggestions
             </Link>
             )}

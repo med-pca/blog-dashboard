@@ -49,7 +49,7 @@ To the extent permitted by law, we are not liable for indirect or consequential 
     title: "8. Privacy",
     body: `How we handle personal data is set out in the Privacy Policy and the Cookie Policy, which form part of these terms.`,
     links: [
-      { label: "Privacy Policy", href: "/kvkk" },
+      { label: "Privacy Policy", href: "/privacy" },
       { label: "Cookie Policy", href: "/cookies" },
     ],
   },

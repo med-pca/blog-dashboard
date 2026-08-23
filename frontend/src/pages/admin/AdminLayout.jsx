@@ -26,7 +26,6 @@ import PageLoader from '../../components/PageLoader'
 const NAV = [
   { to: '/rnl-panel', label: 'Dashboard', icon: LayoutDashboard, match: (p) => p === '/rnl-panel' },
   { to: '/rnl-panel/projeler', label: 'Collections', icon: FolderOpen, match: (p) => p.startsWith('/rnl-panel/projeler') },
-  { to: '/rnl-panel/referanslar', label: 'Community', icon: Star, match: (p) => p.startsWith('/rnl-panel/referanslar') },
   { to: '/rnl-panel/blog', label: 'Blog', icon: BookOpen, match: (p) => p.startsWith('/rnl-panel/blog') },
   { to: '/rnl-panel/ai-kampanyalar', label: 'AI Campaigns', icon: Sparkles, match: (p) => p.startsWith('/rnl-panel/ai-kampanyalar') || p.startsWith('/rnl-panel/ai-loglar') },
   { to: '/rnl-panel/sss', label: 'FAQ', icon: HelpCircle, match: (p) => p.startsWith('/rnl-panel/sss') },

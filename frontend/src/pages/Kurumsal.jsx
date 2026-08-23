@@ -73,7 +73,7 @@ export default function Kurumsal() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    url: `${SITE_URL}/kurumsal`,
+    url: `${SITE_URL}/about`,
     name: "About | Pulse Recipe",
     description:
       "About Pulse Recipe. A food-first platform sharing practical recipes and cooking guides for everyday life.",

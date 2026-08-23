@@ -16,7 +16,7 @@ import { SITE_URL } from "../../lib/site";
 
 const pages = [
   {
-    slug: "muhendislik-altyapisi",
+    slug: "tested-recipes",
     icon: Award,
     title: "Chef-Tested Methods",
     photo: "/food/illustration-1.svg",
@@ -38,7 +38,7 @@ const pages = [
       "Hi, I want to learn more about your chef-tested recipe workflow.",
   },
   {
-    slug: "anahtar-teslim-hizmet",
+    slug: "practical-system",
     icon: Wrench,
     title: "Complete Meal Guides",
     photo: "/food/illustration-2.svg",
@@ -59,7 +59,7 @@ const pages = [
     waMessage: "Hi, I would like complete meal planning and cooking guidance.",
   },
   {
-    slug: "surdurulebilir-enerji",
+    slug: "seasonal-ingredients",
     icon: Leaf,
     title: "Sustainable Cooking",
     photo: "/food/illustration-3.svg",
@@ -80,7 +80,7 @@ const pages = [
     waMessage: "Hi, I am interested in sustainable cooking tips and recipes.",
   },
   {
-    slug: "verimlilik-odakli",
+    slug: "budget-planning",
     icon: BarChart3,
     title: "Efficiency-Focused Cooking",
     photo: "/food/illustration-4.svg",
@@ -100,7 +100,7 @@ const pages = [
     waMessage: "Hi, I want fast and efficient recipes for busy days.",
   },
   {
-    slug: "yerel-ve-guvenilir",
+    slug: "friendly-community",
     icon: HeartHandshake,
     title: "Community and Trust",
     photo: "/food/illustration-1.svg",
@@ -120,7 +120,7 @@ const pages = [
     waMessage: "Hi, I have a recipe question and would like your guidance.",
   },
   {
-    slug: "onayli-ekipmanlar",
+    slug: "reliable-methodology",
     icon: CheckCircle,
     title: "Kitchen Gear Recommendations",
     photo: "/food/illustration-2.svg",
@@ -165,7 +165,7 @@ export default function NedenBizDetay() {
     "@type": "WebPage",
     name: `${page.title} | Pulse Recipe`,
     description: page.description,
-    url: `${SITE_URL}/neden-biz/${page.slug}`,
+    url: `${SITE_URL}/why-us/${page.slug}`,
     publisher: {
       "@type": "Organization",
       name: "Pulse Recipe",
@@ -182,7 +182,7 @@ export default function NedenBizDetay() {
       />
       <PageHeader
         title={page.title}
-        parent={{ to: "/kurumsal", label: "Why Us?" }}
+        parent={{ to: "/about", label: "Why Us?" }}
       />
 
       <div className="lg:hidden bg-white border-b border-gray-100 sticky top-24 z-40">
@@ -197,7 +197,7 @@ export default function NedenBizDetay() {
               <Link
                 key={p.slug}
                 ref={active ? activeChipRef : null}
-                to={`/neden-biz/${p.slug}`}
+                to={`/why-us/${p.slug}`}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-colors ${
                   active
                     ? "bg-[#448834] text-white"
@@ -229,7 +229,7 @@ export default function NedenBizDetay() {
                     return (
                       <Link
                         key={p.slug}
-                        to={`/neden-biz/${p.slug}`}
+                        to={`/why-us/${p.slug}`}
                         className={`flex items-center gap-3 px-5 py-3.5 text-sm transition-colors group ${
                           active
                             ? "bg-[#448834]/8 text-[#448834] font-semibold"
@@ -272,7 +272,7 @@ export default function NedenBizDetay() {
                   Contact Us
                 </a>
                 ) : (
-                  <Link to="/iletisim" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Link to="/contact" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
                   Contact Us
                 </Link>
                 )}
@@ -351,7 +351,7 @@ export default function NedenBizDetay() {
                   Contact Us
                 </a>
                 ) : (
-                  <Link to="/iletisim" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Link to="/contact" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
                   Contact Us
                 </Link>
                 )}

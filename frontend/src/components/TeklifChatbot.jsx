@@ -420,7 +420,7 @@ export default function TeklifChatbot({
           <p className="text-[10px] text-gray-300 text-center mt-1.5">
             Chat records are stored for service quality ·{" "}
             <a
-              href="/kvkk"
+              href="/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-gray-400"

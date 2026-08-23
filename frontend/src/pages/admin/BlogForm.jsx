@@ -165,7 +165,7 @@ export default function BlogForm() {
             placeholder="url-adresi"
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
           />
-          <p className="text-xs text-gray-400 mt-1">{SITE_DOMAIN}/blog/{form.slug || '...'}</p>
+          <p className="text-xs text-gray-400 mt-1">{SITE_DOMAIN}/recipes/{form.slug || '...'}</p>
         </div>
 
         {/* Summary */}

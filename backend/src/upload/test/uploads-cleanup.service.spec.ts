@@ -4,7 +4,6 @@ import { join } from 'path'
 import { Repository } from 'typeorm'
 import { ProjectMedia } from '../../projects/entities/project-media.entity'
 import { BlogPost } from '../../blog/entities/blog-post.entity'
-import { Reference } from '../../references/entities/reference.entity'
 import { UploadsCleanupService } from '../uploads-cleanup.service'
 
 // UPLOADS_DIR sabitini geçici test dizinine yönlendir
@@ -15,18 +14,15 @@ jest.mock('../uploaded-files', () => ({
   },
 }))
 
-function makeService(referenced: { media?: string[]; covers?: string[]; logos?: string[] }) {
+function makeService(referenced: { media?: string[]; covers?: string[] }) {
   const mediaRepo = {
     find: jest.fn().mockResolvedValue((referenced.media ?? []).map(src => ({ src }))),
   } as unknown as Repository<ProjectMedia>
   const blogRepo = {
     find: jest.fn().mockResolvedValue((referenced.covers ?? []).map(coverImage => ({ coverImage }))),
   } as unknown as Repository<BlogPost>
-  const referenceRepo = {
-    find: jest.fn().mockResolvedValue((referenced.logos ?? []).map(logo => ({ logo }))),
-  } as unknown as Repository<Reference>
 
-  return new UploadsCleanupService(mediaRepo, blogRepo, referenceRepo)
+  return new UploadsCleanupService(mediaRepo, blogRepo)
 }
 
 async function createFile(name: string, ageHours: number) {
@@ -59,20 +55,16 @@ describe('UploadsCleanupService', () => {
     expect(remaining.sort()).toEqual(['.gitkeep', 'orphan-fresh.webp', 'referenced.webp'])
   })
 
-  it('should honour references from blog covers and reference logos', async () => {
+  it('should honour references from blog covers', async () => {
     await createFile('cover.webp', 48)
-    await createFile('logo.webp', 48)
     await createFile('gone.webp', 48)
 
-    const service = makeService({
-      covers: ['/uploads/cover.webp'],
-      logos: ['/uploads/logo.webp'],
-    })
+    const service = makeService({ covers: ['/uploads/cover.webp'] })
     const deleted = await service.run()
 
     expect(deleted).toBe(1)
     const remaining = await readdir(mockUploadsDir)
-    expect(remaining.sort()).toEqual(['cover.webp', 'logo.webp'])
+    expect(remaining.sort()).toEqual(['cover.webp'])
   })
 
   it('should delete nothing when every file is referenced', async () => {

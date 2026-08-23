@@ -1,5 +1,5 @@
 import { API } from './config'
-import type { Project, ProjectMedia, Reference, BlogPost, Faq, SyncStatus, ChatRating, ChatRatingStats, ChatLead, ChatLeadStats, ChatFunnel, AppLog, LogStats, QuoteRequest, QuoteStats, QuoteStatus } from '../types'
+import type { Project, ProjectMedia, BlogPost, Faq, SyncStatus, ChatRating, ChatRatingStats, ChatLead, ChatLeadStats, ChatFunnel, AppLog, LogStats, QuoteRequest, QuoteStats, QuoteStatus } from '../types'
 
 function authOptions(extra: RequestInit = {}): RequestInit {
   return {
@@ -217,59 +217,6 @@ export async function reorderMedia(projectId: string, orderedIds: string[]): Pro
   })
   if (!res.ok) throw apiError(res, 'Could not update the order')
   return res.json()
-}
-
-// References
-export async function fetchAllReferences(): Promise<Reference[]> {
-  const res = await fetch(`${API}/api/references/admin/all`, authOptions())
-  if (!res.ok) throw apiError(res, 'Could not load community entries')
-  return res.json()
-}
-
-export async function createReference(data: Partial<Reference>): Promise<Reference> {
-  const res = await fetch(`${API}/api/references`, {
-    ...authOptions({ method: 'POST' }),
-    body: JSON.stringify(data),
-  })
-  const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Could not create the entry')
-  return json
-}
-
-export async function updateReference(id: string, data: Partial<Reference>): Promise<Reference> {
-  const res = await fetch(`${API}/api/references/${id}`, {
-    ...authOptions({ method: 'PATCH' }),
-    body: JSON.stringify(data),
-  })
-  const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Could not update the entry')
-  return json
-}
-
-export async function reorderReferences(orderedIds: string[]): Promise<void> {
-  const res = await fetch(`${API}/api/references/reorder`, {
-    ...authOptions({ method: 'PATCH' }),
-    body: JSON.stringify({ orderedIds }),
-  })
-  if (!res.ok) throw apiError(res, 'Could not save the order')
-}
-
-export async function deleteReference(id: string): Promise<void> {
-  const res = await fetch(`${API}/api/references/${id}`, authOptions({ method: 'DELETE' }))
-  if (!res.ok) throw apiError(res, 'Could not delete the entry')
-}
-
-export async function uploadReferenceLogo(referenceId: string, file: File): Promise<Reference> {
-  const form = new FormData()
-  form.append('file', file)
-  const res = await fetch(`${API}/api/upload/references/${referenceId}/logo`, {
-    method: 'POST',
-    credentials: 'include',
-    body: form,
-  })
-  const json = await res.json()
-  if (!res.ok) throw apiError(res, json.message || 'Could not upload the logo')
-  return json
 }
 
 // Blog

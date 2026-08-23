@@ -135,7 +135,7 @@ export default function TeklifForm({ onSuccess }) {
         <span className="text-sm text-gray-600">
           I have read the{" "}
           <a
-            href="/kvkk"
+            href="/privacy"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#448834] hover:underline"

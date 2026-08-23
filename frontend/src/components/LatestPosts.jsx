@@ -40,7 +40,7 @@ export default function LatestPosts() {
             </p>
           </div>
           <Link
-            to="/blog"
+            to="/recipes"
             className="hidden sm:inline-flex items-center gap-1.5 text-orange-700 font-semibold text-sm hover:gap-2.5 transition-all shrink-0"
           >
             View all recipes <ArrowRight size={15} />
@@ -51,7 +51,7 @@ export default function LatestPosts() {
           {posts.map((post, index) => (
             <Link
               key={post.id}
-              to={`/blog/${post.slug}`}
+              to={`/recipes/${post.slug}`}
               className="bg-white rounded-2xl border border-amber-100 hover:shadow-xl hover:border-orange-300/60 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
             >
               <div className="h-48 overflow-hidden bg-amber-100/40 relative food-photo-wrap">
@@ -90,7 +90,7 @@ export default function LatestPosts() {
 
         <div className="mt-10 text-center sm:hidden">
           <Link
-            to="/blog"
+            to="/recipes"
             className="inline-flex items-center gap-1.5 text-orange-700 font-semibold text-sm"
           >
             View all recipes <ArrowRight size={15} />

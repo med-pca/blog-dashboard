@@ -1,20 +1,19 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Zap, FolderOpen, Star, Plus } from 'lucide-react'
-import { fetchAllProjects, fetchAllReferences, fetchLogs } from '../../api/admin'
+import { fetchAllProjects, fetchLogs } from '../../api/admin'
 import { useAdminAuth } from '../../contexts/AdminAuthContext'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const { logout } = useAdminAuth()
   const [projects, setProjects] = useState([])
-  const [refs, setRefs] = useState([])
   const [logStats, setLogStats] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([fetchAllProjects(), fetchAllReferences(), fetchLogs().catch(() => null)])
-      .then(([p, r, l]) => { setProjects(p); setRefs(r); setLogStats(l?.stats ?? null) })
+    Promise.all([fetchAllProjects(), fetchLogs().catch(() => null)])
+      .then(([p, l]) => { setProjects(p); setLogStats(l?.stats ?? null) })
       .catch((err) => {
         if (err.status === 401) {
           logout()
@@ -25,7 +24,6 @@ export default function AdminDashboard() {
   }, [logout, navigate])
 
   const publishedProjects = projects.filter((p) => p.published)
-  const publishedRefs = refs.filter((r) => r.published)
   const totalKw = projects.reduce((s, p) => s + parseFloat(p.kw || 0), 0)
   const totalKwStr = totalKw % 1 === 0 ? totalKw : totalKw.toFixed(1)
 
@@ -78,16 +76,6 @@ export default function AdminDashboard() {
 
         <div className="relative flex-1 px-6 sm:px-7 py-5 sm:py-6 overflow-hidden border-b sm:border-b-0 sm:border-r border-gray-100">
           <div className="relative z-10">
-            <p className="text-5xl font-bold text-[#448834] font-['Rajdhani'] drop-shadow-sm">{refs.length}</p>
-            <p className="text-base text-gray-400 mt-0.5 drop-shadow-sm">Total Community Entries</p>
-            {refs.length - publishedRefs.length > 0 && (
-              <p className="text-xs text-amber-400 mt-0.5">{refs.length - publishedRefs.length} hidden</p>
-            )}
-          </div>
-        </div>
-
-        <div className="relative flex-1 px-6 sm:px-7 py-5 sm:py-6 overflow-hidden border-b sm:border-b-0 sm:border-r border-gray-100">
-          <div className="relative z-10">
             <p className="text-5xl font-bold text-[#448834] font-['Rajdhani'] drop-shadow-sm">
               {totalKwStr}
             </p>
@@ -128,20 +116,6 @@ export default function AdminDashboard() {
               <Plus size={16} className="text-gray-800" />
             </div>
             <p className="text-gray-400 text-sm mt-0.5">Add and publish</p>
-          </div>
-        </Link>
-
-        <Link
-          to="/rnl-panel/referanslar/yeni"
-          className="group relative bg-white hover:bg-gray-50 rounded-2xl overflow-hidden flex items-center px-6 py-5 min-h-22.5 transition-all duration-200 border border-gray-100 border-l-4 border-l-[#448834] shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <img src="/yeni_referans.webp" alt="" className="absolute w-36 h-36 object-contain shrink-0 opacity-10" style={{ right: -25, bottom: -30 }} />
-          <div className="relative z-10">
-            <div className="flex items-center gap-1.5">
-              <p className="text-gray-800 font-bold text-base">New Community Entry</p>
-              <Plus size={16} className="text-gray-800" />
-            </div>
-            <p className="text-gray-400 text-sm mt-0.5">Add a logo</p>
           </div>
         </Link>
 

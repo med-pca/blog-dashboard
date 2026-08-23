@@ -328,7 +328,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
             </Field>
             <Field label="Slug (URL)" required span={2}>
               <div className="flex items-center">
-                <span className="text-xs text-gray-400 bg-gray-50 border border-r-0 border-gray-200 rounded-l-lg px-2.5 py-2 whitespace-nowrap">/projelerimiz/</span>
+                <span className="text-xs text-gray-400 bg-gray-50 border border-r-0 border-gray-200 rounded-l-lg px-2.5 py-2 whitespace-nowrap">/collections/</span>
                 <input
                   value={form.slug}
                   onChange={(e) => { setSlugManual(true); set('slug', e.target.value) }}

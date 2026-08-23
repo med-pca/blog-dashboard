@@ -5,47 +5,46 @@ import Logo from "./Logo";
 
 // Labels must match the guide titles in pages/hizmetler/HizmetDetay.jsx — a
 // visitor clicking a menu entry should land on a page with that exact heading.
-const hizmetlerDropdown = [
+const guidesDropdown = [
   {
     category: "Cooking",
     items: [
-      { label: "Weeknight Dinners", to: "/hizmetler/cati-arazi" },
-      { label: "Fast 30-Minute Meals", to: "/hizmetler/elektrik-altyapi-bakimi" },
-      { label: "Core Cooking Techniques", to: "/hizmetler/enerji-danismanlik" },
+      { label: "Weeknight Dinners", to: "/guides/weeknight-dinners" },
+      { label: "Fast 30-Minute Meals", to: "/guides/30-minute-meals" },
+      { label: "Core Cooking Techniques", to: "/guides/cooking-techniques" },
       {
         label: "Fixing Common Cooking Mistakes",
-        to: "/hizmetler/ges-bakim-onarim",
+        to: "/guides/cooking-mistakes",
       },
     ],
   },
   {
     category: "Planning",
     items: [
-      { label: "Weekly Menu Planning", to: "/hizmetler/proje-danismanlik" },
-      { label: "Meal Prep & Batch Cooking", to: "/hizmetler/sulama" },
-      { label: "Budget Cooking", to: "/hizmetler/bag-evi" },
+      { label: "Weekly Menu Planning", to: "/guides/menu-planning" },
+      { label: "Meal Prep & Batch Cooking", to: "/guides/meal-prep" },
+      { label: "Budget Cooking", to: "/guides/budget-cooking" },
     ],
   },
   {
     category: "Kitchen",
-    items: [{ label: "Kitchen Setup & Gear", to: "/hizmetler/ev-sarj" }],
+    items: [{ label: "Kitchen Setup & Gear", to: "/guides/kitchen-setup" }],
   },
 ];
 
 const navLinks = [
   { label: "Home", to: "/" },
-  { label: "About", to: "/kurumsal" },
-  { label: "Recipes", to: "/hizmetler", dropdown: hizmetlerDropdown },
-  { label: "Collections", to: "/projelerimiz" },
-  { label: "Community", to: "/referanslar" },
-  { label: "Blog", to: "/blog" },
-  { label: "FAQ", to: "/sss" },
-  { label: "Contact", to: "/iletisim" },
+  { label: "About", to: "/about" },
+  { label: "Guides", to: "/guides", dropdown: guidesDropdown },
+  { label: "Collections", to: "/collections" },
+  { label: "Recipes", to: "/recipes" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Contact", to: "/contact" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [mobileHizmetlerOpen, setMobileHizmetlerOpen] = useState(false);
+  const [mobileGuidesOpen, setMobileGuidesOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
@@ -62,7 +61,7 @@ export default function Navbar() {
 
   useEffect(() => {
     setOpen(false);
-    setMobileHizmetlerOpen(false);
+    setMobileGuidesOpen(false);
   }, [pathname]);
 
   function openDropdown() {
@@ -123,7 +122,7 @@ export default function Navbar() {
               }
 
               // Dropdown item
-              const isHizmetlerActive = pathname.startsWith("/hizmetler");
+              const isHizmetlerActive = pathname.startsWith("/guides");
               return (
                 <div
                   key={l.to}
@@ -232,21 +231,21 @@ export default function Navbar() {
                 );
               }
 
-              const isHizmetlerActive = pathname.startsWith("/hizmetler");
+              const isHizmetlerActive = pathname.startsWith("/guides");
               return (
                 <div key={l.to} className="border-b border-gray-100">
                   <button
-                    onClick={() => setMobileHizmetlerOpen((o) => !o)}
+                    onClick={() => setMobileGuidesOpen((o) => !o)}
                     className={`w-full flex items-center justify-between font-medium py-2 transition-colors ${isHizmetlerActive ? "text-[#448834]" : "text-gray-700"}`}
                   >
                     {l.label}
                     <ChevronDown
                       size={16}
-                      className={`transition-transform duration-200 ${mobileHizmetlerOpen ? "rotate-180" : ""}`}
+                      className={`transition-transform duration-200 ${mobileGuidesOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
-                  {mobileHizmetlerOpen && (
+                  {mobileGuidesOpen && (
                     <div className="pb-2 pl-3 flex flex-col gap-3">
                       <Link
                         to={l.to}

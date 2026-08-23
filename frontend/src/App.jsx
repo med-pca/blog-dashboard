@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
   useLocation,
+  useParams,
 } from "react-router-dom";
 import { useEffect, lazy, Suspense, useState, useRef } from "react";
 import { Bot } from "lucide-react";
@@ -18,7 +19,6 @@ const Home = lazy(() => import("./pages/Home"));
 const Hizmetler = lazy(() => import("./pages/Hizmetler"));
 const HizmetDetay = lazy(() => import("./pages/hizmetler/HizmetDetay"));
 const Kurumsal = lazy(() => import("./pages/Kurumsal"));
-const Referanslar = lazy(() => import("./pages/Referanslar"));
 const Iletisim = lazy(() => import("./pages/Iletisim"));
 const Projelerimiz = lazy(() => import("./pages/Projelerimiz"));
 const ProjeDetay = lazy(() => import("./pages/projeler/ProjeDetay"));
@@ -38,8 +38,6 @@ const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ProjelerAdmin = lazy(() => import("./pages/admin/ProjelerAdmin"));
 const ProjeForm = lazy(() => import("./pages/admin/ProjeForm"));
-const ReferanslarAdmin = lazy(() => import("./pages/admin/ReferanslarAdmin"));
-const ReferansForm = lazy(() => import("./pages/admin/ReferansForm"));
 const BlogAdmin = lazy(() => import("./pages/admin/BlogAdmin"));
 const BlogForm = lazy(() => import("./pages/admin/BlogForm"));
 const SSSAdmin = lazy(() => import("./pages/admin/SSSAdmin"));
@@ -60,6 +58,46 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+}
+
+// Old Turkish slugs -> the English ones now in the router. Unknown slugs fall
+// through to the section landing page instead of a 404.
+const LEGACY_GUIDE_SLUGS = {
+  sulama: "meal-prep",
+  "cati-arazi": "weeknight-dinners",
+  "bag-evi": "budget-cooking",
+  "ev-sarj": "kitchen-setup",
+  "ges-bakim-onarim": "cooking-mistakes",
+  "elektrik-altyapi-bakimi": "30-minute-meals",
+  "proje-danismanlik": "menu-planning",
+  "enerji-danismanlik": "cooking-techniques",
+};
+
+const LEGACY_WHY_US_SLUGS = {
+  "muhendislik-altyapisi": "tested-recipes",
+  "anahtar-teslim-hizmet": "practical-system",
+  "surdurulebilir-enerji": "seasonal-ingredients",
+  "verimlilik-odakli": "budget-planning",
+  "yerel-ve-guvenilir": "friendly-community",
+  "onayli-ekipmanlar": "reliable-methodology",
+};
+
+function LegacyGuideRedirect() {
+  const { slug } = useParams();
+  const next = LEGACY_GUIDE_SLUGS[slug];
+  return <Navigate to={next ? `/guides/${next}` : "/guides"} replace />;
+}
+
+function LegacyWhyUsRedirect() {
+  const { slug } = useParams();
+  const next = LEGACY_WHY_US_SLUGS[slug];
+  return <Navigate to={next ? `/why-us/${next}` : "/"} replace />;
+}
+
+// Slug is unchanged, only the prefix moved.
+function LegacyPrefixRedirect({ to }) {
+  const { slug } = useParams();
+  return <Navigate to={`${to}/${slug}`} replace />;
 }
 
 function ProtectedRoute({ children }) {
@@ -106,21 +144,39 @@ function PublicLayout() {
         <Suspense fallback={<PageLoader fullScreen />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/hizmetler" element={<Hizmetler />} />
-            <Route path="/hizmetler/:slug" element={<HizmetDetay />} />
-            <Route path="/kurumsal" element={<Kurumsal />} />
-            <Route path="/projelerimiz" element={<Projelerimiz />} />
-            <Route path="/projelerimiz/:slug" element={<ProjeDetay />} />
-            <Route path="/neden-biz/:slug" element={<NedenBizDetay />} />
-            <Route path="/referanslar" element={<Referanslar />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogDetay />} />
-            <Route path="/sss" element={<SSS />} />
-            <Route path="/kvkk" element={<Kvkk />} />
+            <Route path="/guides" element={<Hizmetler />} />
+            <Route path="/guides/:slug" element={<HizmetDetay />} />
+            <Route path="/about" element={<Kurumsal />} />
+            <Route path="/collections" element={<Projelerimiz />} />
+            <Route path="/collections/:slug" element={<ProjeDetay />} />
+            <Route path="/why-us/:slug" element={<NedenBizDetay />} />
+            <Route path="/recipes" element={<Blog />} />
+            <Route path="/recipes/:slug" element={<BlogDetay />} />
+            <Route path="/faq" element={<SSS />} />
+            <Route path="/privacy" element={<Kvkk />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/disclaimer" element={<Disclaimer />} />
-            <Route path="/iletisim" element={<Iletisim />} />
+            <Route path="/contact" element={<Iletisim />} />
+
+            {/* The site moved off the Turkish route names inherited from the
+                solar codebase. Nothing links here any more, but shared links
+                and bookmarks should land on the page rather than a 404. */}
+            <Route path="/hizmetler" element={<Navigate to="/guides" replace />} />
+            <Route
+              path="/hizmetler/:slug"
+              element={<LegacyGuideRedirect />}
+            />
+            <Route path="/kurumsal" element={<Navigate to="/about" replace />} />
+            <Route path="/projelerimiz" element={<Navigate to="/collections" replace />} />
+            <Route path="/projelerimiz/:slug" element={<LegacyPrefixRedirect to="/collections" />} />
+            <Route path="/neden-biz/:slug" element={<LegacyWhyUsRedirect />} />
+            <Route path="/blog" element={<Navigate to="/recipes" replace />} />
+            <Route path="/blog/:slug" element={<LegacyPrefixRedirect to="/recipes" />} />
+            <Route path="/sss" element={<Navigate to="/faq" replace />} />
+            <Route path="/kvkk" element={<Navigate to="/privacy" replace />} />
+            <Route path="/iletisim" element={<Navigate to="/contact" replace />} />
+            <Route path="/referanslar" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
@@ -166,9 +222,6 @@ function AdminRoutes() {
             <Route path="projeler" element={<ProjelerAdmin />} />
             <Route path="projeler/yeni" element={<ProjeForm />} />
             <Route path="projeler/:id/duzenle" element={<ProjeForm />} />
-            <Route path="referanslar" element={<ReferanslarAdmin />} />
-            <Route path="referanslar/yeni" element={<ReferansForm />} />
-            <Route path="referanslar/:id/duzenle" element={<ReferansForm />} />
             <Route path="blog" element={<BlogAdmin />} />
             <Route path="blog/yeni" element={<BlogForm />} />
             <Route path="blog/:id/duzenle" element={<BlogForm />} />

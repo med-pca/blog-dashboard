@@ -92,7 +92,7 @@ function SortableRow({ post, collectionName, onDelete, deletingId }) {
             {post.excerpt}
           </p>
         )}
-        <p className="text-xs text-gray-300 mt-1">/blog/{post.slug}</p>
+        <p className="text-xs text-gray-300 mt-1">/recipes/{post.slug}</p>
       </td>
       <td className="px-5 py-4">
         {collectionName ? (

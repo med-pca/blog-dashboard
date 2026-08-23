@@ -5,7 +5,7 @@ import { WA_NUMBER, WHATSAPP_ENABLED } from "../lib/whatsapp";
 
 // Google AdSense requires these to be reachable from every page.
 const LEGAL_LINKS = [
-  { to: "/kvkk", label: "Privacy Policy" },
+  { to: "/privacy", label: "Privacy Policy" },
   { to: "/cookies", label: "Cookie Policy" },
   { to: "/terms", label: "Terms of Service" },
   { to: "/disclaimer", label: "Disclaimer" },
@@ -66,15 +66,15 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/hizmetler"
+                  to="/guides"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >
-                  Recipes
+                  Guides
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/projelerimiz"
+                  to="/collections"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >
                   Collections
@@ -82,7 +82,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/kurumsal"
+                  to="/about"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >
                   About
@@ -90,23 +90,15 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/referanslar"
+                  to="/recipes"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >
-                  Community
+                  Recipes
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/blog"
-                  className="text-sm hover:text-[#f5ce31] transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/sss"
+                  to="/faq"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >
                   FAQ
@@ -114,7 +106,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/iletisim"
+                  to="/contact"
                   className="text-sm hover:text-[#f5ce31] transition-colors"
                 >
                   Contact

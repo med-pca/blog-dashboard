@@ -2,8 +2,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { BlogService } from '../../blog/blog.service'
 import { BlogPost } from '../../blog/entities/blog-post.entity'
-import { ReferencesService } from '../../references/references.service'
-import { Reference } from '../../references/entities/reference.entity'
 import { FaqService } from '../../faq/faq.service'
 import { Faq } from '../../faq/entities/faq.entity'
 import { deleteUploadedFile } from '../../upload/uploaded-files'
@@ -144,22 +142,6 @@ describe('BaseContentService — public cache (4.4)', () => {
     await service.remove('1')
     await service.findAllPublic()
     expect(repo.find).toHaveBeenCalledTimes(3)
-  })
-})
-
-describe('ReferencesService — logo temizliği', () => {
-  it('logo değişince eski dosyayı siler', async () => {
-    const { repo } = makeRepo<Reference>({ id: '1', logo: '/uploads/eski-logo.webp' })
-    const service = new ReferencesService(repo, new PublicCacheService())
-    await service.update('1', { logo: '/uploads/yeni-logo.webp' })
-    expect(mockDeleteFile).toHaveBeenCalledWith('/uploads/eski-logo.webp')
-  })
-
-  it('silinen referansın logosunu da siler', async () => {
-    const { repo } = makeRepo<Reference>({ id: '1', logo: '/uploads/logo.webp' })
-    const service = new ReferencesService(repo, new PublicCacheService())
-    await service.remove('1')
-    expect(mockDeleteFile).toHaveBeenCalledWith('/uploads/logo.webp')
   })
 })
 

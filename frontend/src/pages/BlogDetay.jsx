@@ -26,7 +26,7 @@ export default function BlogDetay() {
       .then(setPost)
       .catch((err) => {
         if (err.status === 404) {
-          navigate("/blog", { replace: true });
+          navigate("/recipes", { replace: true });
           return;
         }
         setError(err);
@@ -44,7 +44,7 @@ export default function BlogDetay() {
       <>
         <PageHeader
           title="Recipes"
-          parent={{ to: "/blog", label: "Recipes" }}
+          parent={{ to: "/recipes", label: "Recipes" }}
         />
         {loading ? (
           <BlogDetaySkeleton />
@@ -104,7 +104,7 @@ export default function BlogDetay() {
       />
       <PageHeader
         title={post.title}
-        parent={{ to: "/blog", label: "Recipes" }}
+        parent={{ to: "/recipes", label: "Recipes" }}
       />
 
       <article className="max-w-3xl mx-auto px-6 py-16 bg-gradient-to-b from-white to-amber-50/30 rounded-3xl">
@@ -156,7 +156,7 @@ export default function BlogDetay() {
 
         <div className="mt-12 pt-8 border-t border-amber-100">
           <Link
-            to="/blog"
+            to="/recipes"
             className="inline-flex items-center gap-2 text-orange-700 font-semibold hover:gap-3 transition-all"
           >
             <ArrowLeft size={16} />

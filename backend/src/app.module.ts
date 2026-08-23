@@ -13,7 +13,6 @@ import { PublicCacheModule } from './common/public-cache.module'
 import { AuthModule } from './auth/auth.module'
 import { ProjectsModule } from './projects/projects.module'
 import { UploadModule } from './upload/upload.module'
-import { ReferencesModule } from './references/references.module'
 import { AnalyticsModule } from './analytics/analytics.module'
 import { BlogModule } from './blog/blog.module'
 import { FaqModule } from './faq/faq.module'
@@ -157,7 +156,6 @@ import { HealthController } from './health.controller'
     AuthModule,
     ProjectsModule,
     UploadModule,
-    ReferencesModule,
     AnalyticsModule,
     BlogModule,
     FaqModule,

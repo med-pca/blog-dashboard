@@ -6,21 +6,21 @@ import { SITE_URL } from "../lib/site";
 const recipesJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Recipes | Pulse Recipe",
-  url: `${SITE_URL}/hizmetler`,
+  name: "Guides | Pulse Recipe",
+  url: `${SITE_URL}/guides`,
   description:
-    "Explore recipes by meal type, kitchen skills, and practical food guides for everyday home cooking.",
+    "Practical cooking guides: meal prep, weeknight dinners, budget cooking, kitchen setup and the techniques underneath every recipe.",
 };
 
 export default function Hizmetler() {
   return (
     <>
       <SEO
-        title="Recipes"
-        description="Explore recipes by meal type, kitchen skills, and practical food guides for everyday home cooking."
+        title="Guides"
+        description="Practical cooking guides: meal prep, weeknight dinners, budget cooking, kitchen setup and the techniques underneath every recipe."
         jsonLd={recipesJsonLd}
       />
-      <PageHeader title="Recipes" />
+      <PageHeader title="Guides" />
       <Services />
     </>
   );

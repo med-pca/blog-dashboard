@@ -36,7 +36,7 @@ export default function Blog() {
           "@context": "https://schema.org",
           "@type": "Blog",
           name: "Pulse Recipe",
-          url: `${SITE_URL}/blog`,
+          url: `${SITE_URL}/recipes`,
           description:
             "Fresh recipes, practical kitchen tips, and seasonal food inspiration.",
           publisher: {
@@ -47,7 +47,7 @@ export default function Blog() {
           blogPost: posts.map((p) => ({
             "@type": "BlogPosting",
             headline: p.title,
-            url: `${SITE_URL}/blog/${p.slug}`,
+            url: `${SITE_URL}/recipes/${p.slug}`,
             datePublished: p.publishedAt || p.createdAt,
             description: p.excerpt || p.title,
             ...(p.coverImage
@@ -106,7 +106,7 @@ export default function Blog() {
               {posts.map((post, index) => (
                 <Link
                   key={post.id}
-                  to={`/blog/${post.slug}`}
+                  to={`/recipes/${post.slug}`}
                   className="bg-white rounded-2xl border border-amber-100 hover:shadow-xl hover:border-orange-300/60 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
                 >
                   <div className="h-48 overflow-hidden bg-amber-100/40 relative food-photo-wrap">

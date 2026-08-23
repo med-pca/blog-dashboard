@@ -133,7 +133,7 @@ export default function SSS() {
             Reach out directly and we will get back to you quickly.
           </p>
           <Link
-            to="/iletisim"
+            to="/contact"
             className="inline-flex items-center gap-2 bg-[#448834] hover:bg-[#357228] text-white font-bold px-8 py-4 rounded-xl transition-colors shadow-lg shadow-[#448834]/25"
           >
             Contact Us

@@ -41,7 +41,7 @@ export default function Hero() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              to="/projelerimiz"
+              to="/collections"
               className="inline-flex items-center gap-2 bg-[#3d7a2e] hover:bg-[#357228] text-white font-bold px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl transition-colors shadow-lg shadow-black/30"
             >
               Explore Collections

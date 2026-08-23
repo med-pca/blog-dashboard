@@ -6,7 +6,6 @@ import { readdir, stat, unlink } from 'fs/promises'
 import { join } from 'path'
 import { ProjectMedia } from '../projects/entities/project-media.entity'
 import { BlogPost } from '../blog/entities/blog-post.entity'
-import { Reference } from '../references/entities/reference.entity'
 import { UPLOADS_DIR } from './uploaded-files'
 
 // Yükleme sırasında henüz DB'ye bağlanmamış taze dosyaları yanlışlıkla silmemek için pay
@@ -21,8 +20,6 @@ export class UploadsCleanupService {
     private mediaRepo: Repository<ProjectMedia>,
     @InjectRepository(BlogPost)
     private blogRepo: Repository<BlogPost>,
-    @InjectRepository(Reference)
-    private referenceRepo: Repository<Reference>,
   ) {}
 
   // Her Pazar 05:00 — DB'de referansı kalmamış upload dosyalarını temizler
@@ -60,10 +57,9 @@ export class UploadsCleanupService {
   }
 
   private async collectReferencedFilenames(): Promise<Set<string>> {
-    const [media, posts, references] = await Promise.all([
+    const [media, posts] = await Promise.all([
       this.mediaRepo.find({ select: ['src'] }),
       this.blogRepo.find({ select: ['coverImage'], where: { coverImage: Not(IsNull()) } }),
-      this.referenceRepo.find({ select: ['logo'], where: { logo: Not(IsNull()) } }),
     ])
 
     const referenced = new Set<string>()
@@ -73,7 +69,6 @@ export class UploadsCleanupService {
     }
     media.forEach(m => add(m.src))
     posts.forEach(p => add(p.coverImage))
-    references.forEach(r => add(r.logo))
     return referenced
   }
 }
