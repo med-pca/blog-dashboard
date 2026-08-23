@@ -66,6 +66,7 @@ export function makeCampaign(overrides: Partial<AiContentCampaign> = {}): AiCont
     lastGenerationAt: null,
     nextGenerationAt: null,
     lastRunAt: null,
+    archivedAt: null,
     createdAt: new Date('2026-01-01T00:00:00Z'),
     updatedAt: new Date('2026-01-01T00:00:00Z'),
     ...overrides,

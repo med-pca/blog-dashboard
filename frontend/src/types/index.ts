@@ -75,6 +75,7 @@ export interface AiCampaign {
   lastGenerationAt: string | null
   nextGenerationAt: string | null
   lastRunAt: string | null
+  archivedAt: string | null
   createdAt: string
   updatedAt: string
   // Only present on the list endpoint.

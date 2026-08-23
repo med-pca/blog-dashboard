@@ -60,7 +60,7 @@ export function updateAiCampaign(id: string, data: Partial<AiCampaign>): Promise
 }
 
 export function deleteAiCampaign(id: string): Promise<void> {
-  return request(`/campaigns/${id}`, authOptions({ method: 'DELETE' }), 'Could not delete the campaign')
+  return request(`/campaigns/${id}`, authOptions({ method: 'DELETE' }), 'Could not archive the campaign')
 }
 
 export function setAiCampaignState(id: string, action: 'activate' | 'pause' | 'resume'): Promise<AiCampaign> {

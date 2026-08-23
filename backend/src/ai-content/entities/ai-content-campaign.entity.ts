@@ -91,6 +91,11 @@ export class AiContentCampaign {
   @Column({ type: 'timestamp', nullable: true })
   lastRunAt: Date | null
 
+  // Soft deletion: archived campaigns disappear from the active admin list,
+  // while their drafts and generation history remain available for auditing.
+  @Column({ type: 'timestamp', nullable: true })
+  archivedAt: Date | null
+
   @CreateDateColumn()
   createdAt: Date
 

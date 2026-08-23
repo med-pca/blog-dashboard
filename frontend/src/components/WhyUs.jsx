@@ -15,9 +15,9 @@ const WA_MESSAGE =
 const reasons = [
   {
     icon: Award,
-    title: "Carefully Reviewed Drafts",
+    title: "Carefully Reviewed Recipes",
     slug: "tested-recipes",
-    desc: "Every published draft is checked for clarity, internal consistency, food-safety wording, and useful step guidance.",
+    desc: "Every published recipe is reviewed for clarity, internal consistency, food-safety wording, and useful step-by-step guidance.",
   },
   {
     icon: Wrench,
@@ -54,7 +54,7 @@ const reasons = [
 export default function WhyUs() {
   return (
     <section
-      id="hakkimizda"
+      id="why-pulse-recipe"
       className="relative py-24 bg-gray-50 overflow-hidden"
     >
       <img
@@ -68,14 +68,14 @@ export default function WhyUs() {
         {/* Header */}
         <div className="text-center mb-10 lg:hidden">
           <span className="block text-[#357228] font-semibold text-sm mb-3">
-            WHY FLAVOR JOURNAL?
+            WHY PULSE RECIPE?
           </span>
           <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-3">
             Your Friendly Kitchen Companion
           </h2>
           <p className="text-gray-500 text-sm leading-relaxed max-w-md mx-auto">
-            We simplify home cooking with reviewed recipes, practical methods, and
-            food-first guidance.
+            We simplify home cooking with reviewed recipes, practical methods,
+            and food-first guidance.
           </p>
         </div>
 
@@ -83,7 +83,7 @@ export default function WhyUs() {
           {/* Header — inside the grid on desktop only */}
           <div className="hidden lg:flex flex-col justify-center py-4 pr-4 text-center">
             <span className="block text-[#357228] font-semibold text-sm mb-3">
-              WHY FLAVOR JOURNAL?
+              WHY PULSE RECIPE?
             </span>
             <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-3">
               Your Friendly Kitchen Companion
@@ -128,17 +128,20 @@ export default function WhyUs() {
             </p>
             {WHATSAPP_ENABLED ? (
               <a
-              href={waLink(WA_MESSAGE)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors"
-            >
-              Get Suggestions
-            </a>
+                href={waLink(WA_MESSAGE)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors"
+              >
+                Get Suggestions
+              </a>
             ) : (
-              <Link to="/contact" className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors">
-              Get Suggestions
-            </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center bg-[#357228] text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-[#2d6124] transition-colors"
+              >
+                Get Suggestions
+              </Link>
             )}
           </div>
         </div>

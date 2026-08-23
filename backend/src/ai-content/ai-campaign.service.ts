@@ -1,6 +1,6 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { In, MoreThan, Repository } from 'typeorm'
+import { In, IsNull, MoreThan, Repository } from 'typeorm'
 import { AiContentConfig } from './ai-content.config'
 import { AiCampaignStatus, AiContentCampaign } from './entities/ai-content-campaign.entity'
 import { AiGenerationJob } from './entities/ai-generation-job.entity'
@@ -30,7 +30,7 @@ export class AiCampaignService {
   ) {}
 
   findAll(): Promise<AiContentCampaign[]> {
-    return this.campaigns.find({ order: { createdAt: 'DESC' } })
+    return this.campaigns.find({ where: { archivedAt: IsNull() }, order: { createdAt: 'DESC' } })
   }
 
   async findById(id: string): Promise<AiContentCampaign> {
@@ -56,6 +56,7 @@ export class AiCampaignService {
 
   async update(id: string, dto: UpdateAiCampaignDto): Promise<AiContentCampaign> {
     const campaign = await this.findById(id)
+    if (campaign.archivedAt) throw new BadRequestException('Archived campaigns cannot be edited')
     const wasEnabled = campaign.enabled
     Object.assign(campaign, stripUndefined(dto))
     this.assertConsistent(campaign)
@@ -75,23 +76,22 @@ export class AiCampaignService {
   // Activate/resume share one path: both mean "run from now on".
   async setEnabled(id: string, enabled: boolean): Promise<AiContentCampaign> {
     const campaign = await this.findById(id)
+    if (campaign.archivedAt) throw new BadRequestException('Archived campaigns cannot be resumed')
     campaign.enabled = enabled
     campaign.status = enabled ? 'active' : 'paused'
     campaign.nextGenerationAt = enabled ? clampIntoWindow(new Date(), campaign) : null
     return this.campaigns.save(campaign)
   }
 
-  // Deleting a campaign cascades to its job history, so a campaign that
-  // actually produced drafts is kept: pausing is the reversible alternative.
+  // The admin's delete action is intentionally a soft delete. It removes the
+  // campaign from the active workspace without losing drafts or job history.
   async remove(id: string): Promise<void> {
     const campaign = await this.findById(id)
-    const produced = await this.jobs.count({ where: { campaignId: id, status: 'succeeded' } })
-    if (produced > 0) {
-      throw new ConflictException(
-        `This campaign produced ${produced} draft(s); pause it instead so the generation history is kept`,
-      )
-    }
-    await this.campaigns.remove(campaign)
+    campaign.enabled = false
+    campaign.status = 'paused'
+    campaign.nextGenerationAt = null
+    campaign.archivedAt = new Date()
+    await this.campaigns.save(campaign)
   }
 
   async stats(id: string): Promise<CampaignStats> {

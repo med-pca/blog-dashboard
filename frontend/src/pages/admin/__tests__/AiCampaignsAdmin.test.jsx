@@ -112,18 +112,18 @@ describe('AiCampaignsAdmin', () => {
     await waitFor(() => expect(setAiCampaignState).toHaveBeenCalledWith('camp-1', 'resume'))
   })
 
-  it('asks before deleting and removes the row afterwards', async () => {
+  it('asks before archiving and removes the row afterwards', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
-    await userEvent.click(await screen.findByLabelText('Delete Weeknight dinners'))
+    await userEvent.click(await screen.findByLabelText('Archive Weeknight dinners'))
     await waitFor(() => expect(deleteAiCampaign).toHaveBeenCalledWith('camp-1'))
     await waitFor(() => expect(screen.queryByText('Weeknight dinners')).not.toBeInTheDocument())
   })
 
-  it('keeps the campaign when the delete is declined', async () => {
+  it('keeps the campaign when the archive is declined', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderPage()
-    await userEvent.click(await screen.findByLabelText('Delete Weeknight dinners'))
+    await userEvent.click(await screen.findByLabelText('Archive Weeknight dinners'))
     expect(deleteAiCampaign).not.toHaveBeenCalled()
   })
 
@@ -133,12 +133,12 @@ describe('AiCampaignsAdmin', () => {
     expect(await screen.findByText('Could not load campaigns')).toBeInTheDocument()
   })
 
-  it('reports a refused delete without dropping the row', async () => {
+  it('reports a refused archive without dropping the row', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
-    vi.mocked(deleteAiCampaign).mockRejectedValue(new Error('This campaign produced 7 draft(s); pause it instead'))
+    vi.mocked(deleteAiCampaign).mockRejectedValue(new Error('Could not archive the campaign'))
     renderPage()
-    await userEvent.click(await screen.findByLabelText('Delete Weeknight dinners'))
-    expect(await screen.findByText(/pause it instead/)).toBeInTheDocument()
+    await userEvent.click(await screen.findByLabelText('Archive Weeknight dinners'))
+    expect(await screen.findByText('Could not archive the campaign')).toBeInTheDocument()
     expect(screen.getByText('Weeknight dinners')).toBeInTheDocument()
   })
 })

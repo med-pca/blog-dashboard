@@ -34,8 +34,7 @@ const pages = [
       "Troubleshooting for common mistakes",
       "Notes readers can use during cooking",
     ],
-    waMessage:
-      "Hi, I want to learn more about your editorial review workflow.",
+    waMessage: "Hi, I want to learn more about your editorial review workflow.",
   },
   {
     slug: "practical-system",
@@ -264,17 +263,20 @@ export default function NedenBizDetay() {
                 </p>
                 {WHATSAPP_ENABLED ? (
                   <a
-                  href={waLink(page.waMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  Contact Us
-                </a>
+                    href={waLink(page.waMessage)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Contact Us
+                  </a>
                 ) : (
-                  <Link to="/contact" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-                  Contact Us
-                </Link>
+                  <Link
+                    to="/contact"
+                    className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Contact Us
+                  </Link>
                 )}
               </div>
             </aside>
@@ -291,7 +293,7 @@ export default function NedenBizDetay() {
                 <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
                   <span className="inline-flex items-center gap-1.5 bg-[#448834] text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
                     <Icon size={11} />
-                    WHY FLAVOR JOURNAL?
+                    WHY PULSE RECIPE?
                   </span>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
                     {page.subtitle}
@@ -343,17 +345,20 @@ export default function NedenBizDetay() {
                 </p>
                 {WHATSAPP_ENABLED ? (
                   <a
-                  href={waLink(page.waMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  Contact Us
-                </a>
+                    href={waLink(page.waMessage)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Contact Us
+                  </a>
                 ) : (
-                  <Link to="/contact" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-                  Contact Us
-                </Link>
+                  <Link
+                    to="/contact"
+                    className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Contact Us
+                  </Link>
                 )}
               </div>
             </div>

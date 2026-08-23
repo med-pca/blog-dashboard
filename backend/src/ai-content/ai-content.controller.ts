@@ -162,6 +162,9 @@ export class AiContentController {
   private async enqueueOnDemand(campaignId: string, triggerType: 'manual' | 'test') {
     this.assertAvailable()
     const campaign = await this.campaigns.findById(campaignId)
+    if (campaign.archivedAt) {
+      throw new BadRequestException('Archived campaigns cannot generate new drafts')
+    }
 
     const schedule = evaluateWindow(campaign)
     if (triggerType === 'manual' && !campaign.enabled) {

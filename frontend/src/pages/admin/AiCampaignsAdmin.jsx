@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Play, Pause, Sparkles, AlertTriangle, ScrollText } from 'lucide-react'
+import { Plus, Pencil, Archive, Play, Pause, Sparkles, AlertTriangle, ScrollText } from 'lucide-react'
 import {
   deleteAiCampaign,
   fetchAiCampaigns,
@@ -71,7 +71,7 @@ export default function AiCampaignsAdmin() {
   }
 
   async function remove(campaign) {
-    if (!confirm(`Delete the "${campaign.name}" campaign? Its generation history goes with it.`)) return
+    if (!confirm(`Archive the "${campaign.name}" campaign? It will disappear from this list, but its drafts and generation history will be kept.`)) return
     setBusyId(campaign.id)
     try {
       await deleteAiCampaign(campaign.id)
@@ -202,10 +202,11 @@ export default function AiCampaignsAdmin() {
                           <button
                             onClick={() => remove(campaign)}
                             disabled={busyId === campaign.id}
-                            aria-label={`Delete ${campaign.name}`}
+                            title="Archive"
+                            aria-label={`Archive ${campaign.name}`}
                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40"
                           >
-                            <Trash2 size={16} />
+                            <Archive size={16} />
                           </button>
                         </div>
                       </td>

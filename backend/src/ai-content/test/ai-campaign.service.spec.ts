@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { AiCampaignService } from '../ai-campaign.service'
 import { AiContentCampaign } from '../entities/ai-content-campaign.entity'
 import { AiGenerationJob } from '../entities/ai-generation-job.entity'
@@ -112,20 +112,18 @@ describe('AiCampaignService.update', () => {
 })
 
 describe('AiCampaignService.remove', () => {
-  it('keeps a campaign that already produced drafts', async () => {
-    const { service, campaigns, jobs } = makeService()
-    ;(campaigns.findOne as jest.Mock).mockResolvedValue(makeCampaign())
-    ;(jobs.count as jest.Mock).mockResolvedValue(7)
-    await expect(service.remove('camp-1')).rejects.toBeInstanceOf(ConflictException)
-    expect(campaigns.remove).not.toHaveBeenCalled()
-  })
-
-  it('deletes a campaign that never produced anything', async () => {
-    const { service, campaigns, jobs } = makeService()
-    ;(campaigns.findOne as jest.Mock).mockResolvedValue(makeCampaign())
-    ;(jobs.count as jest.Mock).mockResolvedValue(0)
+  it('archives and stops a campaign while preserving its history', async () => {
+    const { service, campaigns } = makeService()
+    const campaign = makeCampaign({ nextGenerationAt: new Date() })
+    ;(campaigns.findOne as jest.Mock).mockResolvedValue(campaign)
     await service.remove('camp-1')
-    expect(campaigns.remove).toHaveBeenCalled()
+    expect(campaigns.remove).not.toHaveBeenCalled()
+    expect(campaigns.save).toHaveBeenCalledWith(expect.objectContaining({
+      enabled: false,
+      status: 'paused',
+      nextGenerationAt: null,
+      archivedAt: expect.any(Date),
+    }))
   })
 })
 

@@ -1,63 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { ClipboardCheck, ListChecks, ShieldCheck } from "lucide-react";
 
 const stats = [
   {
-    value: 1,
-    suffix: "",
-    label: "Clear Instructions",
-    sub: "from ingredients to serving",
+    icon: ClipboardCheck,
+    label: "Reviewed Before Publishing",
+    sub: "Every article requires an editorial decision",
   },
   {
-    value: 2,
-    suffix: "",
-    label: "Practical Priorities",
-    sub: "clarity and usefulness",
+    icon: ListChecks,
+    label: "Clear Recipe Structure",
+    sub: "Ingredients, steps, timing, storage, and useful notes",
   },
   {
-    value: 3,
-    suffix: "",
-    label: "Everyday Goals",
-    sub: "cook, store, and reuse",
+    icon: ShieldCheck,
+    label: "Safety-Aware Guidance",
+    sub: "Responsible wording for cooking, cooling, and reheating",
   },
 ];
-
-function Counter({ value, suffix }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef();
-  const started = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          const duration = 1800;
-          const start = performance.now();
-          const animate = (now) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.round(eased * value));
-            if (progress < 1) requestAnimationFrame(animate);
-          };
-          requestAnimationFrame(animate);
-        }
-      },
-      { threshold: 0.5 },
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [value]);
-
-  return (
-    <span
-      ref={ref}
-      className="text-4xl sm:text-5xl font-bold text-[#448834] font-['Rajdhani']"
-    >
-      {count}
-      {suffix}
-    </span>
-  );
-}
 
 export default function Stats() {
   return (
@@ -78,14 +37,19 @@ export default function Stats() {
 
           {/* Stats */}
           <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3">
-            {stats.map(({ value, suffix, label, sub }, i) => (
+            {stats.map(({ icon: Icon, label, sub }, i) => (
               <div key={label} className="px-8 py-7 text-center relative">
                 {i < stats.length - 1 && (
                   <div className="absolute right-0 top-5 bottom-5 w-px bg-gray-400 hidden sm:block" />
                 )}
-                <Counter value={value} suffix={suffix} />
-                <p className="text-gray-800 font-bold mt-1 text-sm">{label}</p>
-                <p className="text-gray-500 text-xs">{sub}</p>
+                <Icon
+                  size={34}
+                  strokeWidth={1.8}
+                  className="mx-auto text-[#448834]"
+                  aria-hidden="true"
+                />
+                <p className="text-gray-800 font-bold mt-3 text-sm">{label}</p>
+                <p className="text-gray-500 text-xs leading-relaxed mt-1">{sub}</p>
               </div>
             ))}
           </div>
