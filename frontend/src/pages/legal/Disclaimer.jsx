@@ -4,7 +4,7 @@ import { LEGAL_CONTACT, LEGAL_OWNER, LEGAL_UPDATED } from "../../lib/legal";
 const SECTIONS = [
   {
     title: "1. General information only",
-    body: `Everything published by ${LEGAL_OWNER} — recipes, guides, planning tools and kitchen tips — is offered for general information and inspiration. We test what we publish in a home kitchen, but we cannot guarantee that it is complete, current or suited to your situation.`,
+    body: `Everything published by ${LEGAL_OWNER} — recipes, guides, planning tools and kitchen tips — is offered for general information and inspiration. Articles are editorially reviewed before publication, but not every recipe is physically kitchen-tested. We cannot guarantee that the information is complete, current or suited to your situation.`,
   },
   {
     title: "2. Not health, dietary or medical advice",

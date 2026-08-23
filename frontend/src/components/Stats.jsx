@@ -2,22 +2,22 @@ import { useEffect, useRef, useState } from "react";
 
 const stats = [
   {
-    value: 100,
-    suffix: "+",
-    label: "Happy Home Cooks",
-    sub: "shared recipe stories",
-  },
-  {
-    value: 25,
-    suffix: "+",
-    label: "Signature Recipes",
-    sub: "tested and refined",
-  },
-  {
-    value: 8,
+    value: 1,
     suffix: "",
-    label: "Cuisine Themes",
-    sub: "for everyday cooking",
+    label: "Clear Instructions",
+    sub: "from ingredients to serving",
+  },
+  {
+    value: 2,
+    suffix: "",
+    label: "Practical Priorities",
+    sub: "clarity and usefulness",
+  },
+  {
+    value: 3,
+    suffix: "",
+    label: "Everyday Goals",
+    sub: "cook, store, and reuse",
   },
 ];
 

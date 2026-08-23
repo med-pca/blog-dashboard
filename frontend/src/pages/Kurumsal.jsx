@@ -13,8 +13,8 @@ import { SITE_URL } from "../lib/site";
 const values = [
   {
     icon: Award,
-    title: "Recipe-Tested Approach",
-    desc: "Every published recipe is tested for timing, ingredient clarity, and realistic home-kitchen execution.",
+    title: "Editorial Review Approach",
+    desc: "Every published recipe is reviewed for ingredient clarity, internal consistency, useful instructions, and responsible food-safety wording.",
   },
   {
     icon: Wrench,
@@ -34,7 +34,7 @@ const values = [
   {
     icon: HeartHandshake,
     title: "Community-Driven",
-    desc: "Reader feedback continuously improves our recipes, tips, and cooking guides.",
+    desc: "Reader questions and corrections help us improve our recipes, tips, and cooking guides.",
   },
   {
     icon: CheckCircle,
@@ -44,16 +44,16 @@ const values = [
 ];
 
 const stats = [
-  { value: "100+", label: "Recipe Trials" },
-  { value: "25+", label: "Featured Dishes" },
-  { value: "4", label: "Main Food Tracks" },
-  { value: "$0", label: "Free Access" },
+  { value: "100%", label: "Free Access" },
+  { value: "Draft", label: "AI Output Status" },
+  { value: "Human", label: "Publication Review" },
+  { value: "Open", label: "Corrections Policy" },
 ];
 
 const collagePhotos = [
   {
     src: "/about/recipe-testing.webp",
-    alt: "Home cook tasting and testing a recipe beside a kitchen notebook",
+    alt: "Home cook reviewing recipe notes beside a kitchen notebook",
   },
   {
     src: "/about/organized-prep.webp",
@@ -164,13 +164,20 @@ export default function Kurumsal() {
               Real Home Kitchens
             </h2>
             <p className="text-gray-500 leading-relaxed mb-5">
-              Pulse Recipe is built for everyday cooks who want reliable
+              Pulse Recipe is built for everyday cooks who want practical
               recipes without complexity. We focus on clear methods, balanced
               meals, and approachable ingredient choices.
             </p>
             <p className="text-gray-500 leading-relaxed mb-10">
               From weekly planning to final plating, our guides are designed to
               reduce stress and increase confidence in the kitchen.
+            </p>
+            <p className="text-gray-500 leading-relaxed mb-10">
+              Automation may assist with research and first drafts. Nothing is
+              published automatically: an administrator reviews each article
+              before it appears on the site. We do not claim that a recipe was
+              cooked or kitchen-tested unless that verification actually took
+              place and is documented.
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 py-8 border-y border-gray-100">

@@ -26,6 +26,7 @@ const STATIC_URLS = [
   { loc: '/cookies', priority: '0.3', changefreq: 'yearly' },
   { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
   { loc: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
+  { loc: '/editorial-policy', priority: '0.5', changefreq: 'yearly' },
   { loc: '/why-us/tested-recipes', priority: '0.6', changefreq: 'monthly' },
   { loc: '/why-us/practical-system', priority: '0.6', changefreq: 'monthly' },
   { loc: '/why-us/seasonal-ingredients', priority: '0.6', changefreq: 'monthly' },

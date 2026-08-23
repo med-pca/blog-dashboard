@@ -14,7 +14,7 @@ export function dayRangeToIso(fromDay?: string, toDay?: string): { from?: string
 }
 
 export function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('tr-TR', {
+  return new Date(dateStr).toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
@@ -24,6 +24,8 @@ export function formatDate(dateStr: string): string {
 // Admin listelerinde kayıt zaman damgası göstermek için: formatDate'ten
 // farklı olarak saat/dakika içerir ve ayı kısaltır.
 export function formatDateTime(value: string): string {
+  // Admin timestamps keep the existing Turkish back-office convention. Public
+  // recipe dates use formatDate() above and are rendered in English.
   return new Date(value).toLocaleString('tr-TR', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })

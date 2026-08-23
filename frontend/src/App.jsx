@@ -30,6 +30,7 @@ const Kvkk = lazy(() => import("./pages/Kvkk"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
 const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 const Disclaimer = lazy(() => import("./pages/legal/Disclaimer"));
+const EditorialPolicy = lazy(() => import("./pages/legal/EditorialPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminGateway = lazy(() => import("./pages/admin/AdminGateway"));
 
@@ -157,6 +158,7 @@ function PublicLayout() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/disclaimer" element={<Disclaimer />} />
+            <Route path="/editorial-policy" element={<EditorialPolicy />} />
             <Route path="/contact" element={<Iletisim />} />
 
             {/* The site moved off the Turkish route names inherited from the

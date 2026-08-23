@@ -154,6 +154,19 @@ export default function BlogDetay() {
           className="mt-10 rounded-xl border border-amber-200 bg-white p-3"
         />
 
+        <aside className="mt-12 rounded-2xl border border-amber-100 bg-white p-6" aria-label="About the author">
+          <p className="text-xs font-semibold uppercase tracking-widest text-orange-700 mb-2">
+            About the author
+          </p>
+          <h2 className="text-lg font-bold text-zinc-900 mb-2">Pulse Recipe Editorial Team</h2>
+          <p className="text-sm text-zinc-600 leading-relaxed">
+            Our team prepares practical cooking guides for home cooks. Automation may assist with
+            research and drafting, while publication remains a manual editorial decision. We review
+            ingredient consistency, instructions, food-safety wording, and unsupported claims before
+            an article goes live. See our <Link to="/editorial-policy" className="text-orange-700 underline">editorial policy</Link>.
+          </p>
+        </aside>
+
         <div className="mt-12 pt-8 border-t border-amber-100">
           <Link
             to="/recipes"

@@ -48,6 +48,11 @@ const EDITORIAL_RULES = [
   'Write original, evergreen content that stays useful without live web data.',
   'Never invent statistics, studies, quotes, sources, prices or testimonials.',
   'Never claim personal experience and never claim a recipe or method was tested.',
+  'Never invent an author biography, culinary qualification, reader feedback, rating or review.',
+  'For recipes, make quantities, serving yield, pan size, cooking sequence, liquid ratios and total timing internally consistent.',
+  'For recipes containing meat, give conservative doneness guidance and a safe internal-temperature check; never rely on color alone.',
+  'Do not invent exact prices, nutrition values or health benefits. Use cautious storage guidance and tell readers to refrigerate perishable food promptly.',
+  'Avoid generic SEO templates. Vary the recipe format and vocabulary only where that improves clarity.',
   'Never mention that the text was produced by an AI, a model or an assistant.',
   'Do not pad: no filler paragraphs, no repeated sentences, no restated headings.',
   'Stay strictly on the given topic.',
@@ -82,7 +87,8 @@ export class OpenAiContentProvider implements AiContentProvider {
       schema: TOPIC_SCHEMA,
       instructions:
         'You plan an editorial calendar. Return distinct, specific, self-contained article titles. ' +
-        'No numbering, no quotes around titles, no duplicates, no near-duplicates of each other.',
+        'No numbering, no quotes around titles, no duplicates, no near-duplicates of each other. ' +
+        'Diversify primary ingredient, cooking method, cuisine direction, meal type and reader intent; do not return a list of cosmetic variations on one base recipe.',
       input:
         `Editorial brief:\n${request.masterPrompt}\n\n` +
         `Language: ${request.language}.${keywords}\n` +

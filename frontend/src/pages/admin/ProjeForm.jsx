@@ -384,7 +384,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
               onChange={(e) => setSpecsText(e.target.value)}
               className={`${INPUT} resize-none`}
               rows={5}
-              placeholder={"12 tested weeknight recipes\n30-minute average cook time\nPantry-friendly ingredient list"}
+              placeholder={"Quick family dinner ideas\nOne-pot and skillet meals\nPantry-friendly ingredient options"}
             />
           </div>
           <div className="space-y-1">
@@ -397,7 +397,7 @@ if (parsed.description) { set('description', parsed.description); count++ }
               onChange={(e) => setHighlightsText(e.target.value)}
               className={`${INPUT} resize-none`}
               rows={4}
-              placeholder={"Every recipe is tested twice in a home kitchen\nLeftovers reheat well the next day"}
+              placeholder={"Clear step-by-step instructions\nPractical storage and reheating guidance"}
             />
           </div>
         </Section>

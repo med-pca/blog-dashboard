@@ -5,6 +5,7 @@ import { WA_NUMBER, WHATSAPP_ENABLED } from "../lib/whatsapp";
 
 // Google AdSense requires these to be reachable from every page.
 const LEGAL_LINKS = [
+  { to: "/editorial-policy", label: "Editorial Policy" },
   { to: "/privacy", label: "Privacy Policy" },
   { to: "/cookies", label: "Cookie Policy" },
   { to: "/terms", label: "Terms of Service" },
@@ -153,9 +154,9 @@ export default function Footer() {
 
             <div className="mt-6">
               <p className="text-[#f5ce31] font-semibold text-sm mb-1">
-                Editorial Kitchen Team
+                Pulse Recipe Editorial Team
               </p>
-              <p className="text-xs">Recipe Testing & Food Writing</p>
+              <p className="text-xs">Draft Review & Food Writing</p>
             </div>
           </div>
         </div>

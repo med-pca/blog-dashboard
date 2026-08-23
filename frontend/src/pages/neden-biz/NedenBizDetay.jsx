@@ -18,24 +18,24 @@ const pages = [
   {
     slug: "tested-recipes",
     icon: Award,
-    title: "Chef-Tested Methods",
+    title: "Editorial Review Method",
     photo: "/food/illustration-1.svg",
     subtitle:
-      "Every recipe is developed with measured steps and repeatable technique.",
+      "Every draft is reviewed for clear steps, coherent quantities, and responsible guidance.",
     description:
-      "Each article starts with tested ratios, timing notes, and practical temperature guidance so home cooks can reproduce results with confidence.",
+      "Each article is checked for coherent ratios, timing notes, and practical temperature guidance before an administrator decides whether to publish it.",
     description2:
-      "We break down why each step matters, from ingredient prep to final texture checks, so your dishes stay consistent every time.",
+      "We explain why important steps matter, from ingredient preparation to visual doneness cues, without claiming physical testing when it has not occurred.",
     features: [
       "Step-by-step method with exact sequencing",
       "Timing checkpoints and visual doneness cues",
       "Ingredient substitutions that still work",
       "Pan, heat, and oven setup guidance",
       "Troubleshooting for common mistakes",
-      "Printable notes for repeat cooking sessions",
+      "Notes readers can use during cooking",
     ],
     waMessage:
-      "Hi, I want to learn more about your chef-tested recipe workflow.",
+      "Hi, I want to learn more about your editorial review workflow.",
   },
   {
     slug: "practical-system",
@@ -106,11 +106,11 @@ const pages = [
     photo: "/food/illustration-1.svg",
     subtitle: "Built around practical feedback from real home kitchens.",
     description:
-      "Our content is shaped by reader questions, tested revisions, and community feedback to keep recipes practical and reliable.",
+      "Our content can be improved by verified reader questions, corrections, and editorial revisions.",
     description2:
       "When a recipe needs improvement, we update it with clearer directions and stronger troubleshooting notes.",
     features: [
-      "Reader-tested updates and revisions",
+      "Documented corrections and revisions",
       "Clear FAQ support for each recipe type",
       "Guidance for common appliance differences",
       "Family-size and small-batch variations",
@@ -126,7 +126,7 @@ const pages = [
     photo: "/food/illustration-2.svg",
     subtitle: "Only practical tools that help you cook consistently.",
     description:
-      "We recommend dependable cookware and gadgets based on real use, ease of cleaning, and value for daily cooking.",
+      "We explain practical cookware characteristics such as intended use, ease of cleaning, and value for daily cooking.",
     description2:
       "No overcomplicated setups: just essential tools that improve texture, timing, and confidence in the kitchen.",
     features: [

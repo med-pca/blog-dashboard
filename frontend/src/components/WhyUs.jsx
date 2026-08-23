@@ -15,9 +15,9 @@ const WA_MESSAGE =
 const reasons = [
   {
     icon: Award,
-    title: "Tested Home Recipes",
+    title: "Carefully Reviewed Drafts",
     slug: "tested-recipes",
-    desc: "Every recipe is tested with practical home-kitchen constraints and clear step guidance.",
+    desc: "Every published draft is checked for clarity, internal consistency, food-safety wording, and useful step guidance.",
   },
   {
     icon: Wrench,
@@ -74,7 +74,7 @@ export default function WhyUs() {
             Your Friendly Kitchen Companion
           </h2>
           <p className="text-gray-500 text-sm leading-relaxed max-w-md mx-auto">
-            We simplify home cooking with tested recipes, practical methods, and
+            We simplify home cooking with reviewed recipes, practical methods, and
             food-first guidance.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function WhyUs() {
               Your Friendly Kitchen Companion
             </h2>
             <p className="text-gray-500 text-sm leading-relaxed">
-              We simplify home cooking with tested recipes, practical methods,
+              We simplify home cooking with reviewed recipes, practical methods,
               and food-first guidance.
             </p>
           </div>
