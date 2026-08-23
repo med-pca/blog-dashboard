@@ -8,7 +8,7 @@ import { parsePage } from '../common/pagination'
 import { parseDateRange } from '../common/date-range'
 import { QuoteStatus } from './entities/quote-request.entity'
 
-const STATUSES: QuoteStatus[] = ['new', 'contacted', 'won', 'lost']
+const STATUSES: QuoteStatus[] = ['new', 'replied', 'closed']
 
 @Controller('quote')
 export class QuoteController {

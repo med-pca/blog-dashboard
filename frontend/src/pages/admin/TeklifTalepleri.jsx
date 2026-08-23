@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronDown, Clock, Inbox, MessageCircle, Phone, PhoneCall, Trash2, Trophy, XCircle } from 'lucide-react'
+import { ChevronDown, Clock, Inbox, Mail, MailCheck, MessageCircle, Trash2, XCircle } from 'lucide-react'
 import { fetchQuoteRequests, updateQuoteStatus, deleteQuoteRequest } from '../../api/admin'
 import { dayRangeToIso, formatDateTime } from '../../lib/date'
 import { applyPagedResult } from '../../lib/adminPaging'
@@ -11,34 +11,18 @@ import AdminDateRange from '../../components/AdminDateRange'
 import AdminStatCard from '../../components/AdminStatCard'
 import AdminTabs from '../../components/AdminTabs'
 
-const SERVICE_LABELS = {
-  'cati-ges': 'Home Cooking Plan',
-  'tarimsal-sulama': 'Meal Prep Workflow',
-  'ev-sarj': 'Kitchen Gear Guidance',
-  diger: 'Other',
-}
-
 const STATUS_META = {
-  new: { label: 'New', icon: Clock, className: 'text-amber-600' },
-  contacted: { label: 'Contacted', icon: PhoneCall, className: 'text-blue-600' },
-  won: { label: 'Converted', icon: Trophy, className: 'text-green-600' },
-  lost: { label: 'Lost', icon: XCircle, className: 'text-gray-400' },
+  new: { label: 'Unread', icon: Clock, className: 'text-amber-600' },
+  replied: { label: 'Replied', icon: MailCheck, className: 'text-green-600' },
+  closed: { label: 'Closed', icon: XCircle, className: 'text-gray-400' },
 }
 
 const STATUS_TABS = [
   { id: 'all', label: 'All' },
-  { id: 'new', label: 'Yeni' },
-  { id: 'contacted', label: 'Contacted' },
-  { id: 'won', label: 'Converted' },
-  { id: 'lost', label: 'Kaybedildi' },
+  { id: 'new', label: 'Unread' },
+  { id: 'replied', label: 'Replied' },
+  { id: 'closed', label: 'Closed' },
 ]
-
-function formatPhone(phone) {
-  // "905543796004" -> "0554 379 60 04"
-  if (!phone || phone.length !== 12) return phone
-  const local = '0' + phone.slice(2)
-  return `${local.slice(0, 4)} ${local.slice(4, 7)} ${local.slice(7, 9)} ${local.slice(9, 11)}`
-}
 
 function RequestRow({ request, onStatusChange, onDelete, deleting }) {
   const meta = STATUS_META[request.status] ?? STATUS_META.new
@@ -50,18 +34,13 @@ function RequestRow({ request, onStatusChange, onDelete, deleting }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1.5">
             <p className="font-semibold text-gray-900">{request.name ?? '(anonymised)'}</p>
-            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full font-medium">
-              {SERVICE_LABELS[request.serviceType] ?? request.serviceType}
-            </span>
           </div>
           <div className="flex items-center gap-4 flex-wrap text-sm text-gray-500">
-            {request.phone && (
-              <a href={`tel:+${request.phone}`} className="flex items-center gap-1.5 hover:text-[#448834] transition-colors">
-                <Phone size={13} /> {formatPhone(request.phone)}
+            {request.email && (
+              <a href={`mailto:${request.email}`} className="flex items-center gap-1.5 hover:text-[#448834] transition-colors">
+                <Mail size={13} /> {request.email}
               </a>
             )}
-            {request.city && <span>{request.city}</span>}
-            {request.monthlyBill != null && <span>{request.monthlyBill.toLocaleString('tr-TR')} TL/ay</span>}
           </div>
           {request.message && (
             <p className="flex items-start gap-1.5 text-sm text-gray-500 mt-2">
@@ -195,7 +174,7 @@ export default function TeklifTalepleri() {
     )
   }
 
-  const stats = data?.stats ?? { total: 0, new: 0, contacted: 0, won: 0, lost: 0 }
+  const stats = data?.stats ?? { total: 0, new: 0, replied: 0, closed: 0 }
   const requests = data?.requests ?? []
 
   return (
@@ -215,9 +194,8 @@ export default function TeklifTalepleri() {
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
             <AdminStatCard label="Total" value={stats.total} icon={Inbox} dense />
             <AdminStatCard label="New" value={stats.new} icon={Clock} dense />
-            <AdminStatCard label="In contact" value={stats.contacted} icon={PhoneCall} dense />
-            <AdminStatCard label="Converted" value={stats.won} icon={Trophy} dense />
-            <AdminStatCard label="Lost" value={stats.lost} icon={XCircle} dense />
+            <AdminStatCard label="Replied" value={stats.replied} icon={MailCheck} dense />
+            <AdminStatCard label="Closed" value={stats.closed} icon={XCircle} dense />
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">

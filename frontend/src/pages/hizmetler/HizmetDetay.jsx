@@ -15,182 +15,368 @@ import {
 import PageHeader from "../../components/PageHeader";
 import SEO from "../../components/SEO";
 import AdSenseBlock from "../../components/AdSenseBlock";
-import { waLink, WHATSAPP_ENABLED } from "../../lib/whatsapp";
 import { SITE_URL } from "../../lib/site";
 
 const services = [
   {
     slug: "sulama",
     icon: ChefHat,
-    title: "Smart Meal Prep Planning",
+    title: "Meal Prep & Batch Cooking",
     photo: "/guides/meal-prep-planning.webp",
-    photoAlt: "Weekly meal prep plan with organized balanced meals and a shopping list",
-    subtitle: "Plan your weekly meals with less waste and more consistency.",
+    photoAlt:
+      "Weekly meal prep plan with organized balanced meals and a shopping list",
+    subtitle: "Cook once, eat well all week — without eating the same thing twice.",
     description:
-      "Meal prep can save both time and budget when done with a clear structure. We help you organize ingredient flow, prep order, and storage so your week becomes easier.",
+      "Most meal prep advice fails on the same point: it tells you to cook five identical portions on Sunday and then acts surprised when you order takeaway on Wednesday. Batch cooking works better when you prepare components rather than finished meals — a tray of roasted vegetables, a pot of grains, a jar of dressing — and assemble them differently each night.",
     description2:
-      "Each plan is designed around practical routines, helping you cook in batches and keep meals balanced across the week.",
-    features: [
-      "Batch prep planning and sequencing",
-      "Reusable base ingredients for multiple meals",
-      "Storage-first workflow to reduce waste",
-      "Balanced protein, carb, and vegetable planning",
-      "Simple reheating and serving strategy",
-      "Flexible plan structure for busy days",
+      "That shift changes what you shop for and how you use the fridge. Instead of five sealed containers of the same stew, you get a set of parts that recombine into a bowl on Monday, a wrap on Tuesday and a fried rice on Thursday. The cooking happens once; the variety happens at assembly.",
+    body: [
+      "Start with the two things that take longest and reheat best: a grain and a protein. Rice, farro and lentils all hold for four or five days. Roasted chicken thighs, braised beans and hard-boiled eggs do the same. Cook those in quantity and everything else becomes a ten-minute decision.",
+      "Vegetables are where prep usually goes wrong. Anything roasted holds well; anything dressed does not. Keep the dressing in a separate jar and add it at the last moment, or you will open a container on day three and find a soft, grey salad. Raw vegetables cut for snacking are the exception — carrots and peppers in water stay crisp for days.",
+      "Storage decides how much of your work survives. Cool things quickly and completely before the lid goes on, because trapped steam condenses and turns a crisp thing soft. Label anything that goes into the freezer with a date, and freeze in the portion you will actually thaw rather than one large block you have to break apart with a knife.",
     ],
-    waMessage:
-      "Hi, I would like help with smart meal prep planning for my week.",
+    features: [
+      "Prep components, not finished meals",
+      "One grain and one protein carry the week",
+      "Dressings stored separately, added on the plate",
+      "Cool food completely before sealing it",
+      "Freeze in single portions, labelled with a date",
+      "Plan one assembly-only night for when the week goes wrong",
+    ],
+    faq: [
+      {
+        q: "How many days ahead can I safely prep?",
+        a: "Cooked grains, roasted vegetables and braised proteins hold three to four days in the fridge. Anything with raw dairy or fresh herbs stirred through is better made the day you eat it. If you want a full week, cook for four days and freeze the rest.",
+      },
+      {
+        q: "Does batch cooking actually save money?",
+        a: "It saves money mostly by reducing waste and takeaway. Buying a whole chicken or a large bag of lentils lowers the unit cost, but the real saving is that ingredients get used instead of turning to compost at the back of the fridge.",
+      },
+      {
+        q: "How do I stop prepped food from tasting flat?",
+        a: "Season in two stages. Salt during cooking as normal, then add something sharp or fresh at the moment of eating — lemon, vinegar, herbs, chilli. Reheating dulls acidity and aroma first, so those are the things worth adding back.",
+      },
+    ],
+    related: [
+      { slug: "meal-prep-without-boredom", title: "Meal Prep Without Eating the Same Thing Five Days Running" },
+      { slug: "freezing-food-properly", title: "Freezing Food Properly: What Works, What Does Not" },
+      { slug: "overnight-oats-five-ways", title: "Overnight Oats, Five Ways, Without the Sad Jar" },
+    ],
   },
   {
     slug: "cati-arazi",
     icon: CookingPot,
-    title: "Home Kitchen Recipe Systems",
+    title: "Weeknight Dinners",
     photo: "/guides/home-kitchen-systems.webp",
-    photoAlt: "Organized home kitchen workflow with prepared ingredients and a simmering pot",
-    subtitle:
-      "Build a repeatable home-cooking system that actually fits your routine.",
+    photoAlt:
+      "Organized home kitchen workflow with prepared ingredients and a simmering pot",
+    subtitle: "Real dinners on a weeknight, without a second job in the kitchen.",
     description:
-      "From weeknight dinners to family menus, we design practical recipe systems that are easy to repeat and adapt. You get clear steps and fewer kitchen bottlenecks.",
+      "A weeknight dinner has to survive a specific set of constraints: you are tired, it is later than you planned, and nobody wants to wash four pans. The recipes that work under those conditions are not simplified versions of weekend cooking — they are built differently, around one pan, short ingredient lists and steps that tolerate being slightly wrong.",
     description2:
-      "Our method focuses on consistency, speed, and flavor so your everyday cooking becomes simpler and more enjoyable.",
-    features: [
-      "Weekly recipe rotation templates",
-      "Beginner-friendly method breakdowns",
-      "Family-size and small-batch options",
-      "Low-equipment alternatives",
-      "Seasonal ingredient substitutions",
-      "Long-term routine building",
+      "The dishes collected here share that structure. Most finish in under forty-five minutes, most use a single pan or tray, and none of them punish you for walking away for five minutes to answer the door.",
+    body: [
+      "The single most useful weeknight habit is reading the recipe before you start. Not skimming it — reading it. Half of all weeknight stress comes from discovering at step four that something needed to marinate, or that two things need the oven at different temperatures.",
+      "One-pan cooking earns its reputation, but only when the ingredients are chosen for compatible cooking times. Chicken thighs and potatoes work because both want forty minutes at high heat. Chicken breast and potatoes do not, because the breast is dry long before the potato is soft. When a one-pan recipe fails, timing mismatch is almost always why.",
+      "Keep three or four dinners in permanent rotation and stop deciding. Decision fatigue at seven in the evening is the actual enemy, not cooking time. A curry, a pasta, a tray bake and something with eggs will cover most weeks, and each one absorbs whatever vegetables need using up.",
     ],
-    waMessage:
-      "Hi, I want a practical home kitchen recipe system for my schedule.",
+    features: [
+      "One pan or one tray wherever possible",
+      "Ingredients matched by cooking time, not by category",
+      "Read the whole recipe before the first cut",
+      "Three or four dinners in permanent rotation",
+      "Recipes that tolerate a five-minute interruption",
+      "Vegetables treated as flexible, not fixed",
+    ],
+    faq: [
+      {
+        q: "What counts as a realistic weeknight time budget?",
+        a: "Forty-five minutes from walking into the kitchen to sitting down, including the time the oven is doing the work unattended. Anything that needs forty-five minutes of active attention is a weekend recipe wearing a weeknight label.",
+      },
+      {
+        q: "How do I cook for one without wasting half the ingredients?",
+        a: "Choose recipes built around pantry staples and one fresh item, rather than recipes needing six fresh things in small amounts. Eggs, tinned tomatoes, pasta and rice do not spoil while you decide.",
+      },
+      {
+        q: "Can I prep weeknight dinners in advance?",
+        a: "Prep the parts that take knife work — onions, garlic, carrots — at the weekend and keep them in the fridge. The cooking itself is rarely the slow part; the chopping is.",
+      },
+    ],
+    related: [
+      { slug: "one-pan-lemon-garlic-chicken", title: "One-Pan Lemon Garlic Chicken With Crushed Potatoes" },
+      { slug: "weeknight-red-curry", title: "A Weeknight Red Curry That Does Not Taste Like a Jar" },
+      { slug: "mise-en-place-read-the-recipe", title: "Read the Recipe First: The Case for Mise en Place" },
+    ],
   },
   {
     slug: "bag-evi",
     icon: PiggyBank,
-    title: "Low-Budget Cooking Strategies",
+    title: "Budget Cooking",
     photo: "/guides/budget-cooking.webp",
-    photoAlt: "Affordable pantry staples and a balanced budget-friendly homemade meal",
-    subtitle: "Cook better on a budget without giving up flavor or variety.",
+    photoAlt:
+      "Affordable pantry staples and a balanced budget-friendly homemade meal",
+    subtitle: "Spend less on groceries without spending less on flavour.",
     description:
-      "Budget cooking works best with smart planning and ingredient overlap. We guide you to choose high-value staples and build multiple meals from the same base.",
+      "Cooking cheaply is not the same as cooking badly, but the advice usually offered — buy own-brand, use coupons — barely moves the number. The larger savings come from structural changes: buying ingredients that stretch across several meals, cooking cuts that reward time instead of money, and throwing away less of what you already bought.",
     description2:
-      "You will learn how to stretch ingredients efficiently while still serving balanced, satisfying dishes.",
-    features: [
-      "Cost-aware ingredient planning",
-      "Staple-first shopping lists",
-      "Multi-use ingredients across recipes",
-      "Affordable protein alternatives",
-      "Leftover transformation ideas",
-      "Monthly budget optimization tips",
+      "Household food waste is the quiet expense. A significant share of what most households buy is never eaten, which means a meaningful part of the grocery bill goes straight into the bin. Fixing that costs nothing and requires no sacrifice at all.",
+    body: [
+      "Build meals outward from cheap protein rather than inward from expensive protein. Dried lentils, chickpeas, eggs and chicken thighs cost a fraction of steak or fish per portion and take seasoning better. A well-made lentil ragù is not a compromise version of a beef one — it is a different dish that happens to be cheaper.",
+      "Learn which expensive things are actually cheap per use. A jar of anchovies, a tub of miso, a bottle of soy sauce and a piece of parmesan all look costly on the shelf and then last for months, adding depth to dishes that would otherwise need meat. The pantry is where budget cooking is won.",
+      "Shop your fridge before you shop the shop. Most households buy things they already own because nobody looked. One five-minute check before writing the list removes duplicates, surfaces what needs using and turns the week's cooking into a plan rather than a series of guesses.",
     ],
-    waMessage:
-      "Hi, I want budget-friendly cooking strategies and recipe ideas.",
+    features: [
+      "Cheap protein as the starting point, not the substitute",
+      "Pantry umami instead of expensive meat",
+      "Whole vegetables over pre-cut and pre-washed",
+      "Cuts that reward slow cooking rather than fast money",
+      "Check the fridge before writing the shopping list",
+      "Waste treated as the biggest single saving",
+    ],
+    faq: [
+      {
+        q: "Is buying in bulk always cheaper?",
+        a: "Only for things you genuinely get through. Rice, dried pulses, oats and frozen vegetables reward bulk buying. Fresh produce and anything you buy because it was on offer usually does not — a bargain you throw away costs full price.",
+      },
+      {
+        q: "Are frozen vegetables worse than fresh?",
+        a: "No. They are frozen within hours of harvest, so nutritionally they are frequently better than fresh produce that spent a week in transit. They also do not rot while you decide what to cook, which is the real budget advantage.",
+      },
+      {
+        q: "What is the single biggest saving available to most households?",
+        a: "Eating what you already bought. Before changing where you shop or what you buy, spend two weeks using up what is in the fridge and freezer — most people find the bill drops without any change in what they eat.",
+      },
+    ],
+    related: [
+      { slug: "cut-grocery-bill", title: "Cutting Your Grocery Bill Without Eating Worse" },
+      { slug: "build-a-pantry-that-cooks", title: "How to Build a Pantry That Cooks Dinner For You" },
+      { slug: "crispy-chickpea-halloumi-bowl", title: "The Crispy Chickpea Bowl That Actually Stays Crispy" },
+    ],
   },
   {
     slug: "ev-sarj",
     icon: Utensils,
-    title: "Kitchen Gear and Setup Guidance",
+    title: "Kitchen Setup & Gear",
     photo: "/guides/kitchen-gear.webp",
-    photoAlt: "Essential durable cookware and utensils arranged in a warm home kitchen",
-    subtitle: "Choose tools that improve results instead of adding clutter.",
+    photoAlt:
+      "Essential durable cookware and utensils arranged in a warm home kitchen",
+    subtitle: "The short list of equipment that actually changes how you cook.",
     description:
-      "Not every kitchen needs expensive equipment. We help you pick tools that meaningfully improve speed, texture, and consistency for daily cooking.",
+      "Kitchen shops sell a great many objects that solve problems nobody has. A garlic press, an avocado slicer and an egg separator all replace something a knife or a hand does faster. Meanwhile the three tools that genuinely change your cooking — a sharp knife, a heavy pan and a set of scales — are often the ones people put off buying.",
     description2:
-      "Our recommendations prioritize practical usage, durability, and real value for home cooks.",
-    features: [
-      "Essential starter tool list",
-      "Budget vs premium buying guidance",
-      "Tool use by recipe type",
-      "Maintenance and care basics",
-      "Small-space kitchen setups",
-      "Upgrade path as your skills grow",
+      "This guide is about the short list. Not the aspirational kitchen, but the six or seven items that do most of the work, plus how to arrange them so cooking stops feeling like an obstacle course.",
+    body: [
+      "One good knife beats a block of mediocre ones. A single chef's knife, kept sharp, handles almost every task in a home kitchen. Sharpness matters more than price: a cheap sharp knife is safer and faster than an expensive dull one, because a dull blade slides off what it should be cutting.",
+      "Heavy pans hold heat, and holding heat is most of what browning requires. A thin pan drops in temperature the moment cold food touches it, so the food steams in its own moisture instead of searing. Cast iron or heavy stainless will outcook an expensive lightweight non-stick for anything you want a crust on.",
+      "Scales change baking from a gamble into a repeatable process. A cup of flour can vary by a third depending on how it was scooped, which is why the same recipe produces a different result each time. Weighing removes that variable entirely, and costs less than one failed cake.",
+      "Layout matters as much as equipment. Keep what you use daily within one step of where you use it, and get everything else out of the way. Most kitchen frustration is not missing tools — it is moving six objects to reach the seventh.",
     ],
-    waMessage: "Hi, I need kitchen gear recommendations for my cooking goals.",
+    features: [
+      "One chef's knife, kept genuinely sharp",
+      "A heavy pan that holds its heat",
+      "Digital scales for anything baked",
+      "A board large enough to work on",
+      "Tools stored within one step of where they are used",
+      "Single-purpose gadgets avoided on principle",
+    ],
+    faq: [
+      {
+        q: "How much should I spend on a first chef's knife?",
+        a: "Less than people expect. A mid-range knife you sharpen regularly outperforms a premium one you never maintain. Buy something comfortable in your hand and spend the difference on a sharpener.",
+      },
+      {
+        q: "Is non-stick worth having?",
+        a: "For eggs and delicate fish, yes. For searing and browning, no — non-stick coatings are not meant for the heat those need, and the pans are usually too light to hold temperature anyway. One small non-stick alongside one heavy pan covers both cases.",
+      },
+      {
+        q: "What is the most overrated piece of kitchen equipment?",
+        a: "Anything that does one job a knife already does. Garlic presses, herb strippers and egg slicers all take longer to wash than the task takes to do by hand.",
+      },
+    ],
+    related: [
+      { slug: "knife-skills-four-cuts", title: "Knife Skills: The Four Cuts That Cover Almost Every Recipe" },
+      { slug: "build-a-pantry-that-cooks", title: "How to Build a Pantry That Cooks Dinner For You" },
+      { slug: "no-knead-focaccia", title: "No-Knead Focaccia for People Who Do Not Bake" },
+    ],
   },
   {
     slug: "ges-bakim-onarim",
     icon: Wrench,
-    title: "Recipe Troubleshooting Support",
-    photoAlt: "Cook reviewing recipe notes in a home kitchen",
+    title: "Fixing Common Cooking Mistakes",
     photo: "/guides/recipe-troubleshooting.webp",
-    subtitle: "Fix texture, timing, and flavor issues with practical guidance.",
+    photoAlt: "Cook reviewing recipe notes in a home kitchen",
+    subtitle: "Why the dish went wrong, and what still saves it.",
     description:
-      "When recipes fail, small adjustments make a big difference. We help identify root causes such as heat control, moisture balance, and timing order.",
+      "Almost every kitchen failure belongs to a short list: too salty, too bland, too watery, burnt on the bottom, or split. What separates cooks who recover from cooks who start again is not talent — it is recognising which failure is happening early enough to act, and knowing that most of them have a fix.",
     description2:
-      "You get direct correction strategies that are easy to apply immediately in your next cook.",
-    features: [
-      "Texture correction techniques",
-      "Heat and timing adjustment rules",
-      "Flavor balancing framework",
-      "Common mistake diagnostics",
-      "Substitution impact guidance",
-      "Step-by-step rescue methods",
+      "This guide covers the diagnosis as much as the repair. A sauce that will not cling, a stew that tastes of nothing and a curdled cream sauce each have a specific cause, and treating the wrong cause usually makes things worse.",
+    body: [
+      "Bland is the most common complaint and the most misdiagnosed. It is usually not a lack of salt but a lack of acid. If a dish tastes flat after salting properly, a squeeze of lemon or a splash of vinegar will often do what more salt cannot — salt makes flavours louder, acid makes them distinct.",
+      "Over-salting is harder to reverse than folklore suggests. A raw potato does not absorb meaningful salt. What actually works is dilution: more liquid, more unsalted bulk, or splitting the batch and building a second unsalted half to fold back in. Acid and fat also mask saltiness without removing it.",
+      "Watery sauces are usually a heat problem, not a thickener problem. Reducing over higher heat concentrates flavour as it thickens, whereas cornflour thickens without adding anything. If the sauce is thin and tastes weak, reduce it. If it is thin and tastes right, thicken it.",
+      "Burnt is the one failure with a hard limit. If the bottom has caught, move the food to a clean pan immediately without scraping — the scorched layer will carry through the whole dish if you stir it back in. Beyond a certain point, the bitterness is not recoverable, and knowing that saves an hour of hopeful seasoning.",
     ],
-    waMessage: "Hi, I need help troubleshooting issues in my recipes.",
+    features: [
+      "Bland usually means missing acid, not missing salt",
+      "Over-salting is fixed by dilution, not by potatoes",
+      "Reduce a weak sauce; thicken a strong one",
+      "Move burnt food to a clean pan without scraping",
+      "Split sauces are rescued off the heat, slowly",
+      "Taste at every stage, not only at the end",
+    ],
+    faq: [
+      {
+        q: "My food always tastes like it is missing something. What is it?",
+        a: "Acid, most of the time. Restaurant food tastes brighter than home cooking largely because something sharp goes in at the end. Try a squeeze of lemon before reaching for more salt.",
+      },
+      {
+        q: "Can I really save a split or curdled sauce?",
+        a: "Often, yes. Take it off the heat, and whisk a spoonful of the split sauce into a little warm liquid — cream, stock or an egg yolk — then gradually add the rest back. Heat caused the split, so more heat will not undo it.",
+      },
+      {
+        q: "How do I stop burning things on the bottom of the pan?",
+        a: "Usually the heat is too high for the pan's weight. Thin pans develop hot spots; heavy pans spread heat. Lower the heat, stir the base rather than the surface, and deglaze early while the browning is still brown.",
+      },
+    ],
+    related: [
+      { slug: "rescue-a-dish", title: "Rescuing Dinner: Fixes for Salty, Bland, Watery and Burnt" },
+      { slug: "how-to-salt-your-food", title: "How to Actually Salt Your Food" },
+      { slug: "why-pasta-sauce-doesnt-stick", title: "Why Your Pasta Sauce Slides Off the Pasta" },
+    ],
   },
   {
     slug: "elektrik-altyapi-bakimi",
     icon: Timer,
-    title: "Fast Weeknight Cooking",
-    photoAlt: "Fast dinner preparation workflow in a modern kitchen",
+    title: "Fast 30-Minute Meals",
     photo: "/guides/fast-weeknight-cooking.webp",
-    subtitle: "Cook complete meals faster with better workflow design.",
+    photoAlt: "Fast dinner preparation workflow in a modern kitchen",
+    subtitle: "Thirty minutes, start to plate, without cutting corners that matter.",
     description:
-      "Weeknight cooking becomes easier when prep and heat steps are optimized. We show you how to shorten active time while keeping strong flavor.",
+      "A thirty-minute meal is a scheduling problem more than a cooking problem. The cooking itself is rarely the bottleneck — waiting for water to boil, waiting for a pan to heat, and chopping while nothing else is happening is where the time goes. Cooks who are genuinely fast are simply doing several things at once.",
     description2:
-      "From one-pan options to parallel prep flow, each method is built for limited time without sacrificing quality.",
-    features: [
-      "20 to 40 minute dinner structures",
-      "One-pan and low-mess recipes",
-      "Parallel prep timing strategies",
-      "Shortcut ingredient planning",
-      "Rapid flavor layering methods",
-      "Post-cook cleanup minimization",
+      "The habit that saves the most time costs nothing: put the water on and the pan on the heat before you pick up a knife. Ten minutes of heating happens while you prep instead of after it.",
+    body: [
+      "Order the work by what takes longest to start. Oven on first, water on second, pan on third, then chop. Most home cooks do it in the opposite order — finish all the preparation, then start heating — and add fifteen unnecessary minutes to every meal.",
+      "Choose ingredients that cook in the time you have. Thin cuts, small dice, and anything already tender will finish inside thirty minutes; a whole chicken breast, large potato chunks and dried beans will not. This is a selection problem, not a technique problem, and no amount of high heat solves it.",
+      "Let the pantry do the slow work. Tinned tomatoes, coconut milk, miso, stock paste and cooked pulses all deliver depth that would otherwise need an hour of simmering. A curry that tastes like it cooked all afternoon is usually a curry that started from a good paste and finished in twenty minutes.",
     ],
-    waMessage: "Hi, I want faster weeknight meal methods and recipe ideas.",
+    features: [
+      "Heat first, chop second",
+      "Thin cuts and small dice as a default",
+      "Pantry ingredients standing in for long simmering",
+      "One pan heating while another finishes",
+      "Sauces built in the pan the protein cooked in",
+      "Finish with something fresh or sharp off the heat",
+    ],
+    faq: [
+      {
+        q: "Does cooking fast mean cooking worse?",
+        a: "Only if you rush the parts that need time. Browning cannot be hurried, but chopping, heating and cleaning can all be overlapped. Fast cooking is about removing dead time, not about turning the heat up.",
+      },
+      {
+        q: "What should I always have in to make a thirty-minute meal possible?",
+        a: "Eggs, a starch that cooks fast, tinned tomatoes, coconut milk, and something sharp — lemon, vinegar or pickles. With those, most fresh ingredients turn into dinner without a plan.",
+      },
+      {
+        q: "Is a pressure cooker worth it for weeknights?",
+        a: "For dried pulses and tough cuts, genuinely yes — it converts a two-hour braise into thirty minutes. For quick-cooking food it saves nothing, because the time goes into coming up to pressure instead.",
+      },
+    ],
+    related: [
+      { slug: "creamy-tomato-orzo", title: "Creamy Tomato Orzo That Cooks in Its Own Sauce" },
+      { slug: "shakshuka-for-one", title: "Shakshuka for One, in Fifteen Minutes" },
+      { slug: "weeknight-red-curry", title: "A Weeknight Red Curry That Does Not Taste Like a Jar" },
+    ],
   },
   {
     slug: "proje-danismanlik",
     icon: CalendarDays,
-    title: "Menu Planning Consulting",
-    photoAlt: "Weekly menu planning board with recipe notes",
+    title: "Weekly Menu Planning",
     photo: "/guides/menu-planning.webp",
-    subtitle: "Plan weekly menus with confidence and less decision fatigue.",
+    photoAlt: "Weekly menu planning board with recipe notes",
+    subtitle: "A plan loose enough to survive an actual week.",
     description:
-      "A clear menu system removes daily guesswork and improves grocery efficiency. We help you define patterns that match your household rhythm.",
+      "Rigid meal plans fail for a predictable reason: they assume every evening goes as expected. One late meeting, one tired Tuesday, and the whole schedule collapses — usually along with the ingredients bought for it. A plan that works has slack built into it from the start.",
     description2:
-      "You get a practical framework for weekdays, weekends, leftovers, and flexible swap options.",
-    features: [
-      "Weekly menu architecture templates",
-      "Shopping list by meal sequence",
-      "Balanced macro distribution tips",
-      "Seasonal menu adaptation",
-      "Family preference mapping",
-      "Low-friction repeat systems",
+      "Planning five dinners and cooking three is not a failure of discipline; it is what a normal week looks like. The fix is to plan four and leave one night deliberately empty, so the plan bends instead of breaking.",
+    body: [
+      "Plan by ingredient overlap rather than by variety. If Monday's roast chicken becomes Wednesday's soup and Thursday's sandwich filling, you have bought one thing and cooked three meals. Planning seven unrelated dinners means seven sets of ingredients, most of them used once and half-wasted.",
+      "Order the week by perishability. Cook fish and delicate greens early, roots and cabbage later, and put the freezer meal on the night you know will be difficult. This is the whole trick to not throwing food away, and it takes about a minute to apply.",
+      "Write the plan where you will see it. A plan in your head is a plan you will renegotiate at six in the evening, when tiredness argues persuasively for takeaway. A note on the fridge removes the decision, which is the point — the value of planning is not the menu, it is not having to think.",
+      "Keep a short list of meals you can make from the pantry with no shopping at all. Every week eventually produces one evening where nothing goes to plan, and having a default that requires no fresh ingredients is what keeps that evening from becoming a delivery order.",
     ],
-    waMessage: "Hi, I would like consulting support for weekly menu planning.",
+    features: [
+      "Plan four dinners, not seven",
+      "One night deliberately left open",
+      "Ingredients chosen to overlap across meals",
+      "Perishable food cooked first, roots later",
+      "The plan written where you will actually see it",
+      "A no-shopping pantry meal held in reserve",
+    ],
+    faq: [
+      {
+        q: "How long should planning a week take?",
+        a: "Ten minutes, once you have a rotation to draw from. If it takes an hour, you are choosing new recipes rather than planning — those are different activities, and only one of them needs doing weekly.",
+      },
+      {
+        q: "Should I plan lunches too?",
+        a: "Plan them as leftovers rather than as separate meals. Cooking extra at dinner costs almost nothing in time and removes the lunch decision entirely, which is where most planning effort is wasted.",
+      },
+      {
+        q: "What do I do when the plan falls apart mid-week?",
+        a: "Move meals rather than abandoning them. Anything planned for Tuesday that did not happen becomes Thursday, and the freezer meal moves up. The plan is an order, not a schedule.",
+      },
+    ],
+    related: [
+      { slug: "meal-prep-without-boredom", title: "Meal Prep Without Eating the Same Thing Five Days Running" },
+      { slug: "cut-grocery-bill", title: "Cutting Your Grocery Bill Without Eating Worse" },
+      { slug: "build-a-pantry-that-cooks", title: "How to Build a Pantry That Cooks Dinner For You" },
+    ],
   },
   {
     slug: "enerji-danismanlik",
     icon: Sparkles,
-    title: "Cooking Performance Coaching",
-    photoAlt: "Home cook tracking recipe outcomes and improvements",
+    title: "Core Cooking Techniques",
     photo: "/guides/cooking-coaching.webp",
-    subtitle: "Improve cooking quality with focused technique coaching.",
+    photoAlt: "Home cook tracking recipe outcomes and improvements",
+    subtitle: "The handful of techniques that quietly sit under every recipe.",
     description:
-      "Consistent cooking comes from small repeatable habits. We guide you through practical improvements in prep, seasoning, and timing control.",
+      "Recipes tell you what to do. Techniques tell you why it works, which is what lets you cook without one. Four or five ideas — seasoning, browning, heat control and knife work — sit underneath almost everything in a home kitchen, and understanding them turns a recipe from a set of instructions into something you can adjust.",
     description2:
-      "With a performance mindset, your meals become more reliable and your confidence grows week by week.",
-    features: [
-      "Technique-by-technique improvement paths",
-      "Flavor calibration routines",
-      "Consistency tracking methods",
-      "Progress checkpoints by skill level",
-      "Custom guidance for your kitchen context",
-      "Actionable feedback loops",
+      "None of this requires professional training. It requires knowing what salt does to food over time, why a dry surface browns and a wet one steams, and how to hold a knife so your hand stops getting tired.",
+    body: [
+      "Salt early and taste often. Salt added at the start penetrates and seasons throughout; salt added at the end sits on the surface and tastes sharper. Neither is wrong, but they do different things, and cooks who season only at the end are working with one tool instead of two.",
+      "Browning needs a dry surface, enough heat and enough space. Wet food steams, crowded food steams, and a pan that lost its heat when the food went in steams as well. That is one mechanism behind three of the most common complaints about home cooking, and it is why patting meat dry before it hits the pan makes such a visible difference.",
+      "Heat control is mostly about anticipating lag. A pan keeps rising in temperature after you turn the dial down and keeps cooking after you take it off. Moving a pan off the heat thirty seconds early is a technique in itself, and it is the difference between garlic that is golden and garlic that is bitter.",
+      "Knife work is about repetition, not speed. Four cuts cover almost every recipe, and cutting to a consistent size matters more than cutting quickly — evenly sized pieces cook evenly, which removes the most common cause of a dish that is simultaneously raw and overdone.",
     ],
-    waMessage:
-      "Hi, I want coaching to improve my cooking consistency and technique.",
+    features: [
+      "Salt early for depth, late for sharpness",
+      "Dry surface, hot pan, space between pieces",
+      "Anticipate the pan's heat lag in both directions",
+      "Even cuts before fast cuts",
+      "Taste at every stage and adjust",
+      "Understand the mechanism, then ignore the recipe",
+    ],
+    faq: [
+      {
+        q: "Which technique gives the biggest improvement for the least effort?",
+        a: "Seasoning properly and tasting as you go. It costs nothing, requires no equipment, and fixes the complaint most home cooks have about their own food.",
+      },
+      {
+        q: "Why does restaurant food taste different from mine?",
+        a: "Higher heat, more salt, more fat, and something acidic at the end. Domestic hobs cannot match a restaurant range, but the seasoning and the finishing acid are entirely available at home.",
+      },
+      {
+        q: "Do I need to learn technique if I only follow recipes?",
+        a: "You can cook well from recipes alone. Technique is what lets you tell why one went wrong, substitute an ingredient you do not have, and eventually cook without looking anything up.",
+      },
+    ],
+    related: [
+      { slug: "maillard-reaction-explained", title: "The Maillard Reaction, Explained for People Who Just Want Better Steak" },
+      { slug: "how-to-salt-your-food", title: "How to Actually Salt Your Food" },
+      { slug: "knife-skills-four-cuts", title: "Knife Skills: The Four Cuts That Cover Almost Every Recipe" },
+    ],
   },
 ];
 
@@ -213,19 +399,40 @@ export default function HizmetDetay() {
 
   const Icon = service.icon;
 
+  // Editorial guide, not a service offering: Article for the page itself, plus a
+  // FAQPage for the questions rendered further down.
+  const pageUrl = `${SITE_URL}/hizmetler/${service.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Service",
-    name: service.title,
-    description: service.description,
-    image: `${SITE_URL}${service.photo}`,
-    url: `${SITE_URL}/hizmetler/${service.slug}`,
-    provider: {
-      "@type": "Organization",
-      name: "Pulse Recipe",
-      url: SITE_URL,
-    },
-    areaServed: { "@type": "Place", name: "Global" },
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: service.title,
+        description: service.description,
+        image: `${SITE_URL}${service.photo}`,
+        url: pageUrl,
+        mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+        inLanguage: "en-US",
+        author: { "@type": "Organization", name: "Pulse Recipe", url: SITE_URL },
+        publisher: {
+          "@type": "Organization",
+          name: "Pulse Recipe",
+          url: SITE_URL,
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_URL}/food/logo-mark.svg`,
+          },
+        },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: service.faq.map(({ q, a }) => ({
+          "@type": "Question",
+          name: q,
+          acceptedAnswer: { "@type": "Answer", text: a },
+        })),
+      },
+    ],
   };
 
   return (
@@ -308,28 +515,6 @@ export default function HizmetDetay() {
                 </nav>
               </div>
 
-              <div className="mt-4 bg-[#448834] rounded-2xl p-5 text-center">
-                <p className="text-white font-bold text-sm mb-1">
-                  Need Personalized Help?
-                </p>
-                <p className="text-white/75 text-xs mb-4 leading-relaxed">
-                  Tell us your goals and we will suggest the best path.
-                </p>
-                {WHATSAPP_ENABLED ? (
-                  <a
-                  href={waLink(service.waMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  Contact Us
-                </a>
-                ) : (
-                  <Link to="/iletisim" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-                  Contact Us
-                </Link>
-                )}
-              </div>
             </aside>
 
             <div className="flex-1 min-w-0">
@@ -362,9 +547,14 @@ export default function HizmetDetay() {
                 <p className="text-gray-600 leading-relaxed mb-4">
                   {service.description}
                 </p>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed mb-4">
                   {service.description2}
                 </p>
+                {service.body.map((paragraph) => (
+                  <p key={paragraph} className="text-gray-600 leading-relaxed mb-4 last:mb-0">
+                    {paragraph}
+                  </p>
+                ))}
               </div>
 
               <AdSenseBlock
@@ -391,28 +581,46 @@ export default function HizmetDetay() {
                 </div>
               </div>
 
-              <div className="lg:hidden bg-[#448834] rounded-2xl p-5 text-center mb-6">
-                <p className="text-white font-bold text-sm mb-1">
-                  Need Personalized Help?
-                </p>
-                <p className="text-white/75 text-xs mb-4 leading-relaxed">
-                  Tell us your goals and we will suggest the best path.
-                </p>
-                {WHATSAPP_ENABLED ? (
-                  <a
-                  href={waLink(service.waMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  Contact Us
-                </a>
-                ) : (
-                  <Link to="/iletisim" className="block bg-white text-[#448834] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-                  Contact Us
-                </Link>
-                )}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8 mb-4 sm:mb-6">
+                <h3 className="font-bold text-gray-900 text-base mb-4 sm:mb-5">
+                  Common Questions
+                </h3>
+                <div className="divide-y divide-gray-100">
+                  {service.faq.map(({ q, a }) => (
+                    <div key={q} className="py-4 first:pt-0 last:pb-0">
+                      <p className="font-semibold text-gray-900 text-sm mb-2">
+                        {q}
+                      </p>
+                      <p className="text-gray-600 text-sm leading-relaxed">{a}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8 mb-4 sm:mb-6">
+                <h3 className="font-bold text-gray-900 text-base mb-4 sm:mb-5">
+                  Keep Reading
+                </h3>
+                <ul className="divide-y divide-gray-100">
+                  {service.related.map((post) => (
+                    <li key={post.slug}>
+                      <Link
+                        to={`/blog/${post.slug}`}
+                        className="flex items-start gap-3 py-3.5 first:pt-0 last:pb-0 group"
+                      >
+                        <ChevronRight
+                          size={16}
+                          className="text-[#448834] shrink-0 mt-0.5"
+                        />
+                        <span className="text-gray-700 text-sm leading-relaxed group-hover:text-[#448834] transition-colors">
+                          {post.title}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
             </div>
           </div>
         </div>

@@ -19,14 +19,14 @@ Pulse Recipe is an English-language food blog sharing approachable recipes, meal
 
 ## Recipe Guides
 
-- [Smart Meal Prep Planning](https://pulserecipe.com/hizmetler/sulama)
-- [Home Kitchen Recipe Systems](https://pulserecipe.com/hizmetler/cati-arazi)
-- [Low-Budget Cooking Strategies](https://pulserecipe.com/hizmetler/bag-evi)
-- [Kitchen Gear and Setup Guidance](https://pulserecipe.com/hizmetler/ev-sarj)
-- [Recipe Troubleshooting Support](https://pulserecipe.com/hizmetler/ges-bakim-onarim)
-- [Fast Weeknight Cooking](https://pulserecipe.com/hizmetler/elektrik-altyapi-bakimi)
-- [Menu Planning Consulting](https://pulserecipe.com/hizmetler/proje-danismanlik)
-- [Cooking Performance Coaching](https://pulserecipe.com/hizmetler/enerji-danismanlik)
+- [Weeknight Dinners](https://pulserecipe.com/hizmetler/cati-arazi)
+- [Fast 30-Minute Meals](https://pulserecipe.com/hizmetler/elektrik-altyapi-bakimi)
+- [Core Cooking Techniques](https://pulserecipe.com/hizmetler/enerji-danismanlik)
+- [Fixing Common Cooking Mistakes](https://pulserecipe.com/hizmetler/ges-bakim-onarim)
+- [Weekly Menu Planning](https://pulserecipe.com/hizmetler/proje-danismanlik)
+- [Meal Prep & Batch Cooking](https://pulserecipe.com/hizmetler/sulama)
+- [Budget Cooking](https://pulserecipe.com/hizmetler/bag-evi)
+- [Kitchen Setup & Gear](https://pulserecipe.com/hizmetler/ev-sarj)
 
 ## Why Pulse Recipe
 

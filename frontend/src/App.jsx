@@ -6,11 +6,10 @@ import {
   useLocation,
 } from "react-router-dom";
 import { useEffect, lazy, Suspense, useState, useRef } from "react";
-import { Bot, Utensils } from "lucide-react";
+import { Bot } from "lucide-react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import TeklifChatbot from "./components/TeklifChatbot";
-import TeklifModal from "./components/TeklifModal";
 import PageLoader from "./components/PageLoader";
 import { AdminAuthProvider, useAdminAuth } from "./contexts/AdminAuthContext";
 import { usePageTransitionOverlay } from "./hooks/usePageTransitionOverlay";
@@ -81,10 +80,7 @@ function PublicLayout() {
   // Konuşma başına lead takibi için kimlik; sayfa yenilenene kadar sabit (mesajlar gibi)
   const [chatSessionId] = useState(() => crypto.randomUUID());
 
-  const [teklifOpen, setTeklifOpen] = useState(false);
-  const [teklifClosing, setTeklifClosing] = useState(false);
   const closeChatTimerRef = useRef(null);
-  const closeTeklifTimerRef = useRef(null);
 
   function openChat(prefill = "") {
     clearTimeout(closeChatTimerRef.current);
@@ -100,26 +96,6 @@ function PublicLayout() {
       setChatClosing(false);
     }, 220);
   }
-
-  function openTeklif() {
-    clearTimeout(closeTeklifTimerRef.current);
-    setTeklifClosing(false);
-    setTeklifOpen(true);
-  }
-
-  function handleCloseTeklif() {
-    setTeklifClosing(true);
-    closeTeklifTimerRef.current = setTimeout(() => {
-      setTeklifOpen(false);
-      setTeklifClosing(false);
-    }, 220);
-  }
-
-  // Sayfa içi CTA'lar (örn. hizmet detay sayfaları) teklif modalını bu event ile açar
-  useEffect(() => {
-    window.addEventListener("open-teklif", openTeklif);
-    return () => window.removeEventListener("open-teklif", openTeklif);
-  }, []);
 
   return (
     <>
@@ -150,13 +126,6 @@ function PublicLayout() {
         </Suspense>
       </main>
       <Footer />
-      <button
-        onClick={() => openTeklif()}
-        className="fixed bottom-20 right-6 z-50 flex items-center gap-2.5 bg-[#448834] hover:bg-[#357228] text-white font-semibold text-sm px-5 py-3 rounded-full shadow-lg shadow-black/15 transition-all hover:scale-105"
-      >
-        <Utensils size={18} />
-        Get A Recipe Plan
-      </button>
       <div className="ai-button-ring fixed bottom-6 right-6 z-50 rounded-full p-0.5">
         <button
           onClick={() => openChat()}
@@ -175,9 +144,6 @@ function PublicLayout() {
           sessionId={chatSessionId}
           prefill={chatPrefill}
         />
-      )}
-      {teklifOpen && (
-        <TeklifModal closing={teklifClosing} onClose={handleCloseTeklif} />
       )}
     </>
   );

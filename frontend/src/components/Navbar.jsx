@@ -3,29 +3,32 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 
+// Labels must match the guide titles in pages/hizmetler/HizmetDetay.jsx — a
+// visitor clicking a menu entry should land on a page with that exact heading.
 const hizmetlerDropdown = [
   {
-    category: "By Meal Type",
+    category: "Cooking",
     items: [
-      { label: "Quick Breakfasts", to: "/hizmetler/sulama" },
       { label: "Weeknight Dinners", to: "/hizmetler/cati-arazi" },
-      { label: "Comfort Food Classics", to: "/hizmetler/bag-evi" },
-      { label: "Healthy Bowls", to: "/hizmetler/ev-sarj" },
+      { label: "Fast 30-Minute Meals", to: "/hizmetler/elektrik-altyapi-bakimi" },
+      { label: "Core Cooking Techniques", to: "/hizmetler/enerji-danismanlik" },
+      {
+        label: "Fixing Common Cooking Mistakes",
+        to: "/hizmetler/ges-bakim-onarim",
+      },
     ],
   },
   {
-    category: "By Preference",
+    category: "Planning",
     items: [
-      { label: "Vegetarian Favorites", to: "/hizmetler/ges-bakim-onarim" },
-      { label: "High Protein Ideas", to: "/hizmetler/elektrik-altyapi-bakimi" },
+      { label: "Weekly Menu Planning", to: "/hizmetler/proje-danismanlik" },
+      { label: "Meal Prep & Batch Cooking", to: "/hizmetler/sulama" },
+      { label: "Budget Cooking", to: "/hizmetler/bag-evi" },
     ],
   },
   {
-    category: "Guides",
-    items: [
-      { label: "Meal Prep Basics", to: "/hizmetler/proje-danismanlik" },
-      { label: "Kitchen Tips & Tricks", to: "/hizmetler/enerji-danismanlik" },
-    ],
+    category: "Kitchen",
+    items: [{ label: "Kitchen Setup & Gear", to: "/hizmetler/ev-sarj" }],
   },
 ];
 

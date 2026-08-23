@@ -1,181 +1,170 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Croissant,
-  CookingPot,
-  Soup,
-  Salad,
-  ChefHat,
-  Timer,
   CalendarDays,
+  ChefHat,
+  CookingPot,
   PiggyBank,
-  ArrowRight,
+  Sparkles,
+  Timer,
+  Utensils,
+  Wrench,
 } from "lucide-react";
-import { waLink, WHATSAPP_ENABLED } from "../lib/whatsapp";
 
+// Titles, slugs and grouping mirror pages/hizmetler/HizmetDetay.jsx and the
+// Navbar dropdown — the three must not drift apart again.
 const categories = [
   {
-    id: "ges",
-    label: "Recipe Categories",
-    labelShort: "Recipes",
+    id: "cooking",
+    label: "Cooking",
+    labelShort: "Cooking",
     description:
-      "From quick breakfasts to cozy dinners, discover practical recipes that fit real schedules and home kitchens.",
+      "Practical cooking guides for real weeknights — what to make when time is short, and why dishes go wrong when they do.",
     services: [
       {
-        icon: Croissant,
-        title: "Quick Breakfast Recipes",
-        slug: "sulama",
-        description:
-          "Fast, tasty ideas for busy mornings with simple ingredients and minimal prep.",
-        features: [
-          "15-minute ideas",
-          "Pantry-friendly ingredients",
-          "Beginner-friendly steps",
-        ],
-        photo: "/guides/meal-prep-planning.webp",
-        photoAlt: "Weekly meal prep plan with organized balanced meals",
-        ring: "ring-2 ring-[#448834]/30",
-        waMessage:
-          "Hi, I would like recipe suggestions for quick breakfast meals.",
-      },
-      {
         icon: CookingPot,
-        title: "Weeknight Dinner Favorites",
+        title: "Weeknight Dinners",
         slug: "cati-arazi",
         description:
-          "Reliable main dishes for weekdays when you need comfort and speed together.",
+          "Real dinners on a weeknight, built around one pan and ingredients matched by cooking time.",
         features: [
-          "One-pan dinners",
-          "Family-friendly flavors",
-          "Balanced everyday meals",
+          "One pan or one tray",
+          "Under forty-five minutes",
+          "A rotation that removes the decision",
         ],
         photo: "/guides/home-kitchen-systems.webp",
         photoAlt: "Organized home kitchen workflow with prepared ingredients",
         highlight: true,
-        waMessage: "Hi, I would like easy weeknight dinner recommendations.",
-      },
-      {
-        icon: Soup,
-        title: "Comfort Food Classics",
-        slug: "bag-evi",
-        description:
-          "Hearty dishes and nostalgic flavors for weekends, gatherings, and cozy evenings.",
-        features: [
-          "Slow-cooked favorites",
-          "Seasonal twists",
-          "Crowd-pleasing portions",
-        ],
-        photo: "/guides/budget-cooking.webp",
-        photoAlt: "Affordable pantry staples and a balanced homemade meal",
-        ring: "ring-2 ring-[#448834]/30",
-        waMessage: "Hi, I would like comfort food recipe recommendations.",
-      },
-      {
-        icon: Salad,
-        title: "Healthy Bowl Ideas",
-        slug: "ev-sarj",
-        description:
-          "Fresh bowls packed with grains, vegetables, and proteins for energizing daily meals.",
-        features: [
-          "Protein-rich combinations",
-          "Meal prep friendly",
-          "Colorful seasonal produce",
-        ],
-        photo: "/guides/kitchen-gear.webp",
-        photoAlt: "Essential cookware and utensils in a warm home kitchen",
-        ring: "ring-2 ring-[#448834]/30",
-        waMessage: "Hi, I would like healthy bowl recipe ideas for meal prep.",
-      },
-    ],
-  },
-  {
-    id: "bakim",
-    label: "Kitchen Skills",
-    labelShort: "Skills",
-    description:
-      "Master the basics with practical cooking techniques that improve flavor, speed, and confidence in the kitchen.",
-    services: [
-      {
-        icon: ChefHat,
-        title: "Meal Prep Foundations",
-        slug: "ges-bakim-onarim",
-        description:
-          "Learn smart prep workflows to save time and keep meals ready all week.",
-        features: [
-          "Batch cooking workflow",
-          "Storage best practices",
-          "Weekly prep templates",
-        ],
-        photo: "/guides/recipe-troubleshooting.webp",
-        photoAlt: "Cook reviewing recipe notes while adjusting a sauce",
-        ring: "ring-2 ring-[#448834]/30",
-        waMessage: "Hi, I want help with meal prep basics and weekly planning.",
       },
       {
         icon: Timer,
-        title: "Kitchen Efficiency Tips",
+        title: "Fast 30-Minute Meals",
         slug: "elektrik-altyapi-bakimi",
         description:
-          "Simple habits and tool choices that speed up cooking and reduce kitchen stress.",
+          "Thirty minutes start to plate, by removing dead time rather than turning the heat up.",
         features: [
-          "Knife and prep shortcuts",
-          "Time-saving kitchen setup",
-          "Waste-reduction habits",
+          "Heat first, chop second",
+          "Cuts that finish in the time you have",
+          "Pantry depth without the simmering",
         ],
         photo: "/guides/fast-weeknight-cooking.webp",
         photoAlt: "Fast one-pan weeknight dinner preparation with a timer",
         ring: "ring-2 ring-[#448834]/30",
-        waMessage:
-          "Hi, I want kitchen efficiency tips for faster daily cooking.",
-      },
-    ],
-  },
-  {
-    id: "danismanlik",
-    label: "Food Guides",
-    labelShort: "Guides",
-    description:
-      "Follow practical food guides for budgeting, balanced planning, and choosing ingredients with confidence.",
-    services: [
-      {
-        icon: CalendarDays,
-        title: "Meal Planning Guide",
-        slug: "proje-danismanlik",
-        description:
-          "Build practical weekly meal plans with less decision fatigue and better nutrition balance.",
-        features: [
-          "Weekly menu templates",
-          "Balanced plate method",
-          "Shopping rhythm tips",
-        ],
-        photo: "/guides/menu-planning.webp",
-        photoAlt: "Weekly menu planning board surrounded by fresh meals",
-        highlight: true,
-        waMessage:
-          "Hi, I would like support building an easy weekly meal plan.",
       },
       {
-        icon: PiggyBank,
-        title: "Budget Cooking Guide",
+        icon: Sparkles,
+        title: "Core Cooking Techniques",
         slug: "enerji-danismanlik",
         description:
-          "Learn how to shop smarter, reduce food waste, and cook satisfying meals on budget.",
+          "Seasoning, browning, heat control and knife work — the ideas underneath almost every recipe.",
         features: [
-          "Cost-per-meal planning",
-          "Smart substitutions",
-          "Leftover transformation ideas",
+          "Salt early, taste often",
+          "Dry surface, hot pan, space",
+          "Even cuts before fast cuts",
         ],
         photo: "/guides/cooking-coaching.webp",
         photoAlt: "Home cook practicing seasoning and technique with a notebook",
         ring: "ring-2 ring-[#448834]/30",
-        waMessage: "Hi, I want budget-friendly recipe and shopping advice.",
+      },
+      {
+        icon: Wrench,
+        title: "Fixing Common Cooking Mistakes",
+        slug: "ges-bakim-onarim",
+        description:
+          "Too salty, too bland, watery or burnt — what actually caused it and what still saves it.",
+        features: [
+          "Bland usually means missing acid",
+          "Dilution, not potatoes",
+          "Reduce a weak sauce, thicken a strong one",
+        ],
+        photo: "/guides/recipe-troubleshooting.webp",
+        photoAlt: "Cook reviewing recipe notes while adjusting a sauce",
+        ring: "ring-2 ring-[#448834]/30",
+      },
+    ],
+  },
+  {
+    id: "planning",
+    label: "Planning",
+    labelShort: "Planning",
+    description:
+      "Plan a week that survives contact with the week — menus with slack, batch cooking that stays interesting, and a smaller grocery bill.",
+    services: [
+      {
+        icon: CalendarDays,
+        title: "Weekly Menu Planning",
+        slug: "proje-danismanlik",
+        description:
+          "Plan four dinners rather than seven, ordered by what spoils first.",
+        features: [
+          "One night deliberately left open",
+          "Ingredients chosen to overlap",
+          "A pantry meal held in reserve",
+        ],
+        photo: "/guides/menu-planning.webp",
+        photoAlt: "Weekly menu planning board surrounded by fresh meals",
+        highlight: true,
+      },
+      {
+        icon: ChefHat,
+        title: "Meal Prep & Batch Cooking",
+        slug: "sulama",
+        description:
+          "Prepare components instead of finished meals, and assemble them differently each night.",
+        features: [
+          "One grain, one protein",
+          "Dressings kept separate",
+          "Frozen in single portions",
+        ],
+        photo: "/guides/meal-prep-planning.webp",
+        photoAlt: "Weekly meal prep plan with organized balanced meals",
+        ring: "ring-2 ring-[#448834]/30",
+      },
+      {
+        icon: PiggyBank,
+        title: "Budget Cooking",
+        slug: "bag-evi",
+        description:
+          "Spend less without eating worse — cheap protein, pantry umami, and far less waste.",
+        features: [
+          "Cheap protein as the starting point",
+          "Whole vegetables over pre-cut",
+          "Waste as the biggest single saving",
+        ],
+        photo: "/guides/budget-cooking.webp",
+        photoAlt: "Affordable pantry staples and a balanced homemade meal",
+        ring: "ring-2 ring-[#448834]/30",
+      },
+    ],
+  },
+  {
+    id: "kitchen",
+    label: "Kitchen",
+    labelShort: "Kitchen",
+    description:
+      "The short list of equipment that changes how you cook, and how to arrange it so the kitchen stops getting in the way.",
+    services: [
+      {
+        icon: Utensils,
+        title: "Kitchen Setup & Gear",
+        slug: "ev-sarj",
+        description:
+          "One sharp knife, one heavy pan, a set of scales — and why the gadgets can wait.",
+        features: [
+          "Sharpness over price",
+          "Heavy pans hold their heat",
+          "Scales make baking repeatable",
+        ],
+        photo: "/guides/kitchen-gear.webp",
+        photoAlt: "Essential cookware and utensils in a warm home kitchen",
+        highlight: true,
       },
     ],
   },
 ];
 
 export default function Services() {
-  const [activeTab, setActiveTab] = useState("ges");
+  const [activeTab, setActiveTab] = useState("cooking");
 
   return (
     <section
@@ -299,18 +288,6 @@ export default function Services() {
                         >
                           View Details
                         </Link>
-                        {WHATSAPP_ENABLED && (
-                          <a
-                          href={waLink(s.waMessage)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Get help for ${s.title}`}
-                          className="inline-flex items-center gap-1.5 text-[#357228] font-semibold text-sm group-hover:gap-3 transition-all"
-                        >
-                          Ask For Tips
-                          <ArrowRight size={15} />
-                        </a>
-                        )}
                       </div>
                     </div>
                   </div>

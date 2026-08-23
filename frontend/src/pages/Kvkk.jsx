@@ -12,13 +12,13 @@ Contact: ${LEGAL_CONTACT}`,
     title: "2. Data we collect",
     body: `We keep data collection to what the site actually needs:
 
-- Contact form: your name, phone number, city or district, the topic you selected, an optional monthly food budget, and your message.
+- Contact form: your name, your email address, and your message.
 - Chat assistant: the messages you send, the status of your request, and an optional rating score.
 - Technical data: your IP address and server access logs, kept for security and abuse prevention.
 - Usage analytics: aggregated, non-identifying data such as page views and referrers.
 - Advertising data: when advertising is enabled, our advertising partners may set or read cookies and similar identifiers. See section 5 and our Cookie Policy.
 
-There is no account registration on this site. If you choose to continue a conversation on WhatsApp, that exchange is governed by WhatsApp's own privacy policy rather than this one.`,
+There is no account registration on this site.`,
   },
   {
     title: "3. Why we process it, and on what basis",

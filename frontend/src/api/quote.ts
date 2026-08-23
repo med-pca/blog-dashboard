@@ -4,12 +4,10 @@ const TIMEOUT_MS = 20000
 
 export interface QuoteFormData {
   name: string
-  phone: string
-  city?: string
-  serviceType: 'cati-ges' | 'tarimsal-sulama' | 'ev-sarj' | 'diger'
-  monthlyBill?: number
+  email: string
   message?: string
   kvkkConsent: boolean
+  website?: string
 }
 
 export async function submitQuoteRequest(data: QuoteFormData): Promise<{ id: string }> {
@@ -28,7 +26,7 @@ export async function submitQuoteRequest(data: QuoteFormData): Promise<{ id: str
     const json = await res.json().catch(() => ({}))
     if (!res.ok) {
       const message = Array.isArray(json.message) ? json.message[0] : json.message
-      throw new Error(message || 'Your request could not be sent')
+      throw new Error(message || 'Your message could not be sent')
     }
     return json
   } finally {

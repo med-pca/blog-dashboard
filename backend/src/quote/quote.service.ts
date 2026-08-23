@@ -9,9 +9,8 @@ import { sanitizeContent } from '../chat/chat-guards'
 export interface QuoteStats {
   total: number
   new: number
-  contacted: number
-  won: number
-  lost: number
+  replied: number
+  closed: number
 }
 
 const PAGE_SIZE = 50
@@ -27,10 +26,7 @@ export class QuoteService {
     return this.repo.save(
       this.repo.create({
         name: dto.name.trim(),
-        phone: dto.phone,
-        city: dto.city?.trim() || null,
-        serviceType: dto.serviceType,
-        monthlyBill: dto.monthlyBill ?? null,
+        email: dto.email,
         message: dto.message ? sanitizeContent(dto.message) : null,
         kvkkConsent: dto.kvkkConsent,
         consentAt: new Date(),
@@ -63,17 +59,16 @@ export class QuoteService {
     const createdAt = dateRangeOperator(range)
     if (createdAt) where.createdAt = createdAt
 
-    const [requests, filteredTotal, total, newCount, contacted, won, lost] = await Promise.all([
+    const [requests, filteredTotal, total, newCount, replied, closed] = await Promise.all([
       this.repo.find({ where, order: { createdAt: 'DESC' }, take: PAGE_SIZE, skip: (page - 1) * PAGE_SIZE }),
       this.repo.count({ where }),
       this.repo.count(),
       this.repo.count({ where: { status: 'new' } }),
-      this.repo.count({ where: { status: 'contacted' } }),
-      this.repo.count({ where: { status: 'won' } }),
-      this.repo.count({ where: { status: 'lost' } }),
+      this.repo.count({ where: { status: 'replied' } }),
+      this.repo.count({ where: { status: 'closed' } }),
     ])
     return {
-      stats: { total, new: newCount, contacted, won, lost },
+      stats: { total, new: newCount, replied, closed },
       requests,
       page,
       pageCount: Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE)),

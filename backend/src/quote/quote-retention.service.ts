@@ -7,7 +7,7 @@ import { QuoteRequest } from './entities/quote-request.entity'
 // KVKK aydınlatma metninde taahhüt edilen saklama süresi (frontend/src/pages/Kvkk.jsx ile senkron)
 export const RETENTION_INTERVAL = '12 months'
 
-// Satır silinmez, yalnızca kişisel veri (ad/telefon/il/mesaj) null'lanır;
+// Satır silinmez, yalnızca kişisel veri (ad/e-posta/mesaj) null'lanır;
 // böylece durum istatistikleri (new/contacted/won/lost) korunur.
 @Injectable()
 export class QuoteRetentionService {
@@ -25,7 +25,7 @@ export class QuoteRetentionService {
       const result = await this.repo
         .createQueryBuilder()
         .update()
-        .set({ name: null, phone: null, city: null, message: null })
+        .set({ name: null, email: null, message: null })
         .where('"createdAt" < now() - :retention::interval', { retention: RETENTION_INTERVAL })
         .andWhere('name IS NOT NULL')
         .execute()
