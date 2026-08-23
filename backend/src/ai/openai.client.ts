@@ -21,6 +21,15 @@ interface RespondOptions {
   schema?: Record<string, unknown>
 }
 
+interface GenerateImageOptions {
+  operation: string
+  model: string
+  prompt: string
+  size: '1024x1024' | '1536x1024' | '1024x1536'
+  quality: 'low' | 'medium' | 'high' | 'auto'
+  timeoutMs: number
+}
+
 // Backoff between transient retries. Capped so a 3-retry chain never holds a
 // request open much longer than the configured timeout.
 const BASE_BACKOFF_MS = 500
@@ -88,6 +97,25 @@ export class OpenAiClient {
       retries: options.retries ?? this.config.maxRetries,
     })
     return text
+  }
+
+  async generateImage(options: GenerateImageOptions): Promise<Buffer> {
+    try {
+      const response = await this.getClient().images.generate(
+        { model: options.model, prompt: options.prompt, size: options.size, quality: options.quality, output_format: 'png' },
+        { timeout: options.timeoutMs },
+      )
+      const encoded = response.data?.[0]?.b64_json
+      if (!encoded) throw new AiPermanentError('EMPTY_IMAGE', 'Image model returned no image data')
+      return Buffer.from(encoded, 'base64')
+    } catch (err) {
+      if (err instanceof AiPermanentError || err instanceof AiTransientError) throw err
+      const failure = classifyFailure(err, [this.config.apiKey])
+      this.logger.warn(`[${options.operation}] image generation failed (${failure.code}): ${failure.message}`)
+      throw failure.kind === 'transient'
+        ? new AiTransientError(failure.code, failure.message)
+        : new AiPermanentError(failure.code, failure.message)
+    }
   }
 
   // Retry loop. Only transient failures (429, 5xx, timeout, socket reset) are

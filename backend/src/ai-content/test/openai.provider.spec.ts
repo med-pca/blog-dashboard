@@ -56,7 +56,7 @@ describe('OpenAiContentProvider', () => {
     await makeProvider().writeArticle(ARTICLE_REQUEST)
     const schema = createMock.mock.calls[0][0].text.format.schema
     expect(Object.keys(schema.properties)).not.toContain('published')
-    expect(schema.required).toEqual(['title', 'slug', 'excerpt', 'metaDescription', 'content', 'suggestedKeywords'])
+    expect(schema.required).toEqual(['title', 'slug', 'excerpt', 'metaDescription', 'content', 'imagePrompt', 'suggestedKeywords'])
   })
 
   it('carries the editorial guardrails and the avoid-list into the prompt', async () => {
@@ -67,6 +67,9 @@ describe('OpenAiContentProvider', () => {
     expect(instructions).toContain('Never mention that the text was produced by an AI')
     expect(input).toContain('Sheet Pan Honey Garlic Chicken')
     expect(input).toContain('No Knead Sourdough')
+    expect(input).toContain('senior human editor')
+    expect(input).toContain('Recipe arithmetic')
+    expect(input).toContain('Food safety')
   })
 
   it('turns unparsable output into a permanent failure', async () => {
@@ -132,6 +135,7 @@ describe('OpenAiContentProvider', () => {
     })
     expect(result.topics).toEqual(['First idea', 'Second idea'])
     expect(createMock.mock.calls[0][0].input).toContain('Rejected Idea')
+    expect(createMock.mock.calls[0][0].instructions).toContain('substantially the same meal')
   })
 })
 

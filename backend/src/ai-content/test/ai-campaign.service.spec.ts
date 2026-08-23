@@ -13,6 +13,7 @@ function makeService(env: Record<string, string> = {}) {
 
 const VALID = {
   name: 'Weeknight dinners',
+  collectionId: '11111111-1111-4111-8111-111111111111',
   masterPrompt: 'Simple, budget-friendly family recipes for US home cooks. Avoid duplicates.',
 }
 

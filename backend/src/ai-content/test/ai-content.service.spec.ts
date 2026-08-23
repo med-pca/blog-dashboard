@@ -8,6 +8,7 @@ import { AiGenerationJob } from '../entities/ai-generation-job.entity'
 import { AiPermanentError, AiTransientError } from '../lib/errors'
 import { makeArticle, makeCampaign, makeConfig, makeJob, makeQueryBuilder, makeRepo } from './helpers'
 import type { AiContentProvider } from '../types/ai-content.types'
+import { Project } from '../../projects/entities/project.entity'
 
 const API_KEY = 'sk-proj-TESTKEY000011112222333344445555'
 const TOPIC = 'Sheet Pan Honey Garlic Chicken'
@@ -34,6 +35,8 @@ function makeService(options: {
 
   const posts = makeRepo<BlogPost>()
   ;(posts.count as jest.Mock).mockResolvedValue(0)
+  const projects = makeRepo<Project>()
+  ;(projects.findOne as jest.Mock).mockResolvedValue(campaign.collection)
 
   const provider: AiContentProvider = {
     suggestTopics: jest.fn(),
@@ -71,19 +74,20 @@ function makeService(options: {
     campaigns,
     jobs,
     posts,
+    projects,
     provider,
     topics,
     blog,
     makeConfig({ OPENAI_API_KEY: API_KEY, ...options.env }),
   )
-  return { service, campaigns, jobs, posts, provider, topics, blog, created, campaign, job }
+  return { service, campaigns, jobs, posts, projects, provider, topics, blog, created, campaign, job }
 }
 
 const RUN = { jobId: 'job-1', isFinalAttempt: false }
 
 describe('AiContentService — happy path', () => {
   it('creates a draft that is never published and carries no cover image', async () => {
-    const { service, created } = makeService()
+    const { service, created, provider } = makeService()
     await service.runJob(RUN)
 
     expect(created).toHaveLength(1)
@@ -92,9 +96,20 @@ describe('AiContentService — happy path', () => {
       publishedAt: null,
       coverImage: null,
       aiGenerated: true,
+      collectionId: '11111111-1111-4111-8111-111111111111',
       title: 'Sheet Pan Honey Garlic Chicken',
       slug: 'sheet-pan-honey-garlic-chicken',
     })
+    expect(provider.writeArticle).toHaveBeenCalledWith(expect.objectContaining({
+      masterPrompt: expect.stringContaining('Required collection: Weeknight Dinners'),
+    }))
+  })
+
+  it('does not generate an orphan draft when the campaign has no collection', async () => {
+    const { service, created, provider } = makeService({ campaign: { collectionId: null, collection: null } })
+    await expect(service.runJob(RUN)).rejects.toMatchObject({ code: 'COLLECTION_UNAVAILABLE' })
+    expect(provider.writeArticle).not.toHaveBeenCalled()
+    expect(created).toHaveLength(0)
   })
 
   it('ignores a published flag the model tries to smuggle in', async () => {

@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, Optional } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DeepPartial, FindManyOptions, Repository } from 'typeorm'
 import { BlogPost } from './entities/blog-post.entity'
 import { BaseContentService } from '../common/base-content.service'
 import { PublicCacheService } from '../common/public-cache.service'
 import { sanitizeRichHtml, stripHtml } from '../common/html-sanitize'
+import { AiCoverImageService } from '../ai/ai-cover-image.service'
 
 // Liste uçları içerik/HTML taşımaz: kart için gereken alanlar yeter
 const PUBLIC_LIST_FIELDS: (keyof BlogPost)[] = [
@@ -25,8 +26,22 @@ export class BlogService extends BaseContentService<BlogPost> {
   protected readonly fileField = 'coverImage'
   protected readonly uniqueConflictMessage = 'Bu slug zaten kullanımda'
 
-  constructor(@InjectRepository(BlogPost) repo: Repository<BlogPost>, cache: PublicCacheService) {
+  constructor(
+    @InjectRepository(BlogPost) repo: Repository<BlogPost>,
+    cache: PublicCacheService,
+    @Optional() private readonly coverImages?: AiCoverImageService,
+  ) {
     super(repo, cache)
+  }
+
+  override async update(id: string, dto: DeepPartial<BlogPost>): Promise<BlogPost> {
+    const current = await this.findById(id)
+    const firstPublication = dto.published === true && !current.published
+    if (firstPublication && current.aiGenerated && !current.coverImage && current.aiImagePrompt && this.coverImages) {
+      const generated = await this.coverImages.generate(current.slug, current.title, current.aiImagePrompt)
+      if (generated) dto.coverImage = generated
+    }
+    return super.update(id, dto)
   }
 
   // Public liste hafif alanlarla ve yayın tarihine göre döner

@@ -39,6 +39,7 @@ export interface GeneratedArticle {
   excerpt: string
   metaDescription: string
   content: string
+  imagePrompt: string
   suggestedKeywords: string[]
 }
 

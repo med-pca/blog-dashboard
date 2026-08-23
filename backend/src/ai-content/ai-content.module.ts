@@ -15,6 +15,7 @@ import { OpenAiContentProvider } from './providers/openai.provider'
 import { AiContentCampaign } from './entities/ai-content-campaign.entity'
 import { AiGenerationJob } from './entities/ai-generation-job.entity'
 import { AI_CONTENT_PROVIDER } from './types/ai-content.types'
+import { Project } from '../projects/entities/project.entity'
 
 // Autonomous blog-draft generation. Shares the vendor layer in src/ai/ with
 // the chatbot and the project auto-fill, but keeps its own queue, scheduler and
@@ -22,7 +23,7 @@ import { AI_CONTENT_PROVIDER } from './types/ai-content.types'
 // while generation is off); the scheduler and the BullMQ worker are the parts
 // gated on AI_CONTENT_ENABLED.
 @Module({
-  imports: [TypeOrmModule.forFeature([AiContentCampaign, AiGenerationJob, BlogPost]), BlogModule],
+  imports: [TypeOrmModule.forFeature([AiContentCampaign, AiGenerationJob, BlogPost, Project]), BlogModule],
   controllers: [AiContentController],
   providers: [
     AiContentConfig,

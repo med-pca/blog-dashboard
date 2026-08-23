@@ -76,6 +76,10 @@ import { HealthController } from './health.controller'
         AI_DEFAULT_INTERVAL_MINUTES: Joi.number().integer().min(5).empty('').default(20),
         AI_MAX_ATTEMPTS: Joi.number().integer().min(1).max(10).empty('').default(3),
         AI_REQUEST_TIMEOUT_MS: Joi.number().integer().min(10000).empty('').default(120000),
+        AI_IMAGE_ENABLED: Joi.string().valid('true', 'false').empty('').default('false'),
+        OPENAI_IMAGE_MODEL: Joi.string().empty('').default('gpt-image-2'),
+        AI_IMAGE_SIZE: Joi.string().valid('1024x1024', '1536x1024', '1024x1536').empty('').default('1536x1024'),
+        AI_IMAGE_QUALITY: Joi.string().valid('low', 'medium', 'high', 'auto').empty('').default('medium'),
         // ── Opsiyonel (boşsa ilgili özellik devre dışı) ──
         // Virgüllü açık CORS origin listesi; boşsa FRONTEND_URL'den www türetilir
         CORS_ORIGINS: Joi.string().allow('').optional().custom((value: string, helpers) => {

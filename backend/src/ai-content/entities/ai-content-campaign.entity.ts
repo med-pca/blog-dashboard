@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { Project } from '../../projects/entities/project.entity'
 
 export type AiCampaignStatus = 'active' | 'paused' | 'completed'
 
@@ -24,6 +27,15 @@ export class AiContentCampaign {
   // The operator's standing instruction ("family-friendly US recipes, ...").
   @Column({ type: 'text' })
   masterPrompt: string
+
+  // Every campaign owns one editorial lane. Existing campaigns are paused by
+  // the migration until an administrator selects their collection.
+  @Column({ type: 'uuid', nullable: true })
+  collectionId: string | null
+
+  @ManyToOne(() => Project, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'collectionId' })
+  collection: Project | null
 
   @Column({ type: 'varchar', length: 40, default: 'English' })
   language: string

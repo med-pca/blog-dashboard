@@ -44,6 +44,11 @@ export class BlogPost {
   @Column({ default: false })
   aiGenerated: boolean
 
+  // Internal description retained until an admin validates the AI draft. It is
+  // never selected by public list endpoints and never accepted from public DTOs.
+  @Column({ type: 'text', nullable: true })
+  aiImagePrompt: string | null
+
   // Yazının bağlı olduğu koleksiyon (Project). Boş olabilir: koleksiyona
   // atanmamış yazılar blog listesinde görünmeye devam eder. Koleksiyon
   // silinirse FK ON DELETE SET NULL ile yazı korunur, yalnızca bağı kopar.

@@ -15,6 +15,7 @@ import { estimateCost } from './lib/cost'
 import { computeNextGenerationAt, localDateKey } from './lib/schedule'
 import { countWords, slugifyTopic } from './lib/text'
 import { AI_CONTENT_PROVIDER, type AiContentProvider, type GeneratedArticle } from './types/ai-content.types'
+import { Project } from '../projects/entities/project.entity'
 
 // Mirrors the blog DTO so a generated draft can never be rejected on write.
 const TITLE_MAX = 255
@@ -41,6 +42,7 @@ export class AiContentService {
     @InjectRepository(AiContentCampaign) private readonly campaigns: Repository<AiContentCampaign>,
     @InjectRepository(AiGenerationJob) private readonly jobs: Repository<AiGenerationJob>,
     @InjectRepository(BlogPost) private readonly posts: Repository<BlogPost>,
+    @InjectRepository(Project) private readonly projects: Repository<Project>,
     @Inject(AI_CONTENT_PROVIDER) private readonly provider: AiContentProvider,
     private readonly topics: AiTopicService,
     private readonly blog: BlogService,
@@ -54,7 +56,7 @@ export class AiContentService {
     if (!claimed) return
 
     const job = claimed
-    const campaign = await this.campaigns.findOne({ where: { id: job.campaignId } })
+    const campaign = await this.campaigns.findOne({ where: { id: job.campaignId }, relations: { collection: true } })
     if (!campaign) {
       await this.finishCancelled(job, 'CAMPAIGN_GONE', 'Campaign no longer exists')
       return
@@ -144,11 +146,32 @@ export class AiContentService {
     const model = this.config.model
     const timeoutMs = this.config.requestTimeoutMs
 
-    const picked = await this.topics.pickTopic(campaign, { model, timeoutMs, excludeJobId: job.id })
+    const collection = campaign.collection ?? (campaign.collectionId
+      ? await this.projects.findOne({ where: { id: campaign.collectionId, published: true } })
+      : null)
+    if (!campaign.collectionId || !collection || !collection.published) {
+      throw new AiPermanentError(
+        'COLLECTION_UNAVAILABLE',
+        'Select an available published collection before generating articles for this campaign',
+      )
+    }
+
+    const collectionContext = [
+      `Required collection: ${collection.name}.`,
+      collection.category ? `Collection category: ${collection.category}.` : '',
+      collection.description ? `Collection description: ${collection.description}` : '',
+      'The topic and full article must belong clearly to this collection. Do not generate a loosely related article merely to use campaign keywords.',
+    ].filter(Boolean).join('\n')
+    const contextualCampaign = {
+      ...campaign,
+      masterPrompt: `${campaign.masterPrompt}\n\nCollection requirements:\n${collectionContext}`,
+    }
+
+    const picked = await this.topics.pickTopic(contextualCampaign, { model, timeoutMs, excludeJobId: job.id })
     await this.jobs.update(job.id, { topic: picked.topic.slice(0, 300), normalizedTopic: picked.normalizedTopic.slice(0, 300) })
 
     const written = await this.provider.writeArticle({
-      masterPrompt: campaign.masterPrompt,
+      masterPrompt: contextualCampaign.masterPrompt,
       topic: picked.topic,
       language: campaign.language,
       tone: campaign.tone,
@@ -170,7 +193,7 @@ export class AiContentService {
 
     const draft = this.validateArticle(written.article, picked.topic)
     await this.topics.assertTitleIsOriginal(draft.title, campaign.id, job.id)
-    return this.createDraft(draft)
+    return this.createDraft(draft, campaign.collectionId)
   }
 
   // Everything the model may get wrong is corrected or rejected here — the
@@ -181,6 +204,7 @@ export class AiContentService {
     excerpt: string
     metaDescription: string
     content: string
+    imagePrompt: string
   } {
     if (!article || typeof article !== 'object') {
       throw new AiPermanentError('INVALID_SHAPE', 'Model returned no article object')
@@ -213,8 +237,10 @@ export class AiContentService {
 
     const excerpt = stripHtml(String(article.excerpt ?? '')).slice(0, EXCERPT_MAX)
     const metaDescription = stripHtml(String(article.metaDescription ?? '')).slice(0, META_MAX)
+    const imagePrompt = stripHtml(String(article.imagePrompt ?? '')).trim().slice(0, 1200)
+    if (!imagePrompt) throw new AiPermanentError('EMPTY_IMAGE_PROMPT', 'Model returned no dish description for the cover image')
 
-    return { title, slug, excerpt, metaDescription, content }
+    return { title, slug, excerpt, metaDescription, content, imagePrompt }
   }
 
   // Publication stays a human decision: published/publishedAt/coverImage are
@@ -225,7 +251,8 @@ export class AiContentService {
     excerpt: string
     metaDescription: string
     content: string
-  }): Promise<BlogPost> {
+    imagePrompt: string
+  }, collectionId: string): Promise<BlogPost> {
     const base = draft.slug
     for (let attempt = 1; attempt <= SLUG_ATTEMPTS; attempt++) {
       const candidate = attempt === 1 ? base : `${base.slice(0, SLUG_MAX - 4)}-${attempt}`
@@ -236,12 +263,17 @@ export class AiContentService {
         // publishedAt/coverImage are typed non-null on the entity but are
         // nullable columns; the cast keeps the "explicitly empty" intent.
         return await this.blog.create({
-          ...draft,
+          title: draft.title,
+          excerpt: draft.excerpt,
+          metaDescription: draft.metaDescription,
+          content: draft.content,
           slug: candidate,
           published: false,
           publishedAt: null,
           coverImage: null,
+          aiImagePrompt: draft.imagePrompt,
           aiGenerated: true,
+          collectionId,
         } as unknown as DeepPartial<BlogPost>)
       } catch (err) {
         // Another writer took the slug between the count and the insert.

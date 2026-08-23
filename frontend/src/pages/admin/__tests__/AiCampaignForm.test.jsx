@@ -14,6 +14,11 @@ vi.mock('../../../api/aiContent', () => ({
   fetchAiCampaign: vi.fn(),
   fetchAiStatus: vi.fn(),
 }))
+vi.mock('../../../api/projects', () => ({
+  fetchProjects: vi.fn(() => Promise.resolve([
+    { id: '11111111-1111-4111-8111-111111111111', name: 'Weeknight Dinners', category: 'Family Meals' },
+  ])),
+}))
 
 import {
   createAiCampaign,
@@ -38,6 +43,7 @@ function renderForm(path = '/rnl-panel/ai-kampanyalar/yeni') {
 
 async function fillValidBrief() {
   await userEvent.type(screen.getByLabelText('Name *'), 'Weeknight dinners')
+  await userEvent.selectOptions(screen.getByLabelText('Collection *'), '11111111-1111-4111-8111-111111111111')
   await userEvent.type(screen.getByLabelText('Main instruction *'), PROMPT)
 }
 
@@ -71,6 +77,7 @@ describe('AiCampaignForm — creation', () => {
     await waitFor(() => expect(createAiCampaign).toHaveBeenCalled())
     expect(vi.mocked(createAiCampaign).mock.calls[0][0]).toMatchObject({
       name: 'Weeknight dinners',
+      collectionId: '11111111-1111-4111-8111-111111111111',
       masterPrompt: PROMPT,
       dailyTarget: 40,
       intervalMinutes: 20,
@@ -99,9 +106,19 @@ describe('AiCampaignForm — creation', () => {
   it('refuses a main instruction that says nothing', async () => {
     renderForm()
     await userEvent.type(screen.getByLabelText('Name *'), 'Weeknight dinners')
+    await userEvent.selectOptions(screen.getByLabelText('Collection *'), '11111111-1111-4111-8111-111111111111')
     await userEvent.type(screen.getByLabelText('Main instruction *'), 'too short')
     await userEvent.click(screen.getByRole('button', { name: 'Create Campaign' }))
     expect(await screen.findByText(/at least 20 characters/)).toBeInTheDocument()
+    expect(createAiCampaign).not.toHaveBeenCalled()
+  })
+
+  it('requires a collection before creating a campaign', async () => {
+    renderForm()
+    await userEvent.type(screen.getByLabelText('Name *'), 'Weeknight dinners')
+    await userEvent.type(screen.getByLabelText('Main instruction *'), PROMPT)
+    await userEvent.click(screen.getByRole('button', { name: 'Create Campaign' }))
+    expect(await screen.findByText('A collection is required.')).toBeInTheDocument()
     expect(createAiCampaign).not.toHaveBeenCalled()
   })
 
@@ -217,6 +234,7 @@ describe('AiCampaignForm — editing', () => {
     vi.mocked(fetchAiCampaign).mockResolvedValue({
       id: 'camp-1',
       name: 'Weeknight dinners',
+      collectionId: '11111111-1111-4111-8111-111111111111',
       masterPrompt: PROMPT,
       language: 'English',
       tone: 'friendly and practical',

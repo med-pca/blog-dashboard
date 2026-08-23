@@ -40,6 +40,17 @@ export class AiConfig {
     return this.config.get<string>('OPENAI_API_KEY')?.trim() ?? ''
   }
 
+  get imageEnabled(): boolean { return this.config.get<string>('AI_IMAGE_ENABLED') === 'true' }
+  get imageModel(): string { return this.config.get<string>('OPENAI_IMAGE_MODEL')?.trim() || 'gpt-image-2' }
+  get imageSize(): '1024x1024' | '1536x1024' | '1024x1536' {
+    const value = this.config.get<string>('AI_IMAGE_SIZE')
+    return value === '1024x1024' || value === '1024x1536' ? value : '1536x1024'
+  }
+  get imageQuality(): 'low' | 'medium' | 'high' | 'auto' {
+    const value = this.config.get<string>('AI_IMAGE_QUALITY')
+    return value === 'low' || value === 'high' || value === 'auto' ? value : 'medium'
+  }
+
   logStartupState(): void {
     if (this.provider === 'groq') {
       this.logger.warn('AI_PROVIDER=groq — legacy Groq adapter active; OpenAI is the supported default')

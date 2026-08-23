@@ -15,7 +15,7 @@ import type {
 const ARTICLE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['title', 'slug', 'excerpt', 'metaDescription', 'content', 'suggestedKeywords'],
+  required: ['title', 'slug', 'excerpt', 'metaDescription', 'content', 'imagePrompt', 'suggestedKeywords'],
   properties: {
     title: { type: 'string', description: 'Article title, at most 255 characters.' },
     slug: {
@@ -28,6 +28,10 @@ const ARTICLE_SCHEMA = {
       type: 'string',
       description:
         'Article body as HTML using only p, h2, h3, ul, ol, li, strong, em and blockquote tags. No images, no scripts, no inline styles.',
+    },
+    imagePrompt: {
+      type: 'string',
+      description: 'Concise visual description of the finished dish, using only ingredients and garnishes present in the recipe.',
     },
     suggestedKeywords: { type: 'array', items: { type: 'string' }, description: 'Three to eight keywords.' },
   },
@@ -57,10 +61,24 @@ const EDITORIAL_RULES = [
   'Do not pad: no filler paragraphs, no repeated sentences, no restated headings.',
   'Stay strictly on the given topic.',
   'Give no medical, legal or financial advice that could be unsafe; add no health claims.',
-  'Do not reference images; the article carries no illustrations.',
+  'Do not reference images inside the article body.',
+  'The imagePrompt must describe the exact finished dish from this recipe, including its visible ingredients, texture, cooking method and plating. Never add a garnish or ingredient absent from the recipe.',
   'Use only these HTML tags: p, h2, h3, ul, ol, li, strong, em, blockquote.',
   'Do not emit script, style, iframe, img, form or any on* attribute.',
   'Only add a link when it is genuinely necessary, and only to a well-known https site.',
+].join('\n- ')
+
+// The model does this review inside the same call and returns only the corrected
+// article. It is deliberately explicit: "write like a human" is too vague to
+// catch arithmetic, recipe-safety and near-duplicate failures consistently.
+const SILENT_REVIEW_CHECKLIST = [
+  'Originality: compare the proposed article with every title in the avoid-list. Reject cosmetic variations that keep the same main ingredient, starch, cooking vessel, sauce and reader promise.',
+  'Editorial value: make sure the article gives topic-specific help rather than generic filler or a reusable SEO template.',
+  'Recipe arithmetic: recalculate ingredient totals, serving yield and every per-serving statement; remove any number that cannot be supported.',
+  'Method consistency: confirm that every ingredient is used, every step is in a workable order, vessel size is plausible, liquid ratios are coherent and prep plus cook time can equal total time.',
+  'Food safety: check conservative internal temperatures, refrigeration, cooling, reheating and allergen wording where relevant.',
+  'Language quality: remove awkward phrases, mistranslations, contradictions, repeated conclusions and robotic transitions.',
+  'Trust: remove personal anecdotes, testing claims, ratings, prices, nutrition figures, credentials or reader feedback that were not supplied as verified facts.',
 ].join('\n- ')
 
 @Injectable()
@@ -88,7 +106,8 @@ export class OpenAiContentProvider implements AiContentProvider {
       instructions:
         'You plan an editorial calendar. Return distinct, specific, self-contained article titles. ' +
         'No numbering, no quotes around titles, no duplicates, no near-duplicates of each other. ' +
-        'Diversify primary ingredient, cooking method, cuisine direction, meal type and reader intent; do not return a list of cosmetic variations on one base recipe.',
+        'Diversify primary ingredient, cooking method, cuisine direction, meal type and reader intent; do not return a list of cosmetic variations on one base recipe. ' +
+        'Treat two recipes as overlapping when a reader would consider them substantially the same meal even if adjectives, vegetables, sauce or SEO keywords differ.',
       input:
         `Editorial brief:\n${request.masterPrompt}\n\n` +
         `Language: ${request.language}.${keywords}\n` +
@@ -124,7 +143,10 @@ export class OpenAiContentProvider implements AiContentProvider {
         `Editorial brief:\n${request.masterPrompt}\n\n` +
         `Write the full article for this exact topic: ${request.topic}\n` +
         `Target length: about ${request.targetWords} words.${keywords}\n` +
-        'Structure the body with h2 sections and, where useful, h3 subsections and lists.' +
+        'Structure the body with h2 sections and, where useful, h3 subsections and lists.\n\n' +
+        'Before returning the JSON, silently act as a senior human editor and correct the draft using this checklist. ' +
+        'Return only the final corrected article; do not output the checklist or review notes.\n- ' +
+        SILENT_REVIEW_CHECKLIST +
         avoid,
     })
 

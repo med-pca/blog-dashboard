@@ -4,6 +4,7 @@ import { OpenAiClient } from './openai.client'
 import { OpenAiProvider } from './providers/openai.provider'
 import { GroqProvider } from './providers/groq.provider'
 import { AI_PROVIDER } from './ai-provider.types'
+import { AiCoverImageService } from './ai-cover-image.service'
 
 // Shared model-vendor layer. Global so any feature module can inject
 // AI_PROVIDER without re-importing, mirroring how GroqModule was wired.
@@ -15,6 +16,7 @@ import { AI_PROVIDER } from './ai-provider.types'
   providers: [
     AiConfig,
     OpenAiClient,
+    AiCoverImageService,
     OpenAiProvider,
     GroqProvider,
     {
@@ -26,6 +28,6 @@ import { AI_PROVIDER } from './ai-provider.types'
       },
     },
   ],
-  exports: [AI_PROVIDER, AiConfig, OpenAiClient],
+  exports: [AI_PROVIDER, AiConfig, OpenAiClient, AiCoverImageService],
 })
 export class AiModule {}

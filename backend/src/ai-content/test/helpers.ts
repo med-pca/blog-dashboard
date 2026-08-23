@@ -6,6 +6,7 @@ import { OpenAiClient } from '../../ai/openai.client'
 import { OpenAiContentProvider } from '../providers/openai.provider'
 import { AiContentCampaign } from '../entities/ai-content-campaign.entity'
 import { AiGenerationJob } from '../entities/ai-generation-job.entity'
+import { Project } from '../../projects/entities/project.entity'
 
 // Thin stand-ins for the pieces the AI services touch. Kept here so each spec
 // states only what it actually cares about.
@@ -36,10 +37,19 @@ export function makeProvider(env: Record<string, string> = {}): OpenAiContentPro
 }
 
 export function makeCampaign(overrides: Partial<AiContentCampaign> = {}): AiContentCampaign {
+  const collection = {
+    id: '11111111-1111-4111-8111-111111111111',
+    name: 'Weeknight Dinners',
+    category: 'Family Meals',
+    description: 'Practical dinners for busy weeknights.',
+    published: true,
+  } as Project
   return {
     id: 'camp-1',
     name: 'Weeknight dinners',
     masterPrompt: 'Simple, budget-friendly family recipes for US home cooks.',
+    collectionId: collection.id,
+    collection,
     language: 'English',
     tone: 'friendly and practical',
     targetWords: 1200,
@@ -141,6 +151,7 @@ export function makeArticle(overrides: Record<string, unknown> = {}) {
     excerpt: 'A one-pan dinner that comes together on a weeknight.',
     metaDescription: 'A simple sheet pan chicken dinner with a honey garlic glaze.',
     content: `<h2>Why this works</h2><p>${'Sheet pan dinners keep the cleanup small and the flavour big. '.repeat(30)}</p>`,
+    imagePrompt: 'Honey garlic chicken pieces with roasted potatoes on a cream ceramic platter.',
     suggestedKeywords: ['sheet pan', 'chicken'],
     ...overrides,
   }

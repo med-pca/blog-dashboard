@@ -14,11 +14,13 @@ import {
   localTimezone,
   scheduleWarning,
 } from '../../lib/aiCampaign'
+import { fetchProjects } from '../../api/projects'
 
 const HOURS = Array.from({ length: 25 }, (_, i) => i)
 
 const EMPTY = {
   name: '',
+  collectionId: '',
   masterPrompt: '',
   language: 'English',
   tone: 'friendly and practical',
@@ -35,6 +37,7 @@ const EMPTY = {
 function toPayload(form) {
   return {
     name: form.name.trim(),
+    collectionId: form.collectionId,
     masterPrompt: form.masterPrompt.trim(),
     language: form.language.trim(),
     tone: form.tone.trim(),
@@ -62,12 +65,21 @@ export default function AiCampaignForm() {
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [collections, setCollections] = useState([])
 
   useEffect(() => {
     let ignore = false
     fetchAiStatus()
       .then((status) => { if (!ignore) setMaxDaily(status.dailyMaxPerCampaign) })
       .catch(() => { /* the backend re-checks the cap on save */ })
+    return () => { ignore = true }
+  }, [])
+
+  useEffect(() => {
+    let ignore = false
+    fetchProjects()
+      .then((items) => { if (!ignore) setCollections(items) })
+      .catch(() => { if (!ignore) setError('Could not load published collections.') })
     return () => { ignore = true }
   }, [])
 
@@ -103,6 +115,7 @@ export default function AiCampaignForm() {
 
     const payload = toPayload(form)
     if (!payload.name) { setError('Name is required.'); return }
+    if (!payload.collectionId) { setError('A collection is required.'); return }
     if (payload.masterPrompt.length < 20) {
       setError('The main instruction must describe the brief in at least 20 characters.')
       return
@@ -159,6 +172,28 @@ export default function AiCampaignForm() {
             placeholder="Weeknight family dinners"
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label htmlFor="ai-collection" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Collection *
+          </label>
+          <select
+            id="ai-collection"
+            value={form.collectionId}
+            onChange={(e) => set('collectionId', e.target.value)}
+            className={inputClass}
+          >
+            <option value="">Select a published collection</option>
+            {collections.map((collection) => (
+              <option key={collection.id} value={collection.id}>
+                {collection.name}{collection.category ? ` — ${collection.category}` : ''}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            Every generated draft will be assigned to this collection and must match its subject.
+          </p>
         </div>
 
         <div>

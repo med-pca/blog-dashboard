@@ -53,6 +53,10 @@ connection and no OpenAI client are created.
 ```bash
 # backend/.env  (gitignored)
 AI_CONTENT_ENABLED=true
+AI_IMAGE_ENABLED=true
+OPENAI_IMAGE_MODEL=gpt-image-2
+AI_IMAGE_SIZE=1536x1024
+AI_IMAGE_QUALITY=medium
 OPENAI_API_KEY=sk-proj-...
 OPENAI_MODEL=gpt-5-nano
 ```

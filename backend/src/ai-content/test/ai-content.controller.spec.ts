@@ -144,7 +144,11 @@ describe('AiContentController — job filters', () => {
 })
 
 describe('CreateAiCampaignDto', () => {
-  const base = { name: 'Weeknight dinners', masterPrompt: 'Simple family recipes for US home cooks, no duplicates.' }
+  const base = {
+    name: 'Weeknight dinners',
+    masterPrompt: 'Simple family recipes for US home cooks, no duplicates.',
+    collectionId: '11111111-1111-4111-8111-111111111111',
+  }
 
   async function errorsFor(payload: Record<string, unknown>) {
     const dto = plainToInstance(CreateAiCampaignDto, payload)

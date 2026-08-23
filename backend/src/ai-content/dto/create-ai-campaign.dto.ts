@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -24,6 +25,9 @@ export class CreateAiCampaignDto {
   @IsNotEmpty()
   @MaxLength(120)
   name: string
+
+  @IsUUID()
+  collectionId: string
 
   @IsString()
   @IsNotEmpty()

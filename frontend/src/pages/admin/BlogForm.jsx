@@ -105,12 +105,16 @@ export default function BlogForm() {
     try {
       let post
       if (isEdit) {
+        // Upload a manually selected cover before publication. The backend can
+        // then see it and will not spend an AI image call unnecessarily.
+        if (coverFile) {
+          await uploadBlogCover(id, coverFile)
+          setCoverFile(null)
+        }
         post = await updateBlogPost(id, form)
       } else {
         post = await createBlogPost(form)
-      }
-      if (coverFile) {
-        await uploadBlogCover(post.id, coverFile)
+        if (coverFile) await uploadBlogCover(post.id, coverFile)
       }
       navigate('/rnl-panel/blog')
     } catch (err) {
