@@ -7,11 +7,14 @@ import { ChatHistoryService } from './chat-history.service'
 import { ChatRatingService } from './chat-rating.service'
 import { ChatLeadService } from './chat-lead.service'
 import { ChatStatsService } from './chat-stats.service'
-import { ChatBodyDto, SummaryBodyDto } from './dto/chat-body.dto'
+import { ChatBodyDto } from './dto/chat-body.dto'
 import { RatingBodyDto } from './dto/rating-body.dto'
 import { EventBodyDto } from './dto/event-body.dto'
+import { ChatLeadStatus } from './entities/chat-lead.entity'
 import { parsePage } from '../common/pagination'
 import { parseDateRange } from '../common/date-range'
+
+const LEAD_STATUSES: ChatLeadStatus[] = ['active', 'assisted', 'contact_requested']
 
 @Controller('chat')
 export class ChatController {
@@ -62,18 +65,6 @@ export class ChatController {
     return { reply }
   }
 
-  @Post('summary')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async summary(@Body() dto: SummaryBodyDto) {
-    const history = await this.historyService.load(dto.sessionId)
-    if (history.length < 2) {
-      throw new BadRequestException('Özet için yeterli görüşme geçmişi yok')
-    }
-    const text = await this.chatService.generateSummary(history)
-    this.trackLead(this.leadService.markWhatsapp(dto.sessionId))
-    return { text }
-  }
-
   @Post('rating')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async rate(@Body() dto: RatingBodyDto) {
@@ -111,7 +102,9 @@ export class ChatController {
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
-    const narrowed = status === 'active' || status === 'whatsapp' ? status : undefined
+    const narrowed = LEAD_STATUSES.includes(status as ChatLeadStatus)
+      ? (status as ChatLeadStatus)
+      : undefined
     return this.leadService.findAllWithStats(parsePage(page), narrowed, parseDateRange(from, to))
   }
 

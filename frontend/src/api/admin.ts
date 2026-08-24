@@ -315,7 +315,17 @@ export async function fetchChatRatings(
 
 // Chat potansiyel talepleri (lead)
 export async function fetchChatLeads(
-  { page = 1, status, from, to }: { page?: number; status?: 'active' | 'whatsapp'; from?: string; to?: string } = {},
+  {
+    page = 1,
+    status,
+    from,
+    to,
+  }: {
+    page?: number
+    status?: 'active' | 'assisted' | 'contact_requested'
+    from?: string
+    to?: string
+  } = {},
 ): Promise<{ stats: ChatLeadStats; leads: ChatLead[]; page: number; pageCount: number }> {
   const params = new URLSearchParams({ page: String(page) })
   if (status) params.set('status', status)
@@ -326,7 +336,7 @@ export async function fetchChatLeads(
   return res.json()
 }
 
-// Chatbot conversion funnel (open -> message -> WhatsApp)
+// Chatbot conversion funnel (open -> message -> assisted)
 export async function fetchChatFunnel(days: 7 | 30): Promise<ChatFunnel> {
   const res = await fetch(`${API}/api/chat/lead/admin/funnel?days=${days}`, authOptions())
   if (!res.ok) throw apiError(res, 'Could not load funnel statistics')

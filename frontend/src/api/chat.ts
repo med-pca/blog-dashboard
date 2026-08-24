@@ -26,12 +26,6 @@ export async function sendChatMessage(message: string, sessionId: string): Promi
   return res.json()
 }
 
-export async function generateWhatsappSummary(sessionId: string): Promise<{ text: string }> {
-  const res = await post('/api/chat/summary', { sessionId })
-  if (!res.ok) throw new Error('Could not generate the summary')
-  return res.json()
-}
-
 // Huni sayacı; hata sessizce yutulur, istatistik kaybı akışı etkilememeli
 export function trackChatOpen(): void {
   fetch(`${API}/api/chat/event`, {

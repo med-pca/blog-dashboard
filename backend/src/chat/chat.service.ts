@@ -8,8 +8,8 @@ import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
 import { AI_PROVIDER, type AiProvider } from '../ai/ai-provider.types'
 import { REDIS_CLIENT } from '../redis/redis.module'
-import { hasNonLatinLeak, isContaminated, sanitizeContent } from './chat-guards'
-import { JUDGE_SYSTEM_PROMPT, judgeUserMessage, RETRY_NUDGE, SUMMARY_PROMPT, SYSTEM_PROMPT } from './chat-prompts'
+import { isContaminated, sanitizeContent } from './chat-guards'
+import { JUDGE_SYSTEM_PROMPT, judgeUserMessage, RETRY_NUDGE, SYSTEM_PROMPT } from './chat-prompts'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -23,9 +23,12 @@ const DEFAULT_DAILY_LIMIT = 1000
 const BUDGET_KEY_PREFIX = 'ai:chat:daily:'
 const BUDGET_KEY_TTL_SECONDS = 48 * 60 * 60
 
-export const BUDGET_EXCEEDED_MESSAGE =
-  'I cannot reply right now because of high demand. Press the "Continue on WhatsApp" ' +
-  'button below to send your request straight to the Pulse Recipe kitchen team.'
+// Shown whenever no usable reply can be produced (daily budget spent, or every
+// attempt drifted out of the reader's language). It names only things the site
+// actually has: the recipes and the contact page.
+export const FALLBACK_MESSAGE =
+  "I'm unable to prepare a complete response right now. Please try again in a moment, " +
+  'browse our published recipes, or use the contact page if you need to report a problem.'
 
 export class AiBudgetExceededError extends Error {
   constructor() {
@@ -94,18 +97,19 @@ export class ChatService {
     return sanitizeContent(content)
   }
 
-  // LLM judge (4.2): catches Latin-script leaks the heuristics cannot see, with a
-  // cheap 8B call. Fail-open when the judge is unreachable/unclear — same philosophy
-  // as the budget counter: the chatbot is never silenced for the sake of language purity.
+  // LLM judge (4.2): catches the drifts the heuristics cannot see, with a cheap
+  // 8B call comparing the reply's language to the reader's. Fail-open when the
+  // judge is unreachable/unclear — same philosophy as the budget counter: the
+  // chatbot is never silenced for the sake of language purity.
   // consumeDailyBudget is deliberately NOT called: every judge is bound 1:1 to an
   // already budgeted generation, so total usage stays within budget×MAX_CHAT_ATTEMPTS.
-  private async isEnglishByJudge(text: string): Promise<boolean> {
+  private async speaksReaderLanguage(text: string, readerText: string): Promise<boolean> {
     let verdict: string
     try {
       verdict = await this.ai.generateText({
         operation: 'chat-language-judge',
         instructions: JUDGE_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: judgeUserMessage(text) }],
+        messages: [{ role: 'user', content: judgeUserMessage(text, readerText) }],
         // The verdict is one word, but reasoning models draw thinking tokens
         // from the same budget; the client adds its own head room on top.
         maxOutputTokens: 16,
@@ -133,10 +137,14 @@ export class ChatService {
     return true
   }
 
-  // Deterministic guards (cheap) first; if they say clean, the judge has the last word
-  private async isLeaky(text: string): Promise<boolean> {
-    if (isContaminated(text)) return true
-    return !(await this.isEnglishByJudge(text))
+  // The reply has to speak the reader's language. The deterministic guards only
+  // apply when the reader wrote English — they are a Turkish-leak detector, and a
+  // Turkish reply to a Turkish reader is now correct, not a leak. Everything else
+  // is left to the judge, which compares the two languages directly.
+  private async isLeaky(text: string, readerText: string): Promise<boolean> {
+    if (!readerText) return false
+    if (!isContaminated(readerText) && isContaminated(text)) return true
+    return !(await this.speaksReaderLanguage(text, readerText))
   }
 
   // Kullanıcıya göstermeden en fazla bu kadar üretim denenir; hepsi sızarsa sabit
@@ -146,48 +154,30 @@ export class ChatService {
   private static readonly MAX_CHAT_ATTEMPTS = 3
 
   async chat(messages: ChatMessage[]): Promise<string> {
+    // The language to mirror is the one the reader just used, not the one the
+    // conversation opened in: a reader who switches language is followed.
+    const readerText = [...messages].reverse().find(m => m.role === 'user')?.content ?? ''
     try {
       for (let attempt = 1; attempt <= ChatService.MAX_CHAT_ATTEMPTS; attempt++) {
         // İlk deneme düz sistem promptuyla, sonrakiler düzeltici talimatla yapılır
         // (kör tekrar aynı sızıntıyı yeniden üretebiliyor)
         const systemPrompt = attempt === 1 ? SYSTEM_PROMPT : `${SYSTEM_PROMPT}\n\n${RETRY_NUDGE}`
         const reply = await this.callModel(systemPrompt, messages, 400)
-        if (!(await this.isLeaky(reply))) return reply
+        if (!(await this.isLeaky(reply, readerText))) return reply
 
         const isLastAttempt = attempt === ChatService.MAX_CHAT_ATTEMPTS
         this.logger.warn(
           isLastAttempt
-            ? `Leak on attempt ${attempt} as well, fell back to the fixed message: "${reply.slice(0, 120)}"`
-            : `Foreign language leak (attempt ${attempt}/${ChatService.MAX_CHAT_ATTEMPTS}), regenerating reply: "${reply.slice(0, 120)}"`,
+            ? `Language drift on attempt ${attempt} as well, fell back to the fixed message: "${reply.slice(0, 120)}"`
+            : `Reply is not in the reader's language (attempt ${attempt}/${ChatService.MAX_CHAT_ATTEMPTS}), regenerating: "${reply.slice(0, 120)}"`,
         )
       }
-      return 'Sorry, something went wrong while composing a reply. Could you write your question again?'
+      return FALLBACK_MESSAGE
     } catch (err) {
-      // Bütçe dolduğunda hata yerine normal cevap gibi sabit mesaj dön;
-      // frontend'de WhatsApp butonu görünür kalır
-      if (err instanceof AiBudgetExceededError) return BUDGET_EXCEEDED_MESSAGE
+      // Bütçe dolduğunda hata yerine normal cevap gibi sabit mesaj dön:
+      // konuşma açık kalır, kullanıcı biraz sonra tekrar deneyebilir
+      if (err instanceof AiBudgetExceededError) return FALLBACK_MESSAGE
       throw err
     }
-  }
-
-  async generateSummary(messages: ChatMessage[]): Promise<string> {
-    let text: string
-    try {
-      text = await this.callModel(SUMMARY_PROMPT, messages, 300)
-    } catch (err) {
-      // Frontend 503'te düz wa.me linkine düşüyor; bütçe aşımında da aynı yol
-      if (err instanceof AiBudgetExceededError) {
-        throw new ServiceUnavailableException('Özet oluşturulamadı')
-      }
-      throw err
-    }
-    // Özet bilinçli olarak foreign-word ön-filtresine girmez (şablon markalı terim
-    // içerir); alfabe kontrolü + judge yeterli
-    if (hasNonLatinLeak(text) || !(await this.isEnglishByJudge(text))) {
-      // Frontend falls back to a plain wa.me link on error; never ship a broken summary
-      this.logger.warn(`Non-English summary rejected: "${text.slice(0, 120)}"`)
-      throw new ServiceUnavailableException('Özet oluşturulamadı')
-    }
-    return text
   }
 }

@@ -183,7 +183,8 @@ export interface ChatLead {
   sessionId: string
   conversation: ChatMessage[] | null
   messageCount: number
-  status: 'active' | 'whatsapp'
+  // 'contact_requested' is reserved: no chatbot event sets it yet.
+  status: 'active' | 'assisted' | 'contact_requested'
   rating: number | null
   createdAt: string
   updatedAt: string
@@ -192,14 +193,15 @@ export interface ChatLead {
 export interface ChatLeadStats {
   total: number
   active: number
-  whatsapp: number
+  assisted: number
+  contactRequested: number
 }
 
 export interface ChatFunnel {
   days: number
   opened: number
   messaged: number
-  whatsapp: number
+  assisted: number
   rated: number
 }
 

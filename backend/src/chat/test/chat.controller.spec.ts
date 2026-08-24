@@ -12,7 +12,6 @@ const SESSION = '3f2b8c1a-9d4e-4f6a-8b2c-1d3e5f7a9b0c'
 
 const mockChatService = {
   chat: jest.fn().mockResolvedValue('cevap'),
-  generateSummary: jest.fn().mockResolvedValue('özet'),
 }
 
 const mockHistoryService = {
@@ -27,14 +26,13 @@ const mockRatingService = {
 
 const mockLeadService = {
   upsertFromChat: jest.fn().mockResolvedValue(undefined),
-  markWhatsapp: jest.fn().mockResolvedValue(undefined),
   attachRating: jest.fn().mockResolvedValue(undefined),
   findAllWithStats: jest.fn(),
 }
 
 const mockStatsService = {
   recordOpen: jest.fn().mockResolvedValue(undefined),
-  funnel: jest.fn().mockResolvedValue({ days: 30, opened: 0, messaged: 0, whatsapp: 0, rated: 0 }),
+  funnel: jest.fn().mockResolvedValue({ days: 30, opened: 0, messaged: 0, assisted: 0, rated: 0 }),
 }
 
 async function makeController() {
@@ -100,7 +98,6 @@ describe('ChatController', () => {
     mockHistoryService.load.mockResolvedValue([])
     mockHistoryService.save.mockResolvedValue(undefined)
     mockChatService.chat.mockResolvedValue('cevap')
-    mockChatService.generateSummary.mockResolvedValue('özet')
   })
 
   describe('POST /chat — injection guard', () => {
@@ -171,37 +168,6 @@ describe('ChatController', () => {
     })
   })
 
-  describe('POST /chat/summary', () => {
-    it('generates the summary from the server-side history', async () => {
-      const history: ChatMessage[] = [
-        { role: 'user', content: 'çatı ges' },
-        { role: 'assistant', content: 'Faturanız nedir?' },
-        { role: 'user', content: '2500 TL' },
-      ]
-      mockHistoryService.load.mockResolvedValue(history)
-
-      const result = await controller.summary({ sessionId: SESSION })
-
-      expect(result).toEqual({ text: 'özet' })
-      expect(mockChatService.generateSummary).toHaveBeenCalledWith(history)
-    })
-
-    it('rejects when there is not enough history for a summary', async () => {
-      mockHistoryService.load.mockResolvedValue([{ role: 'user', content: 'merhaba' }])
-      await expect(controller.summary({ sessionId: SESSION })).rejects.toThrow(BadRequestException)
-      expect(mockChatService.generateSummary).not.toHaveBeenCalled()
-    })
-
-    it('marks the lead as whatsapp after a successful summary', async () => {
-      mockHistoryService.load.mockResolvedValue([
-        { role: 'user', content: 'çatı ges' },
-        { role: 'assistant', content: 'özetliyorum' },
-      ])
-      await controller.summary({ sessionId: SESSION })
-      expect(mockLeadService.markWhatsapp).toHaveBeenCalledWith(SESSION)
-    })
-  })
-
   describe('POST /chat/rating', () => {
     it('stores the rating with the server-side conversation', async () => {
       const history: ChatMessage[] = [{ role: 'user', content: 'harika' }]
@@ -249,6 +215,22 @@ describe('ChatController', () => {
     it('admin leads endpoint delegates to service', () => {
       controller.adminLeads()
       expect(mockLeadService.findAllWithStats).toHaveBeenCalledTimes(1)
+    })
+
+    it('passes through the new lead statuses and drops unknown ones', () => {
+      controller.adminLeads(undefined, 'assisted')
+      expect(mockLeadService.findAllWithStats.mock.calls[0][1]).toBe('assisted')
+
+      controller.adminLeads(undefined, 'contact_requested')
+      expect(mockLeadService.findAllWithStats.mock.calls[1][1]).toBe('contact_requested')
+
+      // the retired WhatsApp status is no longer a filter
+      controller.adminLeads(undefined, 'whatsapp')
+      expect(mockLeadService.findAllWithStats.mock.calls[2][1]).toBeUndefined()
+    })
+
+    it('no longer exposes a summary endpoint', () => {
+      expect((controller as unknown as Record<string, unknown>).summary).toBeUndefined()
     })
   })
 

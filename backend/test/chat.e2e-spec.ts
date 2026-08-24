@@ -54,13 +54,11 @@ describe('Chat contract (e2e)', () => {
       .expect(400)
   })
 
-  it('rejects a summary request when no history exists for the session', async () => {
-    const res = await request(server)
+  it('no longer exposes the WhatsApp summary endpoint', async () => {
+    await request(server)
       .post('/api/chat/summary')
       .send({ sessionId: '9d1f6b3c-2a4e-4c8b-9f0a-5e7d1c3b9a2f' })
-      .expect(400)
-
-    expect(res.body.message).toBe('Özet için yeterli görüşme geçmişi yok')
+      .expect(404)
   })
 
   it('accepts a rating tied to a sessionId only', async () => {

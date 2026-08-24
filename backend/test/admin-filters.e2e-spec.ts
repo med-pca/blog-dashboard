@@ -21,7 +21,7 @@ describe('Admin list filters (e2e)', () => {
   const LEAD_SESSIONS = {
     juneActive: '11111111-1111-4111-8111-111111111111',
     julyActive: '22222222-2222-4222-8222-222222222222',
-    julyWhatsapp: '33333333-3333-4333-8333-333333333333',
+    julyAssisted: '33333333-3333-4333-8333-333333333333',
   }
 
   beforeAll(async () => {
@@ -48,7 +48,7 @@ describe('Admin list filters (e2e)', () => {
     await leads.save([
       leads.create({ sessionId: LEAD_SESSIONS.juneActive, conversation: null, messageCount: 2, status: 'active', createdAt: JUNE }),
       leads.create({ sessionId: LEAD_SESSIONS.julyActive, conversation: null, messageCount: 3, status: 'active', createdAt: JULY }),
-      leads.create({ sessionId: LEAD_SESSIONS.julyWhatsapp, conversation: null, messageCount: 4, status: 'whatsapp', createdAt: JULY }),
+      leads.create({ sessionId: LEAD_SESSIONS.julyAssisted, conversation: null, messageCount: 4, status: 'assisted', createdAt: JULY }),
     ])
   })
 
@@ -91,11 +91,11 @@ describe('Admin list filters (e2e)', () => {
   describe('GET /api/chat/lead/admin/all', () => {
     it('status filtresi yalnızca o statüdeki talepleri döndürür', async () => {
       const res = await request(server)
-        .get('/api/chat/lead/admin/all?status=whatsapp')
+        .get('/api/chat/lead/admin/all?status=assisted')
         .set('Cookie', cookie)
         .expect(200)
       const sessions = (res.body.leads as ChatLead[]).map(l => l.sessionId)
-      expect(sessions).toContain(LEAD_SESSIONS.julyWhatsapp)
+      expect(sessions).toContain(LEAD_SESSIONS.julyAssisted)
       expect(sessions).not.toContain(LEAD_SESSIONS.juneActive)
       expect(sessions).not.toContain(LEAD_SESSIONS.julyActive)
     })
@@ -107,7 +107,7 @@ describe('Admin list filters (e2e)', () => {
         .expect(200)
       const sessions = (res.body.leads as ChatLead[]).map(l => l.sessionId)
       expect(sessions).toContain(LEAD_SESSIONS.julyActive)
-      expect(sessions).toContain(LEAD_SESSIONS.julyWhatsapp)
+      expect(sessions).toContain(LEAD_SESSIONS.julyAssisted)
       expect(sessions).not.toContain(LEAD_SESSIONS.juneActive)
       expect(res.body.stats.total).toBeGreaterThanOrEqual(3)
     })

@@ -3,7 +3,6 @@ import {
   X,
   Send,
   Loader2,
-  MessageCircle,
   Star,
   CookingPot,
   ChefHat,
@@ -14,13 +13,7 @@ import {
   CalendarDays,
   Sparkles,
 } from "lucide-react";
-import {
-  sendChatMessage,
-  generateWhatsappSummary,
-  submitChatRating,
-  trackChatOpen,
-} from "../api/chat";
-import { WA_NUMBER, waLink, WHATSAPP_ENABLED } from "../lib/whatsapp";
+import { sendChatMessage, submitChatRating, trackChatOpen } from "../api/chat";
 
 const RATED_KEY = "chatRated";
 
@@ -28,7 +21,7 @@ const RATED_KEY = "chatRated";
 let openTracked = false;
 
 const GREETING =
-  "Welcome to Pulse Recipe. I can ask a few quick questions to suggest the most suitable recipes and cooking workflow. What would you like help with?";
+  "Welcome to Pulse Recipe. Ask me anything about cooking, meal prep or planning and I will answer right here. What are you making?";
 
 const QUICK_REPLIES = [
   {
@@ -94,7 +87,6 @@ export default function TeklifChatbot({
   );
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [summaryLoading, setSummaryLoading] = useState(false);
   const [ratingView, setRatingView] = useState(false); // false | 'rate' | 'thanks'
   const [hoverStar, setHoverStar] = useState(0);
   const [selectedStar, setSelectedStar] = useState(0);
@@ -108,13 +100,6 @@ export default function TeklifChatbot({
   }
 
   const userMessageCount = messages.filter((m) => m.role === "user").length;
-  const lastAssistant = [...messages]
-    .reverse()
-    .find((m) => m.role === "assistant");
-  const showWhatsapp =
-    !!lastAssistant &&
-    lastAssistant.content !== GREETING &&
-    /whatsapp/i.test(lastAssistant.content);
 
   useEffect(() => {
     if (messagesRef.current)
@@ -158,30 +143,12 @@ export default function TeklifChatbot({
         {
           role: "assistant",
           content:
-            "Sorry, I cannot respond right now. Please contact us directly: 0554 379 60 04",
+            "I'm unable to prepare a complete response right now. Please try again in a moment, browse our published recipes, or use the contact page if you need to report a problem.",
         },
       ];
       saveMessages(withError);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleWhatsapp() {
-    setSummaryLoading(true);
-    try {
-      const { text } = await generateWhatsappSummary(sessionId);
-      window.open(waLink(text), "_blank", "noopener,noreferrer");
-    } catch {
-      window.open(
-        `https://wa.me/${WA_NUMBER}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
-    } finally {
-      setSummaryLoading(false);
-      // WhatsApp'a geçiş görüşmenin doğal sonu — sekmeye dönünce değerlendirme sor
-      if (!sessionStorage.getItem(RATED_KEY)) setRatingView("rate");
     }
   }
 
@@ -377,24 +344,6 @@ export default function TeklifChatbot({
             </div>
           )}
         </div>
-
-        {/* WhatsApp button (feature-flagged off for now) */}
-        {WHATSAPP_ENABLED && showWhatsapp && (
-          <div className="px-4 pt-3 bg-white border-t border-gray-100 shrink-0">
-            <button
-              onClick={handleWhatsapp}
-              disabled={summaryLoading}
-              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] disabled:opacity-60 text-white font-semibold text-sm py-2.5 rounded-xl transition-colors"
-            >
-              {summaryLoading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <MessageCircle size={16} />
-              )}
-              {summaryLoading ? "Preparing..." : "Continue on WhatsApp"}
-            </button>
-          </div>
-        )}
 
         {/* Input */}
         <div className="px-4 pt-3 pb-2 bg-white shrink-0">

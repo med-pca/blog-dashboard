@@ -11,8 +11,3 @@ export class ChatBodyDto {
   @MaxLength(1000)
   message: string
 }
-
-export class SummaryBodyDto {
-  @IsUUID('4')
-  sessionId: string
-}

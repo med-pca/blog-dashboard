@@ -1,7 +1,6 @@
-import { ServiceUnavailableException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { BUDGET_EXCEEDED_MESSAGE, ChatService } from '../chat.service'
-import { JUDGE_SYSTEM_PROMPT, judgeUserMessage, RETRY_NUDGE } from '../chat-prompts'
+import { ChatService, FALLBACK_MESSAGE } from '../chat.service'
+import { JUDGE_SYSTEM_PROMPT, judgeUserMessage, RETRY_NUDGE, SYSTEM_PROMPT } from '../chat-prompts'
 import type { AiProvider, AiTextRequest } from '../../ai/ai-provider.types'
 
 interface TestService {
@@ -45,9 +44,12 @@ function makeService(...replies: string[]): TestService {
 }
 
 const MESSAGES = [{ role: 'user' as const, content: 'hello' }]
+const TURKISH_MESSAGES = [
+  { role: 'user' as const, content: 'Merhaba, akşam yemeği için hızlı bir tarif önerir misin?' },
+]
 
-describe('ChatService — non-English output guard', () => {
-  it('returns the model reply unchanged when English', async () => {
+describe('ChatService — reader-language guard', () => {
+  it('returns the model reply unchanged when it answers an English reader in English', async () => {
     const { service, call, judgeCallCount } = makeService('How many servings do you cook for?')
     await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
     // clean path: 1 generation + 1 judge
@@ -55,7 +57,7 @@ describe('ChatService — non-English output guard', () => {
     expect(judgeCallCount()).toBe(1)
   })
 
-  it('regenerates once when reply leaks foreign words, then returns the clean retry', async () => {
+  it('regenerates once when the reply to an English reader leaks foreign words', async () => {
     const { service, call, judgeCallCount } = makeService(
       'What is your aylik food budget?',
       'What is your monthly food budget?',
@@ -82,34 +84,61 @@ describe('ChatService — non-English output guard', () => {
     expect(judgeCallCount()).toBe(1)
   })
 
-  it('falls back to the fixed English message when all attempts leak', async () => {
+  it('falls back to the fixed message when every attempt misses the reader language', async () => {
     const { service, call, judgeCallCount } = makeService(
       'Tell me your budgetaylik and I will plan the week.',
       'Are you cooking for a kalabalık table this week?',
       'Kaç kişilik yemek pişiriyorsunuz?',
     )
     const reply = await service.chat(MESSAGES)
-    expect(reply).toBe('Sorry, something went wrong while composing a reply. Could you write your question again?')
+    expect(reply).toBe(FALLBACK_MESSAGE)
     // all three replies are deterministically dirty: the judge is never called
     expect(call).toHaveBeenCalledTimes(3)
     expect(judgeCallCount()).toBe(0)
   })
 
-  it('replaces a non-Latin chat reply with the fixed message after all retries', async () => {
+  it('replaces a non-Latin reply to an English reader with the fixed message', async () => {
     const { service } = makeService(
       'Солнечная энергия очень выгодна для вашего дома',
       'Солнечная энергия очень выгодна для вашего дома',
       'Солнечная энергия очень выгодна для вашего дома',
     )
-    const reply = await service.chat(MESSAGES)
-    expect(reply).toBe('Sorry, something went wrong while composing a reply. Could you write your question again?')
+    await expect(service.chat(MESSAGES)).resolves.toBe(FALLBACK_MESSAGE)
   })
 
-  it('throws 503 for non-Latin summary so frontend falls back to plain WhatsApp link', async () => {
-    const { service, judgeCallCount } = makeService('Здравствуйте, я использовал систему консультаций')
-    await expect(service.generateSummary(MESSAGES)).rejects.toThrow(ServiceUnavailableException)
-    // the script check short-circuits, the judge is never reached
-    expect(judgeCallCount()).toBe(0)
+  // The point of the migration away from "English only": the answer follows the
+  // reader instead of the site language.
+  it('keeps a Turkish reply to a Turkish reader', async () => {
+    const { service, judgeCallCount } = makeService(
+      'Tabii, 20 dakikada hazır olan bir makarna tarifi öneriyorum.',
+    )
+    await expect(service.chat(TURKISH_MESSAGES)).resolves.toBe(
+      'Tabii, 20 dakikada hazır olan bir makarna tarifi öneriyorum.',
+    )
+    // the Turkish-leak pre-filter is skipped for a Turkish reader; the judge decides
+    expect(judgeCallCount()).toBe(1)
+  })
+
+  it('rejects an English reply to a Turkish reader when the judge says so', async () => {
+    const { service, setJudgeVerdicts } = makeService(
+      'How many servings do you cook for?',
+      'Kaç kişilik yemek pişiriyorsunuz?',
+    )
+    setJudgeVerdicts('NO', 'YES')
+    await expect(service.chat(TURKISH_MESSAGES)).resolves.toBe('Kaç kişilik yemek pişiriyorsunuz?')
+  })
+
+  it('mirrors the language of the LAST user message when the reader switches', async () => {
+    const { service, call } = makeService('Tabii, hemen bir tarif önereyim.')
+    await service.chat([
+      { role: 'user', content: 'hello, any quick dinner ideas?' },
+      { role: 'assistant', content: 'Sure, here is a quick one.' },
+      ...TURKISH_MESSAGES,
+    ])
+    const judgeCall = call.mock.calls.find(
+      args => (args[0] as AiTextRequest).instructions === JUDGE_SYSTEM_PROMPT,
+    )
+    expect((judgeCall?.[0] as AiTextRequest).messages[0].content).toContain(TURKISH_MESSAGES[0].content)
   })
 })
 
@@ -128,8 +157,7 @@ describe('ChatService — LLM language judge', () => {
   it('falls back to the fixed message when the judge rejects all attempts', async () => {
     const { service, call, setJudgeVerdicts } = makeService('First reply', 'Second reply', 'Third reply')
     setJudgeVerdicts('NO', 'NO', 'NO')
-    const reply = await service.chat(MESSAGES)
-    expect(reply).toBe('Sorry, something went wrong while composing a reply. Could you write your question again?')
+    await expect(service.chat(MESSAGES)).resolves.toBe(FALLBACK_MESSAGE)
     // three generations + three judges
     expect(call).toHaveBeenCalledTimes(6)
   })
@@ -146,14 +174,14 @@ describe('ChatService — LLM language judge', () => {
     await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
 
-  it('wraps the evaluated text in the TEXT/VERDICT template for the judge', async () => {
+  it('gives the judge both the reader message and the reply', async () => {
     const { service, call } = makeService('How many servings do you cook for?')
     await service.chat(MESSAGES)
     const judgeCall = call.mock.calls.find(
       args => (args[0] as AiTextRequest).instructions === JUDGE_SYSTEM_PROMPT,
     )
     expect((judgeCall?.[0] as AiTextRequest).messages[0].content).toBe(
-      judgeUserMessage('How many servings do you cook for?'),
+      judgeUserMessage('How many servings do you cook for?', 'hello'),
     )
   })
 
@@ -173,18 +201,6 @@ describe('ChatService — LLM language judge', () => {
     const { service, setJudgeVerdicts } = makeService('How many servings do you cook for?')
     setJudgeVerdicts('Servings for')
     await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
-  })
-
-  it('rejects a summary when the judge says HAYIR', async () => {
-    const { service, setJudgeVerdicts } = makeService('Hi, I would like detailed recipe suggestions.')
-    setJudgeVerdicts('NO')
-    await expect(service.generateSummary(MESSAGES)).rejects.toThrow(ServiceUnavailableException)
-  })
-
-  it('returns the summary when the judge approves', async () => {
-    const { service, judgeCallCount } = makeService('Hi, I would like detailed recipe suggestions.')
-    await expect(service.generateSummary(MESSAGES)).resolves.toBe('Hi, I would like detailed recipe suggestions.')
-    expect(judgeCallCount()).toBe(1)
   })
 })
 
@@ -206,7 +222,7 @@ describe('ChatService — daily budget circuit breaker', () => {
     const { service, call } = makeService('unused reply')
     withRedis(service, 1001) // default limit is 1000
 
-    await expect(service.chat(MESSAGES)).resolves.toBe(BUDGET_EXCEEDED_MESSAGE)
+    await expect(service.chat(MESSAGES)).resolves.toBe(FALLBACK_MESSAGE)
     expect(call).not.toHaveBeenCalled()
   })
 
@@ -228,12 +244,75 @@ describe('ChatService — daily budget circuit breaker', () => {
 
     await expect(service.chat(MESSAGES)).resolves.toBe('How many servings do you cook for?')
   })
+})
 
-  it('throws 503 for summary when the budget is exceeded (frontend falls back to wa.me)', async () => {
-    const { service, call } = makeService('unused summary')
-    withRedis(service, 1001)
+// Regression guard for the removed WhatsApp handoff: the assistant answers on
+// the site, so nothing may point the reader at a channel or a button that does
+// not exist.
+describe('ChatService — no handoff left in the prompts or the fallback', () => {
+  const FORBIDDEN = [/whatsapp/i, /continue on/i, /kitchen team/i, /handoff/i, /hand (the reader )?over/i]
 
-    await expect(service.generateSummary(MESSAGES)).rejects.toThrow(ServiceUnavailableException)
-    expect(call).not.toHaveBeenCalled()
+  it.each(FORBIDDEN)('keeps %s out of the system prompt', pattern => {
+    expect(SYSTEM_PROMPT).not.toMatch(pattern)
+  })
+
+  it.each(FORBIDDEN)('keeps %s out of the fallback message', pattern => {
+    expect(FALLBACK_MESSAGE).not.toMatch(pattern)
+  })
+
+  it('never promises a button in the chat window', () => {
+    expect(SYSTEM_PROMPT).not.toMatch(/press the .* button/i)
+    expect(SYSTEM_PROMPT).toMatch(/no chat button/i)
+    expect(FALLBACK_MESSAGE).not.toMatch(/button/i)
+  })
+
+  it('does not blame demand or promise a human follow-up in the fallback', () => {
+    expect(FALLBACK_MESSAGE).not.toMatch(/high demand/i)
+    expect(FALLBACK_MESSAGE).toMatch(/contact page/i)
+  })
+
+  it('tells the model to answer in the chat, in the reader language, without inventing content', () => {
+    expect(SYSTEM_PROMPT).toMatch(/same language the reader used/i)
+    expect(SYSTEM_PROMPT).toMatch(/never invent recipe titles/i)
+    expect(SYSTEM_PROMPT).toMatch(/\/recipes/)
+    expect(SYSTEM_PROMPT).toMatch(/\/collections/)
+    expect(SYSTEM_PROMPT).toMatch(/\/contact/)
+  })
+
+  it('caps clarification instead of interviewing the reader', () => {
+    expect(SYSTEM_PROMPT).toMatch(/at most ONE short clarifying question/i)
+    expect(SYSTEM_PROMPT).toMatch(/at most TWO clarifying questions/i)
+  })
+
+  // The model is mocked here, so what is under test is the pipeline: an answer
+  // that follows the new prompt reaches the reader untouched instead of being
+  // swallowed by the language guard or replaced by a handoff.
+  it('passes an honest no-match answer through, section links included', async () => {
+    const honest =
+      'I do not have a published lasagna recipe yet. Browse /recipes for what is published, ' +
+      '/collections for themed sets, or use /contact to reach the site.'
+    const { service } = makeService(honest)
+    await expect(service.chat([{ role: 'user', content: 'do you have a lasagna recipe?' }])).resolves.toBe(honest)
+  })
+
+  it('delivers the answer at the end of a two-question clarification flow', async () => {
+    const answer =
+      'Then roast the chicken thighs at 220 C for 25 minutes on one sheet pan. ' +
+      'Add the potatoes at the start and the greens for the last 8 minutes.'
+    const { service } = makeService(answer)
+    await expect(
+      service.chat([
+        { role: 'user', content: 'quick dinner idea?' },
+        { role: 'assistant', content: 'How much time do you have?' },
+        { role: 'user', content: 'about 30 minutes' },
+        { role: 'assistant', content: 'Cooking for how many?' },
+        { role: 'user', content: 'four of us' },
+      ]),
+    ).resolves.toBe(answer)
+  })
+
+  it('no longer exposes a conversation summary generator', () => {
+    const { service } = makeService()
+    expect((service as unknown as Record<string, unknown>).generateSummary).toBeUndefined()
   })
 })

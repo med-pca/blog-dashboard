@@ -1,5 +1,6 @@
 import { Between, Repository } from 'typeorm'
-import { ChatLeadService } from '../chat-lead.service'
+import { ChatLeadService, isSubstantiveAnswer } from '../chat-lead.service'
+import { FALLBACK_MESSAGE } from '../chat.service'
 import { ChatLead } from '../entities/chat-lead.entity'
 
 const SESSION = '3f2b8c1a-9d4e-4f6a-8b2c-1d3e5f7a9b0c'
@@ -47,6 +48,52 @@ describe('ChatLeadService', () => {
       expect(saved.messageCount).toBe(2)
       expect(saved.conversation).toHaveLength(4)
       expect(saved.conversation[3]).toEqual({ role: 'assistant', content: 'şebeke bağlantısı?' })
+      // tek netleştirme sorusu konuşmayı tamamlamış saymaz
+      expect(saved.status).toBe('active')
+    })
+
+    it('gerçek bir cevap verildiğinde lead assisted olur', async () => {
+      const { service, repo } = makeService()
+      await service.upsertFromChat(
+        SESSION,
+        [
+          { role: 'user', content: 'quick dinner?' },
+          { role: 'assistant', content: 'How much time do you have?' },
+          { role: 'user', content: '20 minutes' },
+        ],
+        'A sheet-pan chicken works in 20 minutes. Roast everything at 220 C and rest it briefly.',
+      )
+      expect((repo.save as jest.Mock).mock.calls[0][0].status).toBe('assisted')
+    })
+
+    it('sabit hizmet-dışı mesajı konuşmayı assisted yapmaz', async () => {
+      const { service, repo } = makeService()
+      await service.upsertFromChat(
+        SESSION,
+        [
+          { role: 'user', content: 'quick dinner?' },
+          { role: 'assistant', content: 'How much time do you have?' },
+          { role: 'user', content: '20 minutes' },
+        ],
+        FALLBACK_MESSAGE,
+      )
+      expect((repo.save as jest.Mock).mock.calls[0][0].status).toBe('active')
+    })
+
+    it('bir kez assisted olan lead sonraki soruda active\'e düşmez', async () => {
+      const { service, repo } = makeService()
+      const existing = { sessionId: SESSION, conversation: [], messageCount: 2, status: 'assisted' } as unknown as ChatLead
+      ;(repo.findOne as jest.Mock).mockResolvedValue(existing)
+      await service.upsertFromChat(
+        SESSION,
+        [
+          { role: 'user', content: 'a' },
+          { role: 'assistant', content: 'b' },
+          { role: 'user', content: 'c' },
+        ],
+        'And what are you cooking tomorrow?',
+      )
+      expect(existing.status).toBe('assisted')
     })
 
     it('mevcut lead varsa yenisini açmaz, konuşmayı günceller', async () => {
@@ -76,7 +123,8 @@ describe('ChatLeadService', () => {
       ;(repo.count as jest.Mock)
         .mockResolvedValueOnce(60) // filtreli toplam (sayfa hesabı)
         .mockResolvedValueOnce(60) // stats.total
-        .mockResolvedValueOnce(25) // stats.whatsapp
+        .mockResolvedValueOnce(25) // stats.assisted
+        .mockResolvedValueOnce(0) // stats.contactRequested
       const result = await service.findAllWithStats()
       expect(repo.find).toHaveBeenCalledWith({
         where: {},
@@ -84,7 +132,7 @@ describe('ChatLeadService', () => {
         take: 50,
         skip: 0,
       })
-      expect(result.stats).toEqual({ total: 60, whatsapp: 25, active: 35 })
+      expect(result.stats).toEqual({ total: 60, assisted: 25, contactRequested: 0, active: 35 })
       expect(result.pageCount).toBe(2)
     })
 
@@ -106,24 +154,32 @@ describe('ChatLeadService', () => {
       const { service, repo } = makeService()
       const from = new Date('2026-07-01T00:00:00.000Z')
       const to = new Date('2026-07-15T23:59:59.999Z')
-      await service.findAllWithStats(1, 'whatsapp', { from, to })
+      await service.findAllWithStats(1, 'assisted', { from, to })
       expect((repo.find as jest.Mock).mock.calls[0][0].where).toEqual({
-        status: 'whatsapp',
+        status: 'assisted',
         createdAt: Between(from, to),
       })
     })
   })
 
-  describe('markWhatsapp / attachRating', () => {
-    it('sessionId ile durumu whatsapp yapar', async () => {
-      const { service, repo } = makeService()
-      await service.markWhatsapp(SESSION)
-      expect(repo.update).toHaveBeenCalledWith({ sessionId: SESSION }, { status: 'whatsapp' })
+  describe('isSubstantiveAnswer', () => {
+    it('tek netleştirme sorusunu cevap saymaz', () => {
+      expect(isSubstantiveAnswer('How many servings do you cook for?')).toBe(false)
+      expect(isSubstantiveAnswer('   ')).toBe(false)
+      expect(isSubstantiveAnswer(FALLBACK_MESSAGE)).toBe(false)
     })
 
+    it('cevap + takip sorusunu cevap sayar', () => {
+      expect(
+        isSubstantiveAnswer('Roast them at 220 C for 25 minutes. Want a vegetarian version?'),
+      ).toBe(true)
+      expect(isSubstantiveAnswer('Use 100 g of pasta per person.')).toBe(true)
+    })
+  })
+
+  describe('attachRating', () => {
     it('sessionId yoksa update çağrılmaz', async () => {
       const { service, repo } = makeService()
-      await service.markWhatsapp(undefined)
       await service.attachRating(undefined, 5)
       expect(repo.update).not.toHaveBeenCalled()
     })

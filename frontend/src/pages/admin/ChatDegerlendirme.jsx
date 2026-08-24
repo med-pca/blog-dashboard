@@ -89,10 +89,19 @@ function RatingRow({ rating, onDelete, deleting }) {
   )
 }
 
+// What actually came out of the conversation. 'contact_requested' is reserved
+// for a contact-form event the chatbot does not emit yet; it is rendered anyway
+// so a lead never shows up without a label.
+const LEAD_OUTCOMES = {
+  active: { label: 'no answer reached', icon: Clock, className: 'text-amber-600' },
+  assisted: { label: 'assisted by the chatbot', icon: Bot, className: 'text-green-600' },
+  contact_requested: { label: 'went to the contact form', icon: Send, className: 'text-blue-600' },
+}
+
 function LeadRow({ lead, onDelete, deleting }) {
   const [expanded, setExpanded] = useState(false)
   const hasConversation = lead.conversation?.length > 0
-  const isWhatsapp = lead.status === 'whatsapp'
+  const outcome = LEAD_OUTCOMES[lead.status] ?? LEAD_OUTCOMES.active
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
@@ -102,15 +111,9 @@ function LeadRow({ lead, onDelete, deleting }) {
           className={`flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pl-5 py-4 text-left ${hasConversation ? '' : 'cursor-default'}`}
         >
           <div className="flex items-center gap-4 flex-wrap">
-            {isWhatsapp ? (
-              <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium shrink-0">
-                <Send size={13} /> moved to WhatsApp
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5 text-sm text-amber-600 font-medium shrink-0">
-                <Clock size={13} /> did not move to WhatsApp
-              </span>
-            )}
+            <span className={`flex items-center gap-1.5 text-sm font-medium shrink-0 ${outcome.className}`}>
+              <outcome.icon size={13} /> {outcome.label}
+            </span>
             <span className="text-sm text-gray-500 flex items-center gap-1.5">
               <MessageCircle size={14} className="text-gray-300" />
               {lead.messageCount} mesaj
@@ -160,7 +163,7 @@ function FunnelSection() {
   const steps = [
     { label: 'Chat Opens', value: funnel?.opened ?? 0, rate: null },
     { label: 'Wrote a message', value: funnel?.messaged ?? 0, rate: percent(funnel?.messaged, funnel?.opened) },
-    { label: "Moved to WhatsApp", value: funnel?.whatsapp ?? 0, rate: percent(funnel?.whatsapp, funnel?.messaged) },
+    { label: 'Assisted conversations', value: funnel?.assisted ?? 0, rate: percent(funnel?.assisted, funnel?.messaged) },
   ]
 
   return (
@@ -197,7 +200,7 @@ function FunnelSection() {
 }
 
 function LeadsTab({ leadData, onDeleteLead, deletingId, onPageChange, status, fromDay, toDay, onStatusChange, onDatesChange }) {
-  const stats = leadData?.stats ?? { total: 0, active: 0, whatsapp: 0 }
+  const stats = leadData?.stats ?? { total: 0, active: 0, assisted: 0, contactRequested: 0 }
   const leads = leadData?.leads ?? []
 
   if (stats.total === 0) {
@@ -214,15 +217,15 @@ function LeadsTab({ leadData, onDeleteLead, deletingId, onPageChange, status, fr
     <>
       <div className="grid grid-cols-3 gap-4 mb-6">
         <AdminStatCard label="Total Requests" value={stats.total} icon={Users} />
-        <AdminStatCard label="Moved to WhatsApp" value={stats.whatsapp} icon={Send} />
-        <AdminStatCard label="Dropped off" value={stats.active} icon={Clock} />
+        <AdminStatCard label="Assisted conversations" value={stats.assisted} icon={Bot} />
+        <AdminStatCard label="No answer reached" value={stats.active} icon={Clock} />
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <AdminTabs
           items={[
             { id: 'all', label: 'All' },
-            { id: 'active', label: 'Not converted' },
-            { id: 'whatsapp', label: "Moved to WhatsApp" },
+            { id: 'active', label: 'No answer reached' },
+            { id: 'assisted', label: 'Assisted' },
           ]}
           value={status}
           onChange={onStatusChange}
@@ -306,7 +309,7 @@ export default function ChatDegerlendirme() {
   const [tab, setTab] = useState('leads') // 'leads' | 'ratings'
   const [deletingId, setDeletingId] = useState(null)
   const [leadPage, setLeadPage] = useState(1)
-  const [leadStatus, setLeadStatus] = useState('all') // 'all' | 'active' | 'whatsapp'
+  const [leadStatus, setLeadStatus] = useState('all') // 'all' | 'active' | 'assisted'
   const [leadFromDay, setLeadFromDay] = useState('') // YYYY-MM-DD, empty = no filter
   const [leadToDay, setLeadToDay] = useState('')
   const [ratingPage, setRatingPage] = useState(1)

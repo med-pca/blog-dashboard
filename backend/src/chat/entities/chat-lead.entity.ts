@@ -1,5 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
+export type ChatLeadStatus = 'active' | 'assisted' | 'contact_requested'
+
 @Entity('chat_leads')
 export class ChatLead {
   @PrimaryGeneratedColumn('uuid')
@@ -15,9 +17,15 @@ export class ChatLead {
   @Column({ default: 0 })
   messageCount: number
 
-  // 'active' = WhatsApp'a geçmedi (kaçan lead adayı), 'whatsapp' = özet üretildi
+  // 'active'            = konuşma başladı ama işe yarar bir sonuca ulaşmadı
+  // 'assisted'          = chatbot gerçek bir cevap verdi (yalnızca soru sormadı)
+  // 'contact_requested' = ziyaretçi sitenin iletişim formunu seçti
+  //
+  // 'contact_requested' şu an hiçbir yerden yazılmıyor: chatbot'ta iletişim
+  // formuna geçişi bildiren bir olay yok. Statü, o olay eklendiğinde şema
+  // değişmeden kullanılabilsin diye baştan tanımlı.
   @Column({ type: 'varchar', length: 20, default: 'active' })
-  status: 'active' | 'whatsapp'
+  status: ChatLeadStatus
 
   @Column({ type: 'smallint', nullable: true })
   rating: number | null

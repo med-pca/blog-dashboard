@@ -28,8 +28,8 @@ export const INJECTION_PATTERNS = [
   // istekleri 400'e düşürüyordu (konuşma kalıcı kilitleniyordu).
 ]
 
-// When the model breaks the "English only" rule with another script (Cyrillic,
-// CJK, Arabic, ...) the reply is withheld from the reader; measured per letter.
+// When a reply answers an English reader in another script (Cyrillic, CJK,
+// Arabic, ...) it is withheld from them; measured per letter.
 export function nonLatinLetterRatio(text: string): number {
   const letters: string[] = text.match(/\p{L}/gu) ?? []
   if (letters.length === 0) return 0
@@ -42,7 +42,7 @@ const NON_LATIN_THRESHOLD = 0.3
 // Latin-script terms that may legitimately appear in English food content and
 // must never be treated as a foreign-language leak (brands, units, loanwords).
 const ALLOWED_FOREIGN_WORDS = new Set([
-  'whatsapp', 'web', 'www', 'sous', 'vide', 'al', 'dente', 'mise', 'en', 'place',
+  'web', 'www', 'sous', 'vide', 'al', 'dente', 'mise', 'en', 'place',
   'miso', 'ramen', 'pho', 'tapas', 'mezze', 'antipasti',
 ])
 
@@ -83,15 +83,11 @@ export function hasForeignWordLeak(text: string): boolean {
   })
 }
 
-// Full contamination check for a chat reply: another script OR a Latin-script leak
+// Full contamination check: another script OR a Latin-script leak. Applied to a
+// reply only when the reader themselves wrote English (the assistant mirrors the
+// reader's language now, so a Turkish reply to a Turkish reader is correct).
 export function isContaminated(text: string): boolean {
   return nonLatinLetterRatio(text) > NON_LATIN_THRESHOLD || hasForeignWordLeak(text)
-}
-
-// Summaries are checked for script only; they deliberately skip the foreign-word
-// filter because the WhatsApp template carries brand terms.
-export function hasNonLatinLeak(text: string): boolean {
-  return nonLatinLetterRatio(text) > NON_LATIN_THRESHOLD
 }
 
 export function sanitizeContent(text: string): string {

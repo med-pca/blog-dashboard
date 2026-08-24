@@ -9,7 +9,7 @@ export interface FunnelStats {
   days: number
   opened: number
   messaged: number
-  whatsapp: number
+  assisted: number
   rated: number
 }
 
@@ -33,15 +33,15 @@ export class ChatStatsService {
 
   async funnel(days: number): Promise<FunnelStats> {
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-    const [openedRows, messaged, whatsapp, rated] = await Promise.all([
+    const [openedRows, messaged, assisted, rated] = await Promise.all([
       this.dailyRepo.query(
         `SELECT COALESCE(SUM("opened"), 0)::int AS total FROM "chat_daily_stats" WHERE "date" >= $1::date`,
         [since.toISOString().slice(0, 10)],
       ),
       this.leadRepo.count({ where: { createdAt: MoreThanOrEqual(since) } }),
-      this.leadRepo.count({ where: { createdAt: MoreThanOrEqual(since), status: 'whatsapp' } }),
+      this.leadRepo.count({ where: { createdAt: MoreThanOrEqual(since), status: 'assisted' } }),
       this.ratingRepo.count({ where: { createdAt: MoreThanOrEqual(since) } }),
     ])
-    return { days, opened: openedRows[0]?.total ?? 0, messaged, whatsapp, rated }
+    return { days, opened: openedRows[0]?.total ?? 0, messaged, assisted, rated }
   }
 }

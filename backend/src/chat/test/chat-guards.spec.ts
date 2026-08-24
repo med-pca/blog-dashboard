@@ -26,9 +26,9 @@ describe('hasForeignWordLeak', () => {
     expect(hasForeignWordLeak('Thanks, I have everything I need for your weekly menu.')).toBe(false)
   })
 
-  it('allows whitelisted brand and culinary terms', () => {
-    expect(hasForeignWordLeak('Press the Continue on WhatsApp button below.')).toBe(false)
+  it('allows whitelisted culinary terms', () => {
     expect(hasForeignWordLeak('Cook the pasta al dente, then finish it sous vide.')).toBe(false)
+    expect(hasForeignWordLeak('Stir the miso into the ramen broth off the heat.')).toBe(false)
   })
 
   it('does not flag English contractions', () => {
