@@ -14,9 +14,15 @@ export default function SEO({
   type = "website",
   noindex = false,
   jsonLd,
+  // Paginated lists pass these: `canonicalPath` keeps ?page=N in the canonical
+  // (each page is its own indexable URL, not a duplicate of page 1), while
+  // prevPath/nextPath tell crawlers the pages form one sequence.
+  canonicalPath,
+  prevPath,
+  nextPath,
 }) {
   const { pathname } = useLocation();
-  const canonical = `${SITE_URL}${pathname}`;
+  const canonical = `${SITE_URL}${canonicalPath ?? pathname}`;
   const fullTitle = title
     ? `${title} | ${SITE_NAME}`
     : `Easy Home Recipes | ${SITE_NAME}`;
@@ -26,6 +32,8 @@ export default function SEO({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonical} />
+      {prevPath && <link rel="prev" href={`${SITE_URL}${prevPath}`} />}
+      {nextPath && <link rel="next" href={`${SITE_URL}${nextPath}`} />}
       {noindex && <meta name="robots" content="noindex,nofollow" />}
 
       <meta property="og:site_name" content={SITE_NAME} />

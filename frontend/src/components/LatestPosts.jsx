@@ -13,9 +13,9 @@ export default function LatestPosts() {
 
   useEffect(() => {
     let ignore = false;
-    fetchPosts()
+    fetchPosts(1)
       .then((data) => {
-        if (!ignore) setPosts(Array.isArray(data) ? data.slice(0, 3) : []);
+        if (!ignore) setPosts((data?.posts ?? []).slice(0, 3));
       })
       .catch(() => {
         if (!ignore) setPosts([]);

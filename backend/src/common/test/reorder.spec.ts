@@ -44,6 +44,20 @@ describe('reorderByCase', () => {
     expect(query.mock.calls[0][0]).toContain('SET "sort_order_custom" =')
   })
 
+  it('offsets the written positions by the page start index', async () => {
+    // 2. sayfa 0'dan başlasaydı 1. sayfanın sortOrder'larıyla çakışırdı
+    const { repo, query } = makeRepo()
+    await reorderByCase(repo, ['a', 'b'], 20)
+
+    expect(query.mock.calls[0][0]).toContain('WHEN $2 THEN 20 WHEN $3 THEN 21')
+  })
+
+  it('starts at 0 when no offset is given', async () => {
+    const { repo, query } = makeRepo()
+    await reorderByCase(repo, ['a', 'b'])
+    expect(query.mock.calls[0][0]).toContain('WHEN $2 THEN 0 WHEN $3 THEN 1')
+  })
+
   it('is a no-op for an empty list', async () => {
     const { repo, query } = makeRepo()
     await reorderByCase(repo, [])

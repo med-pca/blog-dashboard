@@ -122,8 +122,9 @@ export abstract class BaseContentService<T extends ContentEntity> {
     this.bustCache()
   }
 
-  async reorder(orderedIds: string[]): Promise<void> {
-    await reorderByCase(this.repo, orderedIds)
+  // offset: sayfalanmış listede sürüklenen satırların global başlangıç indeksi
+  async reorder(orderedIds: string[], offset = 0): Promise<void> {
+    await reorderByCase(this.repo, orderedIds, offset)
     this.bustCache()
   }
 }

@@ -1,26 +1,44 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Calendar, ArrowRight } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 import { BlogSkeleton } from "../components/Skeletons";
 import LoadError from "../components/LoadError";
 import SEO from "../components/SEO";
 import AdSenseBlock from "../components/AdSenseBlock";
+import Pagination from "../components/Pagination";
 import { fetchPosts } from "../api/blog.js";
 import { formatDate } from "../lib/date.js";
 import { fallbackCover, resolveCoverSrc } from "../lib/postCover.js";
 import { SITE_URL } from "../lib/site";
 
+// ?page= is the single source of truth for which slice is shown, so a page is
+// linkable, shareable and survives the back button. Anything unparseable
+// (?page=abc, ?page=0) reads as page 1 — same rule the API applies.
+function pageFromParams(params) {
+  const raw = Number(params.get("page"));
+  return Number.isInteger(raw) && raw >= 1 ? raw : 1;
+}
+
+const hrefForPage = (n) => (n <= 1 ? "/recipes" : `/recipes?page=${n}`);
+
 export default function Blog() {
+  const [searchParams] = useSearchParams();
+  const page = pageFromParams(searchParams);
+
   const [posts, setPosts] = useState([]);
+  const [pageCount, setPageCount] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   function load() {
     setLoading(true);
     setError(false);
-    fetchPosts()
-      .then(setPosts)
+    fetchPosts(page)
+      .then((data) => {
+        setPosts(data.posts);
+        setPageCount(data.pageCount);
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }
@@ -28,10 +46,14 @@ export default function Blog() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-  }, []);
+    // Paging is a navigation, not a scroll: land at the top of the new page.
+    if (page > 1) window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Only page 1 carries the Blog schema; repeating it on every page would
+  // declare several competing "the blog" entities to crawlers.
   const jsonLd =
-    posts.length > 0
+    page === 1 && posts.length > 0
       ? {
           "@context": "https://schema.org",
           "@type": "Blog",
@@ -60,9 +82,12 @@ export default function Blog() {
   return (
     <>
       <SEO
-        title="Recipes"
+        title={page > 1 ? `Recipes — Page ${page}` : "Recipes"}
         description="Discover easy and delicious recipes, step-by-step cooking guides, and everyday kitchen inspiration."
         jsonLd={jsonLd}
+        canonicalPath={hrefForPage(page)}
+        prevPath={page > 1 ? hrefForPage(page - 1) : undefined}
+        nextPath={page < pageCount ? hrefForPage(page + 1) : undefined}
       />
       <PageHeader title="Recipes" />
 
@@ -99,7 +124,19 @@ export default function Blog() {
             />
           ) : posts.length === 0 ? (
             <div className="text-center py-20 text-zinc-500">
-              <p>No recipes published yet.</p>
+              {page > 1 ? (
+                <>
+                  <p>There are no recipes on this page.</p>
+                  <Link
+                    to="/recipes"
+                    className="mt-3 inline-block font-semibold text-orange-700 hover:underline"
+                  >
+                    Back to the first page
+                  </Link>
+                </>
+              ) : (
+                <p>No recipes published yet.</p>
+              )}
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -144,6 +181,15 @@ export default function Blog() {
                 </Link>
               ))}
             </div>
+          )}
+
+          {!loading && !error && (
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              hrefFor={hrefForPage}
+              label="Recipe pages"
+            />
           )}
         </div>
       </section>

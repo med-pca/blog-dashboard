@@ -1,18 +1,28 @@
-import { Body, Controller, Delete, Get, Header, HttpCode, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common'
-import { BlogService } from './blog.service'
+import { Body, Controller, Delete, Get, Header, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { ADMIN_BLOG_FILTERS, AdminBlogFilter, BlogService } from './blog.service'
 import { CreateBlogPostDto } from './dto/create-blog-post.dto'
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { ReorderDto } from '../common/dto/reorder.dto'
+import { parsePage } from '../common/pagination'
+import { BlogCommentService } from './blog-comment.service'
+import { CreateBlogCommentDto } from './dto/create-blog-comment.dto'
+import { ModerateBlogCommentDto } from './dto/moderate-blog-comment.dto'
 
 @Controller('blog')
 export class BlogController {
-  constructor(private readonly service: BlogService) {}
+  constructor(
+    private readonly service: BlogService,
+    private readonly comments: BlogCommentService,
+  ) {}
 
+  // Sayfa sayfa döner: { posts, page, pageCount, total }. Geçersiz ?page= 1'e
+  // düşer; aralık dışı sayfada boş liste + gerçek pageCount gelir, böylece
+  // /recipes?page=99 pager'ı kaybetmeden son sayfaya dönebilir.
   @Get()
   @Header('Cache-Control', 'public, max-age=60')
-  findAll() {
-    return this.service.findAllPublic()
+  findAll(@Query('page') page?: string) {
+    return this.service.findPublicPage(parsePage(page))
   }
 
   // Bu iki uç ':slug'dan ÖNCE tanımlı olmalı: aksi halde tek segmentli
@@ -29,6 +39,39 @@ export class BlogController {
     return this.service.findByCollection(collectionId)
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/comments')
+  findAllComments() {
+    return this.comments.findAllAdmin()
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('admin/comments/:id')
+  moderateComment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ModerateBlogCommentDto,
+  ) {
+    return this.comments.moderate(id, dto.status)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('admin/comments/:id')
+  @HttpCode(204)
+  removeComment(@Param('id', ParseUUIDPipe) id: string) {
+    return this.comments.remove(id)
+  }
+
+  @Get(':slug/comments')
+  @Header('Cache-Control', 'no-store')
+  findApprovedComments(@Param('slug') slug: string) {
+    return this.comments.findApproved(slug)
+  }
+
+  @Post(':slug/comments')
+  createComment(@Param('slug') slug: string, @Body() dto: CreateBlogCommentDto) {
+    return this.comments.create(slug, dto)
+  }
+
   @Get(':slug')
   @Header('Cache-Control', 'public, max-age=60')
   findOne(@Param('slug') slug: string) {
@@ -37,8 +80,18 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Get('admin/all')
-  findAllAdmin() {
-    return this.service.findAll()
+  findAllAdmin(@Query('page') page?: string, @Query('filter') filter?: string) {
+    const narrowed: AdminBlogFilter = ADMIN_BLOG_FILTERS.find(f => f === filter) ?? 'all'
+    return this.service.findAdminPage(parsePage(page), narrowed)
+  }
+
+  // Liste artık content/ingredients/method taşımadığı için düzenleme formu
+  // tek yazıyı buradan tam haliyle çeker. ':slug' tek segmentli olduğundan
+  // bu üç segmentli yol onunla çakışmaz.
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/post/:id')
+  findOneAdmin(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.findById(id)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -50,7 +103,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Patch('reorder')
   reorder(@Body() dto: ReorderDto) {
-    return this.service.reorder(dto.orderedIds)
+    return this.service.reorder(dto.orderedIds, dto.offset ?? 0)
   }
 
   @UseGuards(JwtAuthGuard)

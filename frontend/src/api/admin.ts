@@ -1,5 +1,5 @@
 import { API } from './config'
-import type { Project, ProjectMedia, BlogPost, Faq, SyncStatus, ChatRating, ChatRatingStats, ChatLead, ChatLeadStats, ChatFunnel, AppLog, LogStats, QuoteRequest, QuoteStats, QuoteStatus } from '../types'
+import type { Project, ProjectMedia, BlogPost, AdminBlogFilter, AdminPagedPosts, BlogComment, Faq, SyncStatus, ChatRating, ChatRatingStats, ChatLead, ChatLeadStats, ChatFunnel, AppLog, LogStats, QuoteRequest, QuoteStats, QuoteStatus } from '../types'
 
 function authOptions(extra: RequestInit = {}): RequestInit {
   return {
@@ -220,9 +220,21 @@ export async function reorderMedia(projectId: string, orderedIds: string[]): Pro
 }
 
 // Blog
-export async function fetchAllBlogPosts(): Promise<BlogPost[]> {
-  const res = await fetch(`${API}/api/blog/admin/all`, authOptions())
+// One page of admin rows (20 per page) plus the counts behind the filter tabs.
+// Rows carry no content/ingredients/method — the edit form loads those per post
+// via fetchBlogPost(id).
+export async function fetchAllBlogPosts(
+  { page = 1, filter = 'all' }: { page?: number; filter?: AdminBlogFilter } = {},
+): Promise<AdminPagedPosts> {
+  const params = new URLSearchParams({ page: String(page), filter })
+  const res = await fetch(`${API}/api/blog/admin/all?${params}`, authOptions())
   if (!res.ok) throw apiError(res, 'Could not load blog posts')
+  return res.json()
+}
+
+export async function fetchBlogPost(id: string): Promise<BlogPost> {
+  const res = await fetch(`${API}/api/blog/admin/post/${id}`, authOptions())
+  if (!res.ok) throw apiError(res, 'Could not load the post')
   return res.json()
 }
 
@@ -246,15 +258,41 @@ export async function updateBlogPost(id: string, data: Partial<BlogPost>): Promi
   return json
 }
 
+export async function fetchAllBlogComments(): Promise<BlogComment[]> {
+  const res = await fetch(`${API}/api/blog/admin/comments`, authOptions())
+  if (!res.ok) throw apiError(res, 'Could not load comments')
+  return res.json()
+}
+
+export async function moderateBlogComment(
+  id: string,
+  status: 'pending' | 'approved' | 'rejected',
+): Promise<BlogComment> {
+  const res = await fetch(`${API}/api/blog/admin/comments/${id}`, {
+    ...authOptions({ method: 'PATCH' }),
+    body: JSON.stringify({ status }),
+  })
+  const json = await res.json()
+  if (!res.ok) throw apiError(res, json.message || 'Could not moderate comment')
+  return json
+}
+
+export async function deleteBlogComment(id: string): Promise<void> {
+  const res = await fetch(`${API}/api/blog/admin/comments/${id}`, authOptions({ method: 'DELETE' }))
+  if (!res.ok) throw apiError(res, 'Could not delete comment')
+}
+
 export async function deleteBlogPost(id: string): Promise<void> {
   const res = await fetch(`${API}/api/blog/${id}`, authOptions({ method: 'DELETE' }))
   if (!res.ok) throw apiError(res, 'Could not delete the post')
 }
 
-export async function reorderBlogPosts(orderedIds: string[]): Promise<void> {
+// offset = index of the page's first row in the global order. Without it a
+// drag on page 2 would restamp sortOrder 0..19 and collide with page 1.
+export async function reorderBlogPosts(orderedIds: string[], offset = 0): Promise<void> {
   const res = await fetch(`${API}/api/blog/reorder`, {
     ...authOptions({ method: 'PATCH' }),
-    body: JSON.stringify({ orderedIds }),
+    body: JSON.stringify({ orderedIds, offset }),
   })
   if (!res.ok) throw apiError(res, 'Could not save the order')
 }

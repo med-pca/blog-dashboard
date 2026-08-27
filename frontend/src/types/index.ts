@@ -38,7 +38,23 @@ export interface BlogPost {
   title: string
   slug: string
   content: string
+  ingredients?: string
+  method?: string
+  authorName?: string
+  authorBio?: string
   excerpt: string
+  metaDescription?: string | null
+  editorialRating?: number | null
+  // Recipe card metadata; null everywhere means the card is not rendered.
+  // Times are whole minutes, formatted for display on the page.
+  prepMinutes?: number | null
+  cookMinutes?: number | null
+  // Explicit override; when null the page falls back to prep + cook.
+  totalMinutes?: number | null
+  servings?: string | null
+  course?: string | null
+  cuisine?: string | null
+  calories?: number | null
   coverImage: string | null
   published: boolean
   // Collection (Project) the post belongs to; null when unassigned.
@@ -48,6 +64,47 @@ export interface BlogPost {
   sortOrder: number
   createdAt: string
   updatedAt: string
+}
+
+export interface BlogComment {
+  id: string
+  postId?: string
+  authorName: string
+  authorEmail?: string
+  content: string
+  status?: 'pending' | 'approved' | 'rejected'
+  createdAt: string
+  post?: Pick<BlogPost, 'id' | 'title' | 'slug'>
+}
+
+// ── Blog pagination ─────────────────────────────────────────
+// List endpoints ship a page at a time instead of the whole table. Rows in
+// `posts` are card-shaped: the heavy HTML fields (content/ingredients/method)
+// are omitted, so treat them as Partial for list rendering.
+export interface PagedPosts {
+  posts: BlogPost[]
+  page: number
+  pageCount: number
+  total: number
+}
+
+// Admin list filters. 'duplicate' = posts sharing a normalized title with
+// at least one other post (lowercased, punctuation and spacing removed).
+export type AdminBlogFilter = 'all' | 'published' | 'draft' | 'duplicate'
+
+export interface AdminBlogStats {
+  all: number
+  published: number
+  draft: number
+  duplicate: number
+}
+
+export interface AdminPagedPosts extends PagedPosts {
+  stats: AdminBlogStats
+  filter: AdminBlogFilter
+  // Index of the page's first row in the global order; sent back with a
+  // drag-reorder so page 2 does not overwrite page 1's sortOrder values.
+  offset: number
 }
 
 // ── AI content campaigns ────────────────────────────────────

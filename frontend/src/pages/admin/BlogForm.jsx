@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Upload, X } from 'lucide-react'
 import {
-  fetchAllBlogPosts,
+  fetchBlogPost,
   fetchAllProjects,
   createBlogPost,
   updateBlogPost,
@@ -34,7 +34,19 @@ export default function BlogForm() {
     slug: '',
     excerpt: '',
     metaDescription: '',
+    editorialRating: '',
     content: '',
+    ingredients: '',
+    method: '',
+    prepMinutes: '',
+    cookMinutes: '',
+    totalMinutes: '',
+    servings: '',
+    course: '',
+    cuisine: '',
+    calories: '',
+    authorName: 'Pulse Recipe Editorial Team',
+    authorBio: '',
     collectionId: '',
     published: false,
   })
@@ -54,24 +66,37 @@ export default function BlogForm() {
       .catch(() => setCollections([]))
   }, [])
 
+  // Tek yazıyı id ile çeker. Eskiden tüm liste indirilip içinden aranıyordu;
+  // liste sayfalandığından (ve artık content/ingredients/method taşımadığından)
+  // o yol hem yanlış hem gereksiz ağırdı.
   useEffect(() => {
     if (!isEdit) return
-    fetchAllBlogPosts().then((posts) => {
-      const post = posts.find((p) => p.id === id)
-      if (!post) { navigate('/rnl-panel/blog'); return }
+    fetchBlogPost(id).then((post) => {
       setForm({
         title: post.title || '',
         slug: post.slug || '',
         excerpt: post.excerpt || '',
         metaDescription: post.metaDescription || '',
+        editorialRating: post.editorialRating ?? '',
         content: post.content || '',
+        ingredients: post.ingredients || '',
+        method: post.method || '',
+        prepMinutes: post.prepMinutes ?? '',
+        cookMinutes: post.cookMinutes ?? '',
+        totalMinutes: post.totalMinutes ?? '',
+        servings: post.servings || '',
+        course: post.course || '',
+        cuisine: post.cuisine || '',
+        calories: post.calories ?? '',
+        authorName: post.authorName || 'Pulse Recipe Editorial Team',
+        authorBio: post.authorBio || '',
         collectionId: post.collectionId || '',
         published: post.published || false,
       })
       if (post.coverImage) setCoverPreview(`${API}${post.coverImage}`)
       setSlugManual(true)
       setLoading(false)
-    })
+    }).catch(() => navigate('/rnl-panel/blog'))
   }, [id, isEdit, navigate])
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }))
@@ -198,6 +223,30 @@ export default function BlogForm() {
           <p className="text-xs text-gray-400 mt-1">{form.metaDescription.length}/160</p>
         </div>
 
+        {/* Editorial rating */}
+        <div>
+          <label htmlFor="editorialRating" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Editorial Rating <span className="text-gray-400 font-normal">(0–10)</span>
+          </label>
+          <div className="relative max-w-48">
+            <input
+              id="editorialRating"
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+              value={form.editorialRating}
+              onChange={(e) => set('editorialRating', e.target.value === '' ? '' : Number(e.target.value))}
+              placeholder="e.g. 9"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-[#448834]/30 focus:border-[#448834]"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">/10</span>
+          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            Optional. Leave empty to hide the editorial rating on the public article.
+          </p>
+        </div>
+
         {/* Collection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Collection</label>
@@ -257,6 +306,82 @@ export default function BlogForm() {
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Content *</label>
           <RichTextEditor value={form.content} onChange={(val) => set('content', val)} />
         </div>
+
+        <section className="space-y-5 rounded-2xl border border-green-100 bg-green-50/40 p-5">
+          <div>
+            <h2 className="font-bold text-gray-900">Structured recipe sections</h2>
+            <p className="mt-1 text-xs text-gray-500">These blocks appear separately on the public article page.</p>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Ingredients</label>
+            <RichTextEditor value={form.ingredients} onChange={(val) => set('ingredients', val)} />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Method</label>
+            <RichTextEditor value={form.method} onChange={(val) => set('method', val)} />
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-green-100 bg-green-50/40 p-5">
+          <div>
+            <h2 className="font-bold text-gray-900">Recipe card</h2>
+            <p className="mt-1 text-xs text-gray-500">
+              Shown as an “at a glance” box above the ingredients. Every field is optional —
+              leave one blank and it is left out of the card. If the whole card is empty it is
+              not rendered at all.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <label htmlFor="prepMinutes" className="mb-1.5 block text-sm font-medium text-gray-700">Prep time (minutes)</label>
+              <input id="prepMinutes" type="number" min={0} max={10080} placeholder="10" value={form.prepMinutes} onChange={(e) => set('prepMinutes', e.target.value === '' ? '' : Number(e.target.value))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+            </div>
+            <div>
+              <label htmlFor="cookMinutes" className="mb-1.5 block text-sm font-medium text-gray-700">Cook time (minutes)</label>
+              <input id="cookMinutes" type="number" min={0} max={10080} placeholder="30" value={form.cookMinutes} onChange={(e) => set('cookMinutes', e.target.value === '' ? '' : Number(e.target.value))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+            </div>
+            <div>
+              <label htmlFor="totalMinutes" className="mb-1.5 block text-sm font-medium text-gray-700">Total time (minutes)</label>
+              <input id="totalMinutes" type="number" min={0} max={10080} placeholder="prep + cook" value={form.totalMinutes} onChange={(e) => set('totalMinutes', e.target.value === '' ? '' : Number(e.target.value))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+              <p className="mt-1 text-xs text-gray-400">Leave empty unless there is resting or marinating time — the page adds prep + cook on its own.</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label htmlFor="servings" className="mb-1.5 block text-sm font-medium text-gray-700">Servings</label>
+              <input id="servings" type="text" maxLength={80} placeholder="8 crescents" value={form.servings} onChange={(e) => set('servings', e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+            </div>
+            <div>
+              <label htmlFor="course" className="mb-1.5 block text-sm font-medium text-gray-700">Course</label>
+              <input id="course" type="text" maxLength={80} placeholder="Dinner" value={form.course} onChange={(e) => set('course', e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+            </div>
+            <div>
+              <label htmlFor="cuisine" className="mb-1.5 block text-sm font-medium text-gray-700">Cuisine</label>
+              <input id="cuisine" type="text" maxLength={120} placeholder="American" value={form.cuisine} onChange={(e) => set('cuisine', e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+            </div>
+            <div>
+              <label htmlFor="calories" className="mb-1.5 block text-sm font-medium text-gray-700">Calories (kcal)</label>
+              <input id="calories" type="number" min={0} max={100000} placeholder="430" value={form.calories} onChange={(e) => set('calories', e.target.value === '' ? '' : Number(e.target.value))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-amber-100 bg-amber-50/40 p-5">
+          <div>
+            <h2 className="font-bold text-gray-900">Author Info</h2>
+            <p className="mt-1 text-xs text-gray-500">Author information displayed on this article.</p>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Author name</label>
+            <input type="text" maxLength={120} value={form.authorName} onChange={(e) => set('authorName', e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Author biography</label>
+            <textarea rows={4} maxLength={2000} value={form.authorBio} onChange={(e) => set('authorBio', e.target.value)} className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-[#448834] focus:outline-none focus:ring-2 focus:ring-[#448834]/30" />
+          </div>
+        </section>
 
         {/* Publish status */}
         <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3.5">
