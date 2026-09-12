@@ -55,6 +55,24 @@ services:
       OPENAI_TIMEOUT_MS: ${OPENAI_TIMEOUT_MS:-120000}
       OPENAI_MAX_RETRIES: ${OPENAI_MAX_RETRIES:-3}
       AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-}
+
+      # Alternative vendors. The active one is chosen in the admin panel and
+      # stored in app_settings; a vendor whose key is absent here simply cannot
+      # be selected (the router falls back to OpenAI and logs a warning).
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      QWEN_API_KEY: ${QWEN_API_KEY:-}
+      QWEN_BASE_URL: ${QWEN_BASE_URL:-}
+      QWEN_MODEL: ${QWEN_MODEL:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      # Alibaba publishes AAAA records that hang on connect from some networks;
+      # without this Node waits out the full timeout with no useful error, so
+      # Qwen appears to work in testing and silently freezes in production.
+      NODE_OPTIONS: --dns-result-order=ipv4first
       # LEGACY — remove with src/groq/ once OpenAI is validated in production.
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_API_KEY_2: ${GROQ_API_KEY_2:-}

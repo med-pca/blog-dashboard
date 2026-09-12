@@ -6,7 +6,7 @@ jest.mock('openai', () => ({
 }))
 
 import OpenAI from 'openai'
-import { isReasoningModel } from '../providers/openai.provider'
+import { isReasoningModel } from '../providers/article.provider'
 import { makeArticle, makeProvider } from './helpers'
 
 function respondWith(payload: unknown, extra: Record<string, unknown> = {}) {
@@ -30,7 +30,7 @@ const ARTICLE_REQUEST = {
   timeoutMs: 30_000,
 }
 
-describe('OpenAiContentProvider', () => {
+describe('ArticleContentProvider', () => {
   beforeEach(() => {
     createMock.mockReset()
     ;(OpenAI as unknown as jest.Mock).mockClear()
@@ -56,7 +56,70 @@ describe('OpenAiContentProvider', () => {
     await makeProvider().writeArticle(ARTICLE_REQUEST)
     const schema = createMock.mock.calls[0][0].text.format.schema
     expect(Object.keys(schema.properties)).not.toContain('published')
-    expect(schema.required).toEqual(['title', 'slug', 'excerpt', 'metaDescription', 'content', 'imagePrompt', 'suggestedKeywords'])
+    expect(schema.required).toEqual([
+      'title', 'slug', 'excerpt', 'metaDescription', 'content', 'imagePrompt', 'suggestedKeywords',
+      'ingredients', 'method',
+      'prepMinutes', 'cookMinutes', 'totalMinutes', 'servings', 'course', 'cuisine', 'calories',
+      'socialPost',
+    ])
+    // The two properties that make the flag unreachable rather than merely
+    // absent: nothing outside the list is accepted, and the list is exactly the
+    // declared properties.
+    expect(schema.additionalProperties).toBe(false)
+    expect([...schema.required].sort()).toEqual(Object.keys(schema.properties).sort())
+  })
+
+  it('asks for the recipe sections and card the admin form exposes', async () => {
+    respondWith(makeArticle())
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
+    const props = createMock.mock.calls[0][0].text.format.schema.properties
+    // Structured sections carry the cookable recipe, so they must be strings of
+    // HTML rather than free prose folded into `content`.
+    expect(props.ingredients.type).toBe('string')
+    expect(props.method.type).toBe('string')
+    // Card numbers are nullable: a no-cook recipe has no cook time, and an
+    // unquantifiable recipe must be able to decline a calorie estimate.
+    for (const field of ['prepMinutes', 'cookMinutes', 'totalMinutes', 'calories']) {
+      expect(props[field].type).toEqual(['integer', 'null'])
+    }
+  })
+
+  // Strict Structured Outputs applies at every nesting level: a nested object
+  // that forgets additionalProperties:false is the hole the top-level guard was
+  // written to close.
+  it('locks down the nested social-post object as tightly as the top level', async () => {
+    respondWith(makeArticle())
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
+    const social = createMock.mock.calls[0][0].text.format.schema.properties.socialPost
+
+    expect(social.additionalProperties).toBe(false)
+    expect([...social.required].sort()).toEqual(Object.keys(social.properties).sort())
+
+    const caption = social.properties.captions.items
+    expect(caption.additionalProperties).toBe(false)
+    expect([...caption.required].sort()).toEqual(Object.keys(caption.properties).sort())
+  })
+
+  it('asks for social copy that promotes the article honestly', async () => {
+    respondWith(makeArticle())
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
+    const instructions = createMock.mock.calls[0][0].instructions
+
+    // The captions are marketing copy, so the anti-fabrication rules have to
+    // reach them too — a caption is exactly where "everyone loved it" appears.
+    expect(instructions).toContain('No invented reader reactions')
+    expect(instructions).toContain('different in angle')
+  })
+
+  // Author Info is filled from a constant in AiContentService, never by the
+  // model — inventing a per-article byline is what the editorial rules forbid.
+  it('never asks the model for author identity', async () => {
+    respondWith(makeArticle())
+    await makeProvider().writeArticle(ARTICLE_REQUEST)
+    const body = createMock.mock.calls[0][0]
+    expect(Object.keys(body.text.format.schema.properties)).not.toContain('authorName')
+    expect(Object.keys(body.text.format.schema.properties)).not.toContain('authorBio')
+    expect(body.instructions).toContain('Never invent an author biography')
   })
 
   it('carries the editorial guardrails and the avoid-list into the prompt', async () => {

@@ -41,6 +41,26 @@ export interface GeneratedArticle {
   content: string
   imagePrompt: string
   suggestedKeywords: string[]
+  // Structured recipe sections: HTML fragments rendered as their own blocks on
+  // the public page, not folded into `content`.
+  ingredients: string
+  method: string
+  // Recipe card. Null means "not applicable" — the page omits that line rather
+  // than showing a blank one.
+  prepMinutes: number | null
+  cookMinutes: number | null
+  totalMinutes: number | null
+  servings: string
+  course: string
+  cuisine: string
+  calories: number | null
+  // Facebook copy generated with the article. Shape mirrors the SocialPost
+  // column on blog_posts; the service sanitises it before it is stored.
+  socialPost: {
+    captions: { angle: string; text: string }[]
+    hashtags: string[]
+    imagePrompt: string
+  }
 }
 
 export interface TopicResult {

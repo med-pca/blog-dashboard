@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { AiContentConfig } from '../ai-content.config'
-import { OpenAiClient } from '../../ai/openai.client'
+import { AI_PROVIDER, type AiProvider } from '../../ai/ai-provider.types'
 import type {
   AiContentProvider,
   ArticleRequest,
@@ -15,7 +15,12 @@ import type {
 const ARTICLE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['title', 'slug', 'excerpt', 'metaDescription', 'content', 'imagePrompt', 'suggestedKeywords'],
+  required: [
+    'title', 'slug', 'excerpt', 'metaDescription', 'content', 'imagePrompt', 'suggestedKeywords',
+    'ingredients', 'method',
+    'prepMinutes', 'cookMinutes', 'totalMinutes', 'servings', 'course', 'cuisine', 'calories',
+    'socialPost',
+  ],
   properties: {
     title: { type: 'string', description: 'Article title, at most 255 characters.' },
     slug: {
@@ -34,6 +39,76 @@ const ARTICLE_SCHEMA = {
       description: 'Concise visual description of the finished dish, using only ingredients and garnishes present in the recipe.',
     },
     suggestedKeywords: { type: 'array', items: { type: 'string' }, description: 'Three to eight keywords.' },
+
+    // ── Structured recipe sections ──
+    // Separate columns rather than part of `content`: the public page renders
+    // them as their own blocks and emits schema.org Recipe markup from them.
+    ingredients: {
+      type: 'string',
+      description:
+        'Ingredient list as a single HTML <ul> of <li> items, each one quantity + ingredient (e.g. "<li>2 tbsp olive oil</li>"). No headings, no prose, no nested lists.',
+    },
+    method: {
+      type: 'string',
+      description:
+        'Cooking steps as a single HTML <ol> of <li> items, in order, one action per step. No headings, no step numbers inside the text, no prose outside the list.',
+    },
+
+    // ── Recipe card ──
+    // Whole minutes so the page can format them and emit ISO 8601 durations;
+    // null where the value does not apply (a no-cook recipe has no cookMinutes).
+    prepMinutes: { type: ['integer', 'null'], description: 'Hands-on preparation time in whole minutes.' },
+    cookMinutes: { type: ['integer', 'null'], description: 'Active cooking time in whole minutes, or null if nothing is cooked.' },
+    totalMinutes: {
+      type: ['integer', 'null'],
+      description:
+        'Total time in whole minutes. Give a value ONLY when it exceeds prep + cook because of resting, marinating or chilling; otherwise null so the page adds the parts itself.',
+    },
+    servings: { type: 'string', description: 'Yield in natural words, e.g. "4 servings", "8 crescents", "1 loaf".' },
+    course: { type: 'string', description: 'Course, e.g. "Dinner", "Dessert", "Breakfast".' },
+    cuisine: { type: 'string', description: 'Cuisine, e.g. "American", "Italian". Use "International" when it fits no single tradition.' },
+    calories: {
+      type: ['integer', 'null'],
+      description:
+        'Approximate calories PER SERVING, derived by adding up the listed ingredient quantities and dividing by the yield. Null when the ingredients are too variable to estimate honestly.',
+    },
+
+    // ── Facebook post ──
+    // Strict mode applies at every level, so the nested objects repeat
+    // additionalProperties:false and list every property as required.
+    socialPost: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['captions', 'hashtags', 'imagePrompt'],
+      description: 'Ready-to-publish Facebook copy whose job is to send the reader to the article.',
+      properties: {
+        captions: {
+          type: 'array',
+          description:
+            'Exactly four captions for the SAME article, each taking a genuinely different angle — for example a problem the reader recognises, a curiosity hook, a practical constraint like time or budget, and a seasonal or occasion angle. Name the angle in the angle field. Plain text only: no HTML, no markdown, no "link in bio", no hashtags inside the text. 2 to 4 sentences each, ending on a reason to open the recipe.',
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['angle', 'text'],
+            properties: {
+              angle: { type: 'string', description: 'One or two words naming this variant\'s angle.' },
+              text: { type: 'string', description: 'The caption itself, plain text, at most 500 characters.' },
+            },
+          },
+        },
+        hashtags: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'Five to eight hashtags, WITHOUT the leading # and without spaces. Describe the dish, the method and the occasion. No branded or unrelated tags.',
+        },
+        imagePrompt: {
+          type: 'string',
+          description:
+            'Brief for the social image. This is NOT the article cover: it has to stop a thumb mid-scroll, so favour a tight, appetising close-up with strong texture and contrast, shot for a square or portrait crop. Describe only food actually in this recipe. No text, no logo, no watermark, no people.',
+        },
+      },
+    },
   },
 } as const
 
@@ -57,7 +132,8 @@ const EDITORIAL_RULES = [
   'Use conservative US food-safety guidance: whole beef/pork/lamb/veal cuts 145°F plus a 3-minute rest; fish 145°F; ground meat and egg dishes 160°F; poultry, casseroles and reheated leftovers 165°F. Never suggest a lower value as safe and never rely on color alone.',
   'Do not create instructions for home fermentation, canning, vacuum preservation or other pathogen-sensitive preservation processes. Choose a lower-risk topic instead.',
   'Do not recommend storing raw shell eggs mixed with other ingredients for later meal prep. Cook egg dishes fully before storage.',
-  'Do not invent exact prices, nutrition values or health benefits. Use cautious storage guidance and tell readers to refrigerate perishable food promptly.',
+  'Do not invent exact prices or health benefits. Use cautious storage guidance and tell readers to refrigerate perishable food promptly.',
+  'The calories field is the ONE permitted nutrition estimate, and only as a per-serving figure computed from the ingredient quantities you listed divided by the yield. Return null rather than guessing when quantities are open-ended ("salt to taste", "oil for frying") or the yield is vague. Never state a calorie figure anywhere in the article body, and never give any other nutrition value.',
   'Do not call a dish healthy, balanced, high-protein, protein-packed, low-carb or suitable for a medical diet unless verified nutrition data was explicitly supplied.',
   'Avoid generic SEO templates. Vary the recipe format and vocabulary only where that improves clarity.',
   'Never mention that the text was produced by an AI, a model or an assistant.',
@@ -72,6 +148,12 @@ const EDITORIAL_RULES = [
   'Use only these HTML tags: p, h2, h3, ul, ol, li, strong, em, blockquote.',
   'Do not emit script, style, iframe, img, form or any on* attribute.',
   'Only add a link when it is genuinely necessary, and only to a well-known https site.',
+  'The ingredients and method fields must describe exactly the same recipe as the article body: same quantities, same steps, same yield, same cookware. They are the version readers actually cook from, so they must be complete on their own — never "see above" and never a subset.',
+  'Do not repeat the full ingredient list or the numbered steps inside content. The body explains and contextualises; ingredients and method carry the recipe itself.',
+  'prepMinutes, cookMinutes, servings, course and cuisine must match what the method actually describes. Set totalMinutes only when resting, marinating or chilling makes the real total exceed prep + cook.',
+  'The socialPost captions promote THIS article and must stay inside what it actually delivers: every time, yield or claim in a caption has to appear in the recipe. No invented reader reactions, no "everyone loved it", no ratings, no scarcity or urgency invented for effect, no health claims, no emoji spam, and never a hint that the text was produced by an AI.',
+  'Make the four captions genuinely different in angle and in opening sentence. Four rewordings of the same hook are a failure, not four variants.',
+  'The socialPost imagePrompt describes a different shot from the article cover — closer, more tactile, framed for a feed — but of the same finished dish, with no ingredient or garnish the recipe does not contain.',
 ].join('\n- ')
 
 // The model does this review inside the same call and returns only the corrected
@@ -86,13 +168,18 @@ const SILENT_REVIEW_CHECKLIST = [
   'Language quality: remove awkward phrases, mistranslations, contradictions, repeated conclusions and robotic transitions.',
   'Trust: remove personal anecdotes, testing claims, ratings, prices, nutrition figures, credentials or reader feedback that were not supplied as verified facts.',
   'Clean output: ensure content contains no image prompt, keywords list, collection alignment, campaign instruction, internal note, duplicated title, repeated variations section or editorial checklist.',
+  'Structured fields: confirm ingredients is a plain <ul> and method a plain <ol>, that every ingredient listed is used by a step, that every step\'s ingredients appear in the list, and that the card timings, yield and calories follow from them.',
+  'Social copy: confirm each caption stands on a different angle, states nothing the recipe does not support, carries no hashtags inside its text, and would make a scrolling reader want to open the article.',
 ].join('\n- ')
 
+// Owns the editorial contract — prompts, schemas, review checklist — and nothing
+// about any particular vendor. It asks the shared AI_PROVIDER seam for
+// structured generation, so whichever vendor the admin selected serves the call.
 @Injectable()
-export class OpenAiContentProvider implements AiContentProvider {
+export class ArticleContentProvider implements AiContentProvider {
   constructor(
     private readonly config: AiContentConfig,
-    private readonly client: OpenAiClient,
+    @Inject(AI_PROVIDER) private readonly ai: AiProvider,
   ) {}
 
   async suggestTopics(request: TopicRequest): Promise<TopicResult> {
@@ -153,7 +240,9 @@ export class OpenAiContentProvider implements AiContentProvider {
         `Write the full article for this exact topic: ${request.topic}\n` +
         `Target length: about ${request.targetWords} words.${keywords}\n` +
         'Choose only sections that genuinely help this specific recipe. Use h2 and, where useful, h3 and lists; vary the structure naturally between articles.\n' +
-        'Keep the title concise and specific, preferably 50–70 characters. Put imagePrompt and suggestedKeywords only in their dedicated JSON fields, never in content.\n\n' +
+        'Keep the title concise and specific, preferably 50–70 characters. Put imagePrompt and suggestedKeywords only in their dedicated JSON fields, never in content.\n' +
+        'Fill ingredients and method as the cookable recipe itself, and the card fields (times, servings, course, cuisine, calories) so they agree with it.\n' +
+        'Then write socialPost: four differently-angled Facebook captions for this article, hashtags, and a brief for a scroll-stopping image.\n\n' +
         'Before returning the JSON, silently act as a senior human editor and correct the draft using this checklist. ' +
         'Return only the final corrected article; do not output the checklist or review notes.\n- ' +
         SILENT_REVIEW_CHECKLIST +
@@ -163,8 +252,8 @@ export class OpenAiContentProvider implements AiContentProvider {
     return { article: parsed.value, usage: parsed.usage }
   }
 
-  // Vendor access goes through the shared OpenAI client, which owns timeouts,
-  // error classification and log redaction for every AI feature in the app.
+  // Vendor access goes through the shared provider seam, which owns routing,
+  // timeouts, error classification and log redaction for every AI feature.
   private async respond<T>(options: {
     model: string
     timeoutMs: number
@@ -174,7 +263,7 @@ export class OpenAiContentProvider implements AiContentProvider {
     instructions: string
     input: string
   }): Promise<{ value: T; usage: { inputTokens: number; outputTokens: number } }> {
-    return this.client.respondJson<T>({
+    return this.ai.generateJson<T>({
       operation: `ai-content:${options.schemaName}`,
       model: options.model,
       timeoutMs: options.timeoutMs,
@@ -189,6 +278,6 @@ export class OpenAiContentProvider implements AiContentProvider {
   }
 }
 
-// Moved next to the SDK call site; re-exported so existing importers of this
-// module keep resolving it.
+// Lives next to the OpenAI SDK call site; re-exported so existing importers of
+// this module keep resolving it.
 export { isReasoningModel } from '../../ai/openai.client'

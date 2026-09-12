@@ -7,6 +7,8 @@ import { sanitizeAiHtml, stripHtml } from '../common/html-sanitize'
 import { isUniqueViolation } from '../common/errors'
 import { RESERVED_SLUGS } from '../common/reserved-slugs'
 import { AiContentConfig } from './ai-content.config'
+import { AiSettingsService } from '../ai/ai-settings.service'
+import type { SocialPost } from '../blog/social-post.types'
 import { AiContentCampaign } from './entities/ai-content-campaign.entity'
 import { AiGenerationJob } from './entities/ai-generation-job.entity'
 import { AiTopicService } from './ai-topic.service'
@@ -25,6 +27,116 @@ const META_MAX = 160
 const CONTENT_MAX = 100_000
 // Below this the "article" is a stub, not something worth reviewing.
 const MIN_WORDS = 150
+// Recipe-section columns are `text`, but a runaway list still has no business
+// reaching the database; these are generous ceilings, not editorial targets.
+const SECTION_MAX = 20_000
+// varchar lengths on blog_posts — re-applied here because this path bypasses
+// the blog DTO that would normally enforce them.
+const SERVINGS_MAX = 80
+const COURSE_MAX = 80
+const CUISINE_MAX = 120
+// A day of prep, and a calorie ceiling that still catches a misplaced decimal.
+const MINUTES_MAX = 1440
+const CALORIES_MAX = 5000
+// Social copy ceilings. Facebook truncates long captions in the feed anyway,
+// and a runaway list has no business reaching the database.
+const CAPTIONS_MAX = 6
+const CAPTION_MAX = 800
+const ANGLE_MAX = 40
+const HASHTAGS_MAX = 12
+const HASHTAG_MAX = 40
+const SOCIAL_IMAGE_PROMPT_MAX = 1200
+
+// Author Info is deliberately NOT generated. The editorial rules forbid
+// inventing an author biography, and a site whose byline changes per article is
+// exactly what E-E-A-T review penalises. Every AI draft is attributed to the
+// standing editorial team instead, with a bio that claims nothing beyond the
+// review this pipeline actually performs.
+const AUTHOR_NAME = 'Pulse Recipe Editorial Team'
+// What createDraft persists, after every model-supplied value has been
+// sanitised and clamped. Mirrors the blog_posts columns this path writes.
+interface ValidatedDraft {
+  title: string
+  slug: string
+  excerpt: string
+  metaDescription: string
+  content: string
+  imagePrompt: string
+  ingredients: string
+  method: string
+  prepMinutes: number | null
+  cookMinutes: number | null
+  totalMinutes: number | null
+  servings: string | null
+  course: string | null
+  cuisine: string | null
+  calories: number | null
+  socialPost: SocialPost
+}
+
+// Captions are plain text destined for a social network that renders no HTML,
+// so anything tag-shaped is stripped rather than escaped. An empty result is
+// fine: the article is still publishable, it just has no ready-made post.
+function toSocialPost(raw: unknown): SocialPost {
+  const source = (raw ?? {}) as Partial<{ captions: unknown; hashtags: unknown; imagePrompt: unknown }>
+
+  const captions = (Array.isArray(source.captions) ? source.captions : [])
+    .slice(0, CAPTIONS_MAX)
+    .map(entry => {
+      const item = (entry ?? {}) as Partial<{ angle: unknown; text: unknown }>
+      return {
+        angle: stripHtml(String(item.angle ?? '')).trim().slice(0, ANGLE_MAX),
+        text: stripHtml(String(item.text ?? '')).trim().slice(0, CAPTION_MAX),
+      }
+    })
+    // A caption with no text is noise in the admin panel; the angle alone is useless.
+    .filter(caption => caption.text !== '')
+
+  const hashtags = (Array.isArray(source.hashtags) ? source.hashtags : [])
+    .map(tag =>
+      stripHtml(String(tag ?? ''))
+        .trim()
+        // Stored bare so a caller can format them; whitespace and punctuation
+        // would make the tag invalid on every network.
+        .replace(/^#+/, '')
+        .replace(/[^\p{L}\p{N}_]/gu, '')
+        .slice(0, HASHTAG_MAX),
+    )
+    .filter(tag => tag !== '')
+    .slice(0, HASHTAGS_MAX)
+
+  return {
+    captions,
+    // Duplicates are common when the model varies casing; keep first occurrence.
+    hashtags: [...new Set(hashtags)],
+    imagePrompt: stripHtml(String(source.imagePrompt ?? '')).trim().slice(0, SOCIAL_IMAGE_PROMPT_MAX),
+  }
+}
+
+// A model may return a float, a numeric string, a negative or an absurd value
+// for any of these. Anything that is not a sane whole number becomes null, so
+// the card simply omits the line instead of showing nonsense.
+function boundedInt(value: unknown, max: number): number | null {
+  const n = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(n)) return null
+  const rounded = Math.round(n)
+  return rounded > 0 && rounded <= max ? rounded : null
+}
+
+function wholeMinutes(value: unknown): number | null {
+  return boundedInt(value, MINUTES_MAX)
+}
+
+// varchar columns: strip any markup, trim, and return null when nothing is left
+// so an empty string never reaches a nullable column as ''.
+function shortText(value: unknown, max: number): string | null {
+  const text = stripHtml(String(value ?? '')).trim().slice(0, max)
+  return text || null
+}
+
+const AUTHOR_BIO =
+  'Recipes on Pulse Recipe are written and edited by our editorial team. ' +
+  'Every draft is checked for consistent quantities, a workable order of steps and conservative US food-safety guidance before it is published.'
 const SLUG_ATTEMPTS = 25
 
 // Models occasionally repeat structured-output fields inside the reader-facing
@@ -64,6 +176,7 @@ export class AiContentService {
     private readonly topics: AiTopicService,
     private readonly blog: BlogService,
     private readonly config: AiContentConfig,
+    private readonly aiSettings: AiSettingsService,
   ) {}
 
   // Entry point of the BullMQ worker. Never throws for "already handled"
@@ -97,7 +210,7 @@ export class AiContentService {
       }
       this.logger.log(`Campaign ${campaign.name}: draft "${post.title}" created (job ${job.id})`)
     } catch (err) {
-      const failure = classifyFailure(err, [this.config.apiKey])
+      const failure = classifyFailure(err, this.config.secrets)
       const retriable = failure.kind === 'transient' && !isFinalAttempt
 
       if (retriable) {
@@ -160,7 +273,11 @@ export class AiContentService {
   // Topic -> article -> validation -> sanitising -> draft. Any failure before
   // the final create() leaves no blog_post behind.
   private async generateDraft(campaign: AiContentCampaign, job: AiGenerationJob): Promise<BlogPost> {
-    const model = this.config.model
+    // Resolved once per job and then pinned on both calls, so the topic and the
+    // article come from the same model and the cost line recorded below names
+    // what actually ran — even if the operator switches vendor mid-generation.
+    const route = await this.aiSettings.resolve()
+    const model = route.model
     const timeoutMs = this.config.requestTimeoutMs
 
     const collection = campaign.collection ?? (campaign.collectionId
@@ -215,14 +332,7 @@ export class AiContentService {
 
   // Everything the model may get wrong is corrected or rejected here — the
   // blog DTO is bypassed on this path, so the limits are re-applied by hand.
-  private validateArticle(article: GeneratedArticle, topic: string): {
-    title: string
-    slug: string
-    excerpt: string
-    metaDescription: string
-    content: string
-    imagePrompt: string
-  } {
+  private validateArticle(article: GeneratedArticle, topic: string): ValidatedDraft {
     if (!article || typeof article !== 'object') {
       throw new AiPermanentError('INVALID_SHAPE', 'Model returned no article object')
     }
@@ -257,19 +367,36 @@ export class AiContentService {
     const imagePrompt = stripHtml(String(article.imagePrompt ?? '')).trim().slice(0, 1200)
     if (!imagePrompt) throw new AiPermanentError('EMPTY_IMAGE_PROMPT', 'Model returned no dish description for the cover image')
 
-    return { title, slug, excerpt, metaDescription, content, imagePrompt }
+    // Structured sections go through the same sanitiser as the body, so a model
+    // that ignores the "only <ul>/<ol>" instruction cannot inject markup the
+    // public page would render. Missing sections degrade to empty rather than
+    // failing the run: the draft is still reviewable, just less complete.
+    const ingredients = sanitizeAiHtml(String(article.ingredients ?? '')).trim().slice(0, SECTION_MAX)
+    const method = sanitizeAiHtml(String(article.method ?? '')).trim().slice(0, SECTION_MAX)
+
+    return {
+      title,
+      slug,
+      excerpt,
+      metaDescription,
+      content,
+      imagePrompt,
+      ingredients,
+      method,
+      prepMinutes: wholeMinutes(article.prepMinutes),
+      cookMinutes: wholeMinutes(article.cookMinutes),
+      totalMinutes: wholeMinutes(article.totalMinutes),
+      servings: shortText(article.servings, SERVINGS_MAX),
+      course: shortText(article.course, COURSE_MAX),
+      cuisine: shortText(article.cuisine, CUISINE_MAX),
+      calories: boundedInt(article.calories, CALORIES_MAX),
+      socialPost: toSocialPost(article.socialPost),
+    }
   }
 
   // Publication stays a human decision: published/publishedAt/coverImage are
   // forced here and are not part of the model's schema at all.
-  private async createDraft(draft: {
-    title: string
-    slug: string
-    excerpt: string
-    metaDescription: string
-    content: string
-    imagePrompt: string
-  }, collectionId: string): Promise<BlogPost> {
+  private async createDraft(draft: ValidatedDraft, collectionId: string): Promise<BlogPost> {
     const base = draft.slug
     for (let attempt = 1; attempt <= SLUG_ATTEMPTS; attempt++) {
       const candidate = attempt === 1 ? base : `${base.slice(0, SLUG_MAX - 4)}-${attempt}`
@@ -285,6 +412,25 @@ export class AiContentService {
           metaDescription: draft.metaDescription,
           content: draft.content,
           slug: candidate,
+          // Structured recipe sections and card, rendered as their own blocks
+          // on the public page.
+          ingredients: draft.ingredients,
+          method: draft.method,
+          prepMinutes: draft.prepMinutes,
+          cookMinutes: draft.cookMinutes,
+          totalMinutes: draft.totalMinutes,
+          servings: draft.servings,
+          course: draft.course,
+          cuisine: draft.cuisine,
+          calories: draft.calories,
+          // Stored even when empty, so the /post endpoint can answer "generated,
+          // nothing usable" rather than looking like it was never attempted.
+          socialPost: draft.socialPost,
+          // Standing byline, never model-generated. See AUTHOR_BIO above.
+          authorName: AUTHOR_NAME,
+          authorBio: AUTHOR_BIO,
+          // Every AI draft lands unpublished, whatever the model returned; the
+          // schema cannot even express a publication flag.
           published: false,
           publishedAt: null,
           coverImage: null,
@@ -315,7 +461,7 @@ export class AiContentService {
     await this.jobs.update(job.id, {
       status: 'cancelled',
       errorCode: code,
-      errorMessage: redactSecrets(message, [this.config.apiKey]),
+      errorMessage: redactSecrets(message, this.config.secrets),
       completedAt: new Date(),
     })
     this.logger.log(`Job ${job.id} cancelled: ${code}`)

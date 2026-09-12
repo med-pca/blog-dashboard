@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { parsePage } from '../common/pagination'
 import { parseDateRange } from '../common/date-range'
 import { AiContentConfig } from './ai-content.config'
+import { AiSettingsService } from '../ai/ai-settings.service'
 import { AiCampaignService } from './ai-campaign.service'
 import { AiContentService } from './ai-content.service'
 import { AiJobsService } from './ai-jobs.service'
@@ -41,14 +42,22 @@ export class AiContentController {
     private readonly jobs: AiJobsService,
     private readonly scheduler: AiSchedulerService,
     private readonly config: AiContentConfig,
+    private readonly aiSettings: AiSettingsService,
   ) {}
 
   // Lets the panel explain *why* generation is off without ever exposing the key.
   @Get('status')
-  status() {
+  async status() {
+    // The model shown here must be the one a generation would actually use —
+    // i.e. the vendor selected in the AI provider panel, not the boot default.
+    // Reporting AiContentConfig.model here made the screen claim gpt-5-nano
+    // while Qwen was serving every job.
+    const route = await this.aiSettings.resolve()
     return {
       enabled: this.config.enabled,
-      model: this.config.model,
+      provider: route.provider,
+      model: route.model,
+      fallbackReason: route.fallbackReason,
       dailyMaxPerCampaign: this.config.dailyMaxPerCampaign,
       defaultIntervalMinutes: this.config.defaultIntervalMinutes,
       workerConcurrency: this.config.workerConcurrency,

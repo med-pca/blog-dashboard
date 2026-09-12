@@ -2,8 +2,10 @@ import { ConfigService } from '@nestjs/config'
 import { ObjectLiteral, Repository } from 'typeorm'
 import { AiContentConfig } from '../ai-content.config'
 import { AiConfig } from '../../ai/ai.config'
+import { AiSettingsService } from '../../ai/ai-settings.service'
 import { OpenAiClient } from '../../ai/openai.client'
-import { OpenAiContentProvider } from '../providers/openai.provider'
+import { OpenAiProvider } from '../../ai/providers/openai.provider'
+import { ArticleContentProvider } from '../providers/article.provider'
 import { AiContentCampaign } from '../entities/ai-content-campaign.entity'
 import { AiGenerationJob } from '../entities/ai-generation-job.entity'
 import { Project } from '../../projects/entities/project.entity'
@@ -20,12 +22,14 @@ export function makeConfig(env: Record<string, string> = {}): AiContentConfig {
   }
   const config = new ConfigService()
   jest.spyOn(config, 'get').mockImplementation(((key: string) => values[key]) as never)
-  return new AiContentConfig(config)
+  return new AiContentConfig(config, new AiConfig(config))
 }
 
-// The provider now reaches OpenAI through the shared client, so a spec builds
-// both halves from the same fake environment.
-export function makeProvider(env: Record<string, string> = {}): OpenAiContentProvider {
+// The provider now reaches its vendor through the shared AI_PROVIDER seam. A
+// spec pins that seam to the OpenAI adapter on purpose: these tests assert the
+// exact Responses body we send, which is an OpenAI-specific contract. Routing
+// between vendors is covered by the router's own spec.
+export function makeProvider(env: Record<string, string> = {}): ArticleContentProvider {
   const values: Record<string, string> = {
     OPENAI_API_KEY: 'sk-proj-TESTKEY000011112222333344445555',
     OPENAI_MODEL: 'gpt-5-nano',
@@ -33,7 +37,17 @@ export function makeProvider(env: Record<string, string> = {}): OpenAiContentPro
   }
   const config = new ConfigService()
   jest.spyOn(config, 'get').mockImplementation(((key: string) => values[key]) as never)
-  return new OpenAiContentProvider(makeConfig(env), new OpenAiClient(new AiConfig(config)))
+  const aiConfig = new AiConfig(config)
+  return new ArticleContentProvider(makeConfig(env), new OpenAiProvider(new OpenAiClient(aiConfig), aiConfig))
+}
+
+// Stand-in for the vendor routing lookup. A generation spec cares that the
+// resolved model is pinned on both calls and recorded on the job, not how the
+// vendor was chosen — that belongs to the router's own spec.
+export function makeAiSettings(model: string): AiSettingsService {
+  return {
+    resolve: jest.fn(async () => ({ provider: 'openai' as const, model, fallbackReason: null })),
+  } as unknown as AiSettingsService
 }
 
 export function makeCampaign(overrides: Partial<AiContentCampaign> = {}): AiContentCampaign {
@@ -154,6 +168,23 @@ export function makeArticle(overrides: Record<string, unknown> = {}) {
     content: `<h2>Why this works</h2><p>${'Sheet pan dinners keep the cleanup small and the flavour big. '.repeat(30)}</p>`,
     imagePrompt: 'Honey garlic chicken pieces with roasted potatoes on a cream ceramic platter.',
     suggestedKeywords: ['sheet pan', 'chicken'],
+    ingredients: '<ul><li>4 chicken thighs</li><li>2 tbsp honey</li><li>3 garlic cloves, minced</li></ul>',
+    method: '<ol><li>Heat the oven to 425°F.</li><li>Toss everything on a sheet pan.</li><li>Roast 25 minutes to 165°F.</li></ol>',
+    prepMinutes: 15,
+    cookMinutes: 25,
+    totalMinutes: null,
+    servings: '4 servings',
+    course: 'Dinner',
+    cuisine: 'American',
+    calories: 520,
+    socialPost: {
+      captions: [
+        { angle: 'problem', text: 'Weeknights are short. This one pan does the work.' },
+        { angle: 'curiosity', text: 'The honey goes on last. Here is why that matters.' },
+      ],
+      hashtags: ['sheetpandinner', 'weeknightmeals'],
+      imagePrompt: 'Tight overhead close-up of glazed chicken thighs, glossy honey garlic sauce pooling around roasted potatoes.',
+    },
     ...overrides,
   }
 }

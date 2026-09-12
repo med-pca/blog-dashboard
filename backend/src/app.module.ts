@@ -61,8 +61,10 @@ import { HealthController } from './health.controller'
         UMAMI_USER: Joi.string().empty('').default('admin'),
         INSTAGRAM_HASHTAG: Joi.string().empty('').default('#proje'),
         // ── Paylaşılan AI sağlayıcı katmanı ──
-        // 'groq' yalnızca geçici geri dönüş yolu; varsayılan openai.
-        AI_PROVIDER: Joi.string().valid('openai', 'groq').empty('').default('openai'),
+        // Aktif sağlayıcı artık admin panelinden (app_settings) seçilir.
+        // AI_PROVIDER yalnızca henüz hiçbir seçim yapılmamışken kullanılan
+        // başlangıç değeridir. 'groq' geçici geri dönüş yolu olarak kalır.
+        AI_PROVIDER: Joi.string().valid('openai', 'gemini', 'qwen', 'deepseek', 'groq').empty('').default('openai'),
         OPENAI_TIMEOUT_MS: Joi.number().integer().min(1000).empty('').default(120000),
         OPENAI_MAX_RETRIES: Joi.number().integer().min(0).max(10).empty('').default(3),
         // Chatbot'un günlük istek üst sınırı. GROQ_DAILY_LIMIT eski adı, hâlâ okunur.
@@ -102,6 +104,19 @@ import { HealthController } from './health.controller'
         GROQ_API_KEY_3: Joi.string().allow('').optional(),
         GROQ_CHAT_KEYS: Joi.string().allow('').optional(),
         GROQ_PARSE_KEYS: Joi.string().allow('').optional(),
+        // ── Alternatif sağlayıcılar: anahtarı olan panelde seçilebilir hale
+        //    gelir. BASE_URL / MODEL yalnızca registry.ts varsayılanını ezmek
+        //    içindir; normalde boş bırakılır.
+        GEMINI_API_KEY: Joi.string().allow('').optional(),
+        GEMINI_BASE_URL: Joi.string().uri().allow('').optional(),
+        GEMINI_MODEL: Joi.string().allow('').optional(),
+        QWEN_API_KEY: Joi.string().allow('').optional(),
+        QWEN_BASE_URL: Joi.string().uri().allow('').optional(),
+        QWEN_MODEL: Joi.string().allow('').optional(),
+        DEEPSEEK_API_KEY: Joi.string().allow('').optional(),
+        DEEPSEEK_BASE_URL: Joi.string().uri().allow('').optional(),
+        DEEPSEEK_MODEL: Joi.string().allow('').optional(),
+        OPENAI_BASE_URL: Joi.string().uri().allow('').optional(),
         SENTRY_DSN: Joi.string().allow('').optional(),
         // Yalnızca AI_CONTENT_ENABLED=true iken zorunlu (aşağıdaki custom kural)
         OPENAI_API_KEY: Joi.string().allow('').optional(),
@@ -109,9 +124,17 @@ import { HealthController } from './health.controller'
         AI_COST_OUTPUT_PER_MTOK: Joi.number().min(0).allow('').optional(),
       }).custom((env: Record<string, string | undefined>, helpers) => {
         const has = (v?: string) => typeof v === 'string' && v.trim() !== ''
-        // Chatbot ve proje auto-fill canlı sitenin parçası: seçili sağlayıcının
-        // anahtarı boot anında mevcut olmalı. GROQ_* yalnızca AI_PROVIDER=groq
-        // iken aranır — OpenAI'ye geçen bir kurulum Groq anahtarı olmadan açılır.
+        // Aktif sağlayıcı veritabanından okunduğu için boot anında hangisinin
+        // seçili olduğu bilinemez; bu yüzden "şu anahtar zorunlu" denemez.
+        // Kontrol edilen tek şey EN AZ BİR sağlayıcının kullanılabilir olması.
+        // Seçili sağlayıcının anahtarı yoksa AiSettingsService çalışma anında
+        // OpenAI'ye düşer ve uyarı loglar (bkz. routing.provider.ts).
+        const anyAiKey =
+          has(env.OPENAI_API_KEY) ||
+          has(env.GEMINI_API_KEY) ||
+          has(env.QWEN_API_KEY) ||
+          has(env.DEEPSEEK_API_KEY)
+
         if ((env.AI_PROVIDER ?? 'openai') === 'groq') {
           if (!has(env.GROQ_CHAT_KEYS) && !has(env.GROQ_API_KEY_3) && !has(env.GROQ_API_KEY)) {
             return helpers.message({ custom: 'AI_PROVIDER=groq iken GROQ_CHAT_KEYS veya GROQ_API_KEY(_3) tanımlı olmalı' })
@@ -119,12 +142,16 @@ import { HealthController } from './health.controller'
           if (!has(env.GROQ_PARSE_KEYS) && !has(env.GROQ_API_KEY)) {
             return helpers.message({ custom: 'AI_PROVIDER=groq iken GROQ_PARSE_KEYS veya GROQ_API_KEY tanımlı olmalı' })
           }
-        } else if (!has(env.OPENAI_API_KEY)) {
-          return helpers.message({ custom: 'AI_PROVIDER=openai iken OPENAI_API_KEY zorunlu' })
+        } else if (!anyAiKey) {
+          return helpers.message({
+            custom: 'En az bir AI sağlayıcı anahtarı tanımlı olmalı (OPENAI_API_KEY, GEMINI_API_KEY, QWEN_API_KEY veya DEEPSEEK_API_KEY)',
+          })
         }
         // AI blog üretimi kapalıyken ek anahtar aranmaz.
-        if (env.AI_CONTENT_ENABLED === 'true' && !has(env.OPENAI_API_KEY)) {
-          return helpers.message({ custom: 'AI_CONTENT_ENABLED=true iken OPENAI_API_KEY zorunlu' })
+        if (env.AI_CONTENT_ENABLED === 'true' && !anyAiKey) {
+          return helpers.message({
+            custom: 'AI_CONTENT_ENABLED=true iken en az bir AI sağlayıcı anahtarı zorunlu',
+          })
         }
         return env
       }),

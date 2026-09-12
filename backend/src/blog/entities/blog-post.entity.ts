@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import type { SocialPost } from '../social-post.types'
 import { Project } from '../../projects/entities/project.entity'
 
 @Entity('blog_posts')
@@ -77,6 +78,12 @@ export class BlogPost {
 
   @Column({ type: 'int', nullable: true })
   calories: number | null
+
+  // Facebook-ready copy generated with the article: several caption variants,
+  // hashtags and a brief for a scroll-stopping image. Null on posts written
+  // before this existed and on hand-written ones.
+  @Column({ type: 'jsonb', nullable: true })
+  socialPost: SocialPost | null
 
   @Column({ nullable: true })
   coverImage: string

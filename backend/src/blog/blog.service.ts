@@ -6,6 +6,7 @@ import { BaseContentService } from '../common/base-content.service'
 import { PublicCacheService } from '../common/public-cache.service'
 import { sanitizeRichHtml, stripHtml } from '../common/html-sanitize'
 import { AiCoverImageService } from '../ai/ai-cover-image.service'
+import { EMPTY_SOCIAL_POST } from './social-post.types'
 
 // Liste uçları içerik/HTML taşımaz: kart için gereken alanlar yeter
 const PUBLIC_LIST_FIELDS: (keyof BlogPost)[] = [
@@ -233,6 +234,39 @@ export class BlogService extends BaseContentService<BlogPost> {
         .getRawMany<{ collectionId: string; count: string }>()
       return Object.fromEntries(rows.map(r => [r.collectionId, Number(r.count)]))
     })
+  }
+
+  // Everything needed to publish this article on a social network, in one call.
+  // Published articles only — it goes through findBySlug, which already refuses
+  // drafts, so unreleased copy can never be fetched by guessing a slug.
+  //
+  // `articleUrl` is absolute because that is the whole point of the payload;
+  // `coverImage` stays the stored relative path, like every other blog endpoint,
+  // since uploads are served from the API origin rather than the site origin.
+  async findSocialPost(slug: string) {
+    const post = await this.findBySlug(slug)
+    const site = (process.env.FRONTEND_URL ?? '').replace(/\/+$/, '')
+
+    return {
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      metaDescription: post.metaDescription,
+      articleUrl: `${site}/recipes/${post.slug}`,
+      coverImage: post.coverImage ?? null,
+      course: post.course,
+      cuisine: post.cuisine,
+      servings: post.servings,
+      prepMinutes: post.prepMinutes,
+      cookMinutes: post.cookMinutes,
+      totalMinutes: post.totalMinutes,
+      calories: post.calories,
+      publishedAt: post.publishedAt,
+      // Older articles and hand-written ones have no generated copy; an empty
+      // shape keeps the response the same for every caller.
+      socialPost: post.socialPost ?? EMPTY_SOCIAL_POST,
+    }
   }
 
   findBySlug(slug: string) {

@@ -52,3 +52,18 @@ describe('AiContentConfig', () => {
     expect(makeConfig({ AI_COST_INPUT_PER_MTOK: '0.1' }).priceOverride).toBeNull()
   })
 })
+
+// Regression: docker-compose passes unset optional vars through as empty
+// strings, and Number('') is 0 — which is finite. The override was therefore
+// accepted as "charge nothing" and every estimated cost came out at $0.00.
+describe('AiContentConfig.priceOverride with blank env values', () => {
+  it('treats an empty string as unset rather than as a zero price', () => {
+    expect(makeConfig({ AI_COST_INPUT_PER_MTOK: '', AI_COST_OUTPUT_PER_MTOK: '' }).priceOverride).toBeNull()
+    expect(makeConfig({ AI_COST_INPUT_PER_MTOK: '  ', AI_COST_OUTPUT_PER_MTOK: '  ' }).priceOverride).toBeNull()
+  })
+
+  it('still honours a real override, including a deliberate zero', () => {
+    expect(makeConfig({ AI_COST_INPUT_PER_MTOK: '0', AI_COST_OUTPUT_PER_MTOK: '0' }).priceOverride).toEqual({ input: 0, output: 0 })
+    expect(makeConfig({ AI_COST_INPUT_PER_MTOK: '1.5', AI_COST_OUTPUT_PER_MTOK: '6' }).priceOverride).toEqual({ input: 1.5, output: 6 })
+  })
+})

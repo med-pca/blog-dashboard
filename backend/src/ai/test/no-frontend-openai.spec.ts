@@ -42,15 +42,22 @@ describe('frontend never talks to OpenAI', () => {
     expect(Object.keys(deps)).not.toContain('groq-sdk')
   })
 
-  it('never calls the OpenAI API from frontend source', () => {
+  it('never calls a model vendor directly from frontend source', () => {
+    // Every vendor in src/ai/providers/registry.ts belongs behind our backend.
     expect(tracked('api\\.openai\\.com', 'frontend/src')).toEqual([])
     expect(tracked('api\\.groq\\.com', 'frontend/src')).toEqual([])
+    expect(tracked('api\\.deepseek\\.com', 'frontend/src')).toEqual([])
+    expect(tracked('dashscope', 'frontend/src')).toEqual([])
+    expect(tracked('generativelanguage\\.googleapis\\.com', 'frontend/src')).toEqual([])
   })
 
   it('never exposes an API key through a VITE_ variable', () => {
     // VITE_ variables are inlined into the bundle and are therefore public.
     expect(tracked('VITE_OPENAI', '.')).toEqual([])
     expect(tracked('VITE_GROQ', '.')).toEqual([])
+    expect(tracked('VITE_GEMINI', '.')).toEqual([])
+    expect(tracked('VITE_QWEN', '.')).toEqual([])
+    expect(tracked('VITE_DEEPSEEK', '.')).toEqual([])
     expect(tracked('VITE_.*API_KEY', '.')).toEqual([])
   })
 

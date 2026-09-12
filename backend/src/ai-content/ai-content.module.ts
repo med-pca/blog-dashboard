@@ -11,7 +11,7 @@ import { AiQueueService } from './ai-queue.service'
 import { AiSchedulerService } from './ai-scheduler.service'
 import { AiTopicService } from './ai-topic.service'
 import { AiGenerationProcessor } from './ai-generation.processor'
-import { OpenAiContentProvider } from './providers/openai.provider'
+import { ArticleContentProvider } from './providers/article.provider'
 import { AiContentCampaign } from './entities/ai-content-campaign.entity'
 import { AiGenerationJob } from './entities/ai-generation-job.entity'
 import { AI_CONTENT_PROVIDER } from './types/ai-content.types'
@@ -36,7 +36,7 @@ import { Project } from '../projects/entities/project.entity'
     AiGenerationProcessor,
     // Single seam for the model vendor: swapping providers means providing a
     // different class under this token.
-    { provide: AI_CONTENT_PROVIDER, useClass: OpenAiContentProvider },
+    { provide: AI_CONTENT_PROVIDER, useClass: ArticleContentProvider },
   ],
   exports: [AiCampaignService, AiContentService],
 })

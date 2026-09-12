@@ -6,7 +6,7 @@ import { BlogPost } from '../../blog/entities/blog-post.entity'
 import { AiContentCampaign } from '../entities/ai-content-campaign.entity'
 import { AiGenerationJob } from '../entities/ai-generation-job.entity'
 import { AiPermanentError, AiTransientError } from '../lib/errors'
-import { makeArticle, makeCampaign, makeConfig, makeJob, makeQueryBuilder, makeRepo } from './helpers'
+import { makeAiSettings, makeArticle, makeCampaign, makeConfig, makeJob, makeQueryBuilder, makeRepo } from './helpers'
 import type { AiContentProvider } from '../types/ai-content.types'
 import { Project } from '../../projects/entities/project.entity'
 
@@ -79,6 +79,7 @@ function makeService(options: {
     topics,
     blog,
     makeConfig({ OPENAI_API_KEY: API_KEY, ...options.env }),
+    makeAiSettings(options.env?.OPENAI_MODEL ?? 'gpt-5-nano'),
   )
   return { service, campaigns, jobs, posts, projects, provider, topics, blog, created, campaign, job }
 }
@@ -387,5 +388,202 @@ describe('AiContentService — guards', () => {
     })
     await service.runJob(RUN)
     expect(created).toHaveLength(1)
+  })
+})
+
+// The four blocks the admin form exposes (Structured recipe sections, Method,
+// Recipe card, Author Info) are now filled by the pipeline. This path bypasses
+// the blog DTO, so every limit and coercion is re-applied by hand and has to be
+// pinned here.
+describe('AiContentService — structured recipe blocks', () => {
+  it('stores the recipe sections and card alongside the article body', async () => {
+    const { service, created } = makeService()
+    await service.runJob(RUN)
+
+    expect(created[0]).toMatchObject({
+      ingredients: expect.stringContaining('<li>4 chicken thighs</li>'),
+      method: expect.stringContaining('<li>Heat the oven to 425°F.</li>'),
+      prepMinutes: 15,
+      cookMinutes: 25,
+      totalMinutes: null,
+      servings: '4 servings',
+      course: 'Dinner',
+      cuisine: 'American',
+      calories: 520,
+    })
+  })
+
+  // Author Info never comes from the model: a byline that changes per article
+  // is exactly what the editorial rules and E-E-A-T review forbid.
+  it('attributes every draft to the standing editorial team', async () => {
+    const { service, created } = makeService({
+      article: { authorName: 'Chef Marie Dubois', authorBio: '20 years in Michelin kitchens.' },
+    })
+    await service.runJob(RUN)
+
+    expect(created[0].authorName).toBe('Pulse Recipe Editorial Team')
+    expect(created[0].authorBio).not.toContain('Michelin')
+    expect(created[0].authorBio).toContain('editorial team')
+  })
+
+  it('drops card numbers that are not sane whole values', async () => {
+    const { service, created } = makeService({
+      article: { prepMinutes: -5, cookMinutes: 0, totalMinutes: 99_999, calories: 'lots' },
+    })
+    await service.runJob(RUN)
+
+    // Each one becomes null so the card omits the line rather than printing
+    // "-5 min" or a calorie count with a misplaced decimal.
+    expect(created[0]).toMatchObject({
+      prepMinutes: null,
+      cookMinutes: null,
+      totalMinutes: null,
+      calories: null,
+    })
+  })
+
+  it('rounds a fractional minute count instead of discarding it', async () => {
+    const { service, created } = makeService({ article: { prepMinutes: 12.4, cookMinutes: 30.6 } })
+    await service.runJob(RUN)
+    expect(created[0]).toMatchObject({ prepMinutes: 12, cookMinutes: 31 })
+  })
+
+  it('sanitises the recipe sections like the article body', async () => {
+    const { service, created } = makeService({
+      article: {
+        ingredients: '<ul><li>2 eggs</li></ul><script>alert(1)</script>',
+        method: '<ol><li onclick="steal()">Whisk</li></ol>',
+      },
+    })
+    await service.runJob(RUN)
+
+    expect(created[0].ingredients).not.toContain('script')
+    expect(created[0].method).not.toContain('onclick')
+    expect(created[0].method).toContain('Whisk')
+  })
+
+  it('truncates over-long varchar fields to their column width', async () => {
+    const { service, created } = makeService({
+      article: { servings: 'x'.repeat(200), course: 'y'.repeat(200), cuisine: 'z'.repeat(300) },
+    })
+    await service.runJob(RUN)
+
+    expect((created[0].servings as string).length).toBe(80)
+    expect((created[0].course as string).length).toBe(80)
+    expect((created[0].cuisine as string).length).toBe(120)
+  })
+
+  it('leaves a blank card field null rather than storing an empty string', async () => {
+    const { service, created } = makeService({ article: { servings: '   ', course: '', cuisine: '<b></b>' } })
+    await service.runJob(RUN)
+    expect(created[0]).toMatchObject({ servings: null, course: null, cuisine: null })
+  })
+
+  it('still produces a reviewable draft when the model omits the sections', async () => {
+    const { service, created } = makeService({ article: { ingredients: '', method: '' } })
+    await service.runJob(RUN)
+
+    // Degrades rather than failing the run: the article is still worth
+    // reviewing, the editor just fills the blocks in.
+    expect(created).toHaveLength(1)
+    expect(created[0]).toMatchObject({ ingredients: '', method: '', published: false })
+  })
+})
+
+// Facebook copy generated with the article and served by GET /api/blog/:slug/post.
+// It is plain text on a network that renders no HTML, so it is sanitised on the
+// way in rather than trusted at render time.
+describe('AiContentService — social post', () => {
+  it('stores the captions, hashtags and image brief with the draft', async () => {
+    const { service, created } = makeService()
+    await service.runJob(RUN)
+
+    expect(created[0].socialPost).toMatchObject({
+      captions: [
+        { angle: 'problem', text: 'Weeknights are short. This one pan does the work.' },
+        { angle: 'curiosity', text: 'The honey goes on last. Here is why that matters.' },
+      ],
+      hashtags: ['sheetpandinner', 'weeknightmeals'],
+      imagePrompt: expect.stringContaining('close-up'),
+    })
+  })
+
+  it('strips markup from captions instead of escaping it', async () => {
+    const { service, created } = makeService({
+      article: {
+        socialPost: {
+          captions: [{ angle: 'hook', text: '<b>Crispy</b> fish tacos<script>alert(1)</script>' }],
+          hashtags: ['tacos'],
+          imagePrompt: '<i>Close-up</i> of the tacos',
+        },
+      },
+    })
+    await service.runJob(RUN)
+
+    const social = created[0].socialPost as { captions: { text: string }[]; imagePrompt: string }
+    expect(social.captions[0].text).not.toContain('<')
+    expect(social.captions[0].text).toContain('Crispy')
+    expect(social.imagePrompt).not.toContain('<i>')
+  })
+
+  it('normalises hashtags to bare, valid tags without duplicates', async () => {
+    const { service, created } = makeService({
+      article: {
+        socialPost: {
+          captions: [{ angle: 'a', text: 'Tacos tonight.' }],
+          // Leading hashes, spaces, punctuation and a casing duplicate.
+          hashtags: ['#FishTacos', 'sheet pan', 'weeknight-dinner!', 'fishtacos', ''],
+          imagePrompt: 'Close-up.',
+        },
+      },
+    })
+    await service.runJob(RUN)
+
+    const { hashtags } = created[0].socialPost as { hashtags: string[] }
+    expect(hashtags).toEqual(['FishTacos', 'sheetpan', 'weeknightdinner', 'fishtacos'])
+  })
+
+  it('drops a caption that carries no text', async () => {
+    const { service, created } = makeService({
+      article: {
+        socialPost: {
+          captions: [{ angle: 'good', text: 'Real caption.' }, { angle: 'empty', text: '   ' }],
+          hashtags: [],
+          imagePrompt: '',
+        },
+      },
+    })
+    await service.runJob(RUN)
+    expect((created[0].socialPost as { captions: unknown[] }).captions).toHaveLength(1)
+  })
+
+  it('still creates the draft when the model returns no social copy at all', async () => {
+    const { service, created } = makeService({ article: { socialPost: null } })
+    await service.runJob(RUN)
+
+    // The article is the deliverable; missing promo copy is not worth failing a
+    // generation over, and the endpoint answers with an empty shape.
+    expect(created).toHaveLength(1)
+    expect(created[0].socialPost).toEqual({ captions: [], hashtags: [], imagePrompt: '' })
+  })
+
+  it('caps a runaway caption list and over-long text', async () => {
+    const { service, created } = makeService({
+      article: {
+        socialPost: {
+          captions: Array.from({ length: 20 }, (_, i) => ({ angle: 'a'.repeat(80), text: `caption ${i} ${'x'.repeat(2000)}` })),
+          hashtags: Array.from({ length: 40 }, (_, i) => `tag${i}`),
+          imagePrompt: 'y'.repeat(3000),
+        },
+      },
+    })
+    await service.runJob(RUN)
+
+    const social = created[0].socialPost as { captions: { angle: string; text: string }[]; hashtags: string[]; imagePrompt: string }
+    expect(social.captions).toHaveLength(6)
+    expect(social.captions[0].text.length).toBe(800)
+    expect(social.captions[0].angle.length).toBe(40)
+    expect(social.hashtags).toHaveLength(12)
+    expect(social.imagePrompt.length).toBe(1200)
   })
 })

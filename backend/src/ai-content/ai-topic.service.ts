@@ -6,6 +6,7 @@ import { AiContentCampaign } from './entities/ai-content-campaign.entity'
 import { AiGenerationJob } from './entities/ai-generation-job.entity'
 import { AiPermanentError } from './lib/errors'
 import { findDuplicate, normalizeTopic, slugToWords } from './lib/text'
+import { stripHtml } from '../common/html-sanitize'
 import { AI_CONTENT_PROVIDER, type AiContentProvider, type AiUsage } from './types/ai-content.types'
 
 // How many titles are sent to the model as an explicit avoid-list. The full
@@ -107,7 +108,12 @@ export class AiTopicService {
       usage.outputTokens += result.usage.outputTokens
 
       for (const candidate of result.topics) {
-        const trimmed = candidate.trim().slice(0, 280)
+        // A topic is a plain title, but a JSON schema saying `type: string`
+        // does not stop a model putting markup inside it — qwen3.8-flash was
+        // observed returning a whole <a href> around the title, which then
+        // travelled into the article prompt and the job record. Strip first,
+        // so every downstream use sees text.
+        const trimmed = stripHtml(candidate).trim().slice(0, 280)
         const key = normalizeTopic(trimmed)
         if (!key) continue
         const verdict = findDuplicate(trimmed, normalized)

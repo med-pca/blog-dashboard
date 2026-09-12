@@ -72,6 +72,15 @@ export class BlogController {
     return this.comments.create(slug, dto)
   }
 
+  // Social copy for one published article, ready to paste into a scheduler.
+  // Declared before ':slug' for readability; the two cannot collide anyway
+  // since this pattern has a second segment.
+  @Get(':slug/post')
+  @Header('Cache-Control', 'public, max-age=60')
+  findSocialPost(@Param('slug') slug: string) {
+    return this.service.findSocialPost(slug)
+  }
+
   @Get(':slug')
   @Header('Cache-Control', 'public, max-age=60')
   findOne(@Param('slug') slug: string) {

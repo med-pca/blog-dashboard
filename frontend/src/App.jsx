@@ -49,6 +49,7 @@ const Loglar = lazy(() => import("./pages/admin/Loglar"));
 const Analitik = lazy(() => import("./pages/admin/Analitik"));
 const Guvenlik = lazy(() => import("./pages/admin/Guvenlik"));
 const AdsAdmin = lazy(() => import("./pages/admin/AdsAdmin"));
+const AiSettingsAdmin = lazy(() => import("./pages/admin/AiSettingsAdmin"));
 const AiCampaignsAdmin = lazy(() => import("./pages/admin/AiCampaignsAdmin"));
 const AiCampaignForm = lazy(() => import("./pages/admin/AiCampaignForm"));
 const AiCampaignDetail = lazy(() => import("./pages/admin/AiCampaignDetail"));
@@ -237,6 +238,7 @@ function AdminRoutes() {
               element={<AiCampaignForm />}
             />
             <Route path="ai-loglar" element={<AiLoglar />} />
+            <Route path="ai-ayarlar" element={<AiSettingsAdmin />} />
             <Route path="sss" element={<SSSAdmin />} />
             <Route path="degerlendirmeler" element={<ChatDegerlendirme />} />
             <Route path="teklif-talepleri" element={<TeklifTalepleri />} />

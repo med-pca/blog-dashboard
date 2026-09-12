@@ -10,7 +10,7 @@ import { AiJobsService } from '../ai-jobs.service'
 import { AiSchedulerService } from '../ai-scheduler.service'
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard'
 import { CreateAiCampaignDto } from '../dto/create-ai-campaign.dto'
-import { makeCampaign, makeConfig, makeJob } from './helpers'
+import { makeAiSettings, makeCampaign, makeConfig, makeJob } from './helpers'
 
 function makeController(env: Record<string, string> = {}) {
   const campaigns = {
@@ -30,7 +30,7 @@ function makeController(env: Record<string, string> = {}) {
     enqueueJob: jest.fn(() => Promise.resolve(makeJob({ id: 'job-new' }))),
   } as unknown as AiSchedulerService
 
-  const controller = new AiContentController(campaigns, content, jobs, scheduler, makeConfig(env))
+  const controller = new AiContentController(campaigns, content, jobs, scheduler, makeConfig(env), makeAiSettings('gpt-5-nano'))
   return { controller, campaigns, content, jobs, scheduler }
 }
 
@@ -51,10 +51,17 @@ describe('AiContentController — authorisation', () => {
 })
 
 describe('AiContentController — feature flag', () => {
-  it('reports the flag state without ever exposing the key', () => {
+  // status() now resolves the active vendor, so the model it reports is the one
+  // a generation would really run on rather than the boot default.
+  it('reports the flag state and the active model without ever exposing the key', async () => {
     const { controller } = makeController()
-    const status = controller.status()
-    expect(status).toMatchObject({ enabled: true, model: 'gpt-5-nano', unavailableReason: null })
+    const status = await controller.status()
+    expect(status).toMatchObject({
+      enabled: true,
+      provider: 'openai',
+      model: 'gpt-5-nano',
+      unavailableReason: null,
+    })
     expect(JSON.stringify(status)).not.toContain('sk-')
   })
 

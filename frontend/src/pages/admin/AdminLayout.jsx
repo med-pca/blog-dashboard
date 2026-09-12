@@ -15,6 +15,7 @@ import {
   HelpCircle,
   Inbox,
   Megaphone,
+  Cpu,
   Menu,
   X,
 } from 'lucide-react'
@@ -35,6 +36,7 @@ const NAV = [
   { to: '/rnl-panel/loglar', label: 'Logs', icon: ScrollText, match: (p) => p.startsWith('/rnl-panel/loglar') },
   { to: '/rnl-panel/guvenlik', label: 'Security', icon: Shield, match: (p) => p.startsWith('/rnl-panel/guvenlik') },
   { to: '/rnl-panel/ads', label: 'Ads', icon: Megaphone, match: (p) => p.startsWith('/rnl-panel/ads') },
+  { to: '/rnl-panel/ai-ayarlar', label: 'AI Provider', icon: Cpu, match: (p) => p.startsWith('/rnl-panel/ai-ayarlar') },
 ]
 
 export default function AdminLayout() {
